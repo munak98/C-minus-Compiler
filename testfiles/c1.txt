@@ -1,0 +1,6 @@
+int intersect(set a, set b) {
+    forall(x in a){
+      if (x in b) return 1;
+    }
+    return 0;
+}

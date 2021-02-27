@@ -1,0 +1,10 @@
+int main() {
+    set s;
+    s = EMPTY;
+    %
+    add(3 in s);
+    add(4 in s);
+    remove(1 in s);
+
+    writeln('T');
+}
