@@ -1,0 +1,6 @@
+%type <tnode> program declaration varDecl varList funcDecl
+%type <tnode> arguments argsList funcBody stmt iterStmt body condStmt
+%type <tnode> returnStmt exprStmt expression
+%type <tnode> assign inExpr outExpr output simpleExpr
+%type <tnode> disjExpr negExpr relExpr artExpr1 artop1 artExpr2 artop2
+%type <tnode> factor constant call params paramList setExpr setOp elem set

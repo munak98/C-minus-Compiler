@@ -1,6 +1,6 @@
 int addWithClosure(elem x, set s) {
     @add(x in s);
-    add(1/x in s);
+    add((1/x) in s);
     add((0-x) in s);
-    return 0
+    return 0;
 }

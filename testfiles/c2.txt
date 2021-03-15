@@ -1,6 +1,6 @@
 set union(set a, set b) {
     set result;
-    set = EMPTY;
+    result = EMPTY;
     forall(x in a) add(x in result);
     forall(x in b) add(x in result);
     return result;

@@ -1,16 +1,20 @@
 /* Definition Section */
 %{
 #include "../include/symbtable.h"
+#include "../include/tree_new.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/tree.h"
 
-void yyerror(char *s);
+
+
+void yyerror(const char *s);
 extern int yylex();
 extern int yylex_destroy();
 extern int yyparse();
 extern FILE *yyin;
+extern node *root;
 %}
+
 
 %union {
   sym *yyref;
@@ -18,199 +22,205 @@ extern FILE *yyin;
   float fval;
   char cval;
   char* sval;
-  node *tval;
+  struct NODE *tnode;
 }
 
-%start program
-%token <ival> TYPE
+%start begin
+%token <ival> TYPE RELOP SETOP ARTOP1 ARTOP2
 %token <yyref> ID
-%token <ival> RELOP
 %token IF ELSE FOR RETURN
-%token FORALL IN IS_SET ADD REMOVE EXISTS
+%token FORALL IN IS_SET EXISTS DISJ CONJ NEG
 %token READ WRITE WRITELN
 %token <ival> INTEGER
 %token <fval> FLOAT
 %token <cval> CHAR
 %token <sval> STRING
-%token EMPTY DISJ CONJ
-%type <tval> program declaration varDecl funcDecl
+%token EMPTY
+
+%type <tnode> program declaration varDecl varList funcDecl
+%type <tnode> arguments argsList funcBody stmt iterStmt body condStmt
+%type <tnode> returnStmt exprStmt expression
+%type <tnode> assign inExpr outExpr output simpleExpr
+%type <tnode> disjExpr negExpr relExpr artExpr1 artExpr2 var
+%type <tnode> factor constant call params paramList setExpr pertExpr elem set arg
+
 %right THEN ELSE
 
+%define parse.error verbose
+%define lr.type canonical-lr
 
 %%
 /* Grammar Definition */
 
-program       : program  declaration
-              {
-                $$ = createNode(0, 0, $1, $2, NULL, NULL);
-              }
-              | declaration
-              {
-                node *root;
-                root = createNode(0, 0, $1, NULL, NULL, NULL);
-                printTree(root);
-              }
+begin         : program                                         {root = $1; int max = bindLevel(root, 0, 0); printTree3(root, max);}
               ;
 
-declaration   : varDecl
-              | funcDecl
+program       : program  declaration                            {$$ = BinaryNode(SEQ, $1, $2);}
+              | %empty                                          {$$ = nullLeaf();}
               ;
 
-varDecl       : TYPE varList ';'
+declaration   : varDecl                                         {$$ = $1;}
+              | funcDecl                                        {$$ = $1;}
               ;
 
-varList       : varList ',' ID
-              | ID
+varDecl       : TYPE varList ';'                                {$$ = UnaryNode(VARDECL, $2); $$->internal->type_info = $1;}
+              | TYPE error ';'                                  {$$ = nullLeaf(); yyerrok;}
+              ;
+
+varList       : varList ',' var                                 {$$ = BinaryNode(SEQ, $1, $3);}
+              | var                                             {$$ = $1;}
+              ;
+
+var           : ID                                              {$$ = idLeaf($1);}
+              ;
+
+funcDecl      : TYPE ID '(' arguments ')' '{' funcBody '}'      {$$ = BinaryNode(FUNCDECL, $4, $7); $$->internal->type_info = $1;}
+              | TYPE ID '(' error ')' '{'                       {$$ = nullLeaf(); yyerrok;}
+              ;
+
+arguments     : %empty                                          {$$ = nullLeaf();}
+              | argsList                                        {$$ = $1;}
+              ;
+
+argsList      : argsList ',' arg                                {$$ = BinaryNode(SEQ, $1, $3);}
+              | arg                                             {$$ = $1;}
+              ;
+
+arg           : TYPE ID                                         {$$ = idLeaf($2);}
+              ;
+
+funcBody      : %empty                                          {$$ = nullLeaf();}
+              | funcBody varDecl                                {$$ = BinaryNode(SEQ, $1, $2);}
+              | funcBody funcDecl                               {$$ = BinaryNode(SEQ, $1, $2);}
+              | funcBody stmt                                   {$$ = BinaryNode(SEQ, $1, $2);}
+              ;
+
+stmt          : exprStmt                                        {$$ = $1;}
+              | returnStmt                                      {$$ = $1;}
+              | iterStmt                                        {$$ = $1;}
+              | condStmt                                        {$$ = $1;}
+              ;
+
+iterStmt      : FOR '(' exprStmt exprStmt ')' body              {$$ = TernaryNode(FOR1, $3, $4, $6);}
+              | FOR '(' exprStmt exprStmt expression ')' body   {$$ = QuaternaryNode(FOR2, $3, $4, $5, $7);}
+              | FORALL '(' pertExpr ')' body                    {$$ = BinaryNode(FORALL, $3, $5);}
+              | FORALL '(' error ')'                            {$$ = nullLeaf(); yyerrok;}
+              | FOR '(' error ')'                               {$$ = nullLeaf(); yyerrok;}
+              ;
+
+body          : '{' funcBody '}'                                {$$ = $2;}
+              | stmt                                            {$$ = $1;}
+              | varDecl                                         {$$ = $1;}
+              | funcDecl                                        {$$ = $1;}
               ;
 
 
-funcDecl      : TYPE ID '(' arguments ')' '{' funcBody '}'
+condStmt      : IF '(' expression ')' body   %prec THEN         {$$ = BinaryNode(IF, $3, $5);}
+              | IF '(' expression ')' body ELSE body            {$$ = TernaryNode(IF_ELSE, $3, $5, $7);}
+              | IF '(' error ')'                                {$$ = nullLeaf(); yyerrok;}
               ;
 
-arguments     :
-              | argsList
+returnStmt    : RETURN exprStmt                                 {$$ = UnaryNode(RETURN, $2);}
+
+exprStmt      : expression ';'                                  {$$ = $1;}
+              | ';'                                             {$$ = nullLeaf();}
+              | error ';'                                       {$$ = nullLeaf(); yyerrok;}
               ;
 
-argsList      : argsList ',' TYPE ID
-              | TYPE ID
+expression    : assign                                          {$$ = $1;}
+              | inExpr                                          {$$ = $1;}
+              | outExpr                                         {$$ = $1;}
+              | simpleExpr                                      {$$ = $1;}
+              | setExpr                                         {$$ = $1;}
               ;
 
-funcBody      :
-              | funcBody varDecl
-              | funcBody funcDecl
-              | funcBody stmt
+assign        : var '=' simpleExpr                              {$$ = BinaryNode(ASSIGN, $1, $3);}
               ;
 
-stmt          : exprStmt
-              | returnStmt
-              | iterStmt
-              | condStmt
+inExpr        : READ '(' var ')'                                {$$ = UnaryNode(READ, $3);}
               ;
 
-iterStmt      : FOR '(' exprStmt exprStmt ')' body
-              | FOR '(' exprStmt exprStmt expression ')' body
-              | FORALL '(' elem IN set ')' body
+outExpr       : WRITE '(' output ')'                            {$$ = UnaryNode(WRITE, $3);}
+              | WRITELN '(' output ')'                          {$$ = UnaryNode(WRITELN, $3);}
               ;
 
-body          : '{' funcBody '}'
-              | stmt
-              | varDecl
-              | funcDecl
+output        : ID                                              {$$ = idLeaf($1);}
+              | CHAR                                            {$$ = charLeaf($1);}
+              | STRING                                          {$$ = stringLeaf($1);}
+              ;
+
+simpleExpr    : simpleExpr DISJ disjExpr                        {$$ = BinaryNode(DISJ, $1, $3);}
+              | disjExpr                                        {$$ = $1;}
+              ;
+
+disjExpr      : disjExpr CONJ negExpr                           {$$ = BinaryNode(CONJ, $1, $3);}
+              | negExpr                                         {$$ = $1;}
+              ;
+
+negExpr       : NEG negExpr                                     {$$ = UnaryNode(NEG, $2);}
+              | relExpr                                         {$$ = $1;}
+              ;
+
+relExpr       : relExpr RELOP artExpr1                          {$$ = BinaryNode(RELOP, $1, $3); $$->internal->type_info = $2;}
+              | artExpr1                                        {$$ = $1;}
+              ;
+
+artExpr1      : artExpr1 ARTOP1 artExpr2                        {$$ = BinaryNode(ARTOP1, $1, $3); $$->internal->type_info = $2;}
+              | artExpr2                                        {$$ = $1;}
+              ;
+
+artExpr2      : artExpr2 ARTOP2 factor                          {$$ = BinaryNode(ARTOP2, $1, $3); $$->internal->type_info = $2;}
+              | factor                                          {$$ = $1;}
+              ;
+
+factor        : ID                                              {$$ = idLeaf($1);}
+              | '(' simpleExpr ')'                              {$$ = $2;}
+              | constant                                        {$$ = $1;}
+              | call                                            {$$ = $1;}
+              | IS_SET '(' var ')'                              {$$ = UnaryNode(IS_SET, $3);}
+              | pertExpr                                        {$$ = $1;}
+              ;
+
+constant      : INTEGER                                         {$$ = intLeaf($1);}
+              | FLOAT                                           {$$ = floatLeaf($1);}
+              | EMPTY                                           {$$ = setLeaf();}
+              ;
+
+call          : var '(' params ')'                              {$$ = BinaryNode(CALL, $1, $3);}
+              ;
+
+params        : %empty                                          {$$ = nullLeaf();}
+              | paramList                                       {$$ = $1;}
+              ;
+
+paramList     : paramList ',' simpleExpr                        {$$ = BinaryNode(SEQ, $1, $3);}
+              | simpleExpr                                      {$$ = $1;}
+              ;
+
+pertExpr      : elem IN set                                     {$$ = BinaryNode(IN, $1, $3);}
+              ;
+
+setExpr       : SETOP '(' pertExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->type_info = $1;}
+              | EXISTS '(' pertExpr ')'                         {$$ = UnaryNode(EXISTS, $3);}
               ;
 
 
-condStmt      : IF '(' expression ')' body            %prec THEN
-              | IF '(' expression ')' body ELSE body
+elem          : ID                                              {$$ = idLeaf($1);}
+              | '(' setExpr ')'                                 {$$ = $2;}
+              | call                                            {$$ = $1;}
+              | '(' simpleExpr ')'                              {$$ = $2;}
+              | constant                                        {$$ = $1;}
               ;
 
-returnStmt    : RETURN exprStmt
 
-exprStmt      : expression ';'
-              | ';'
-              | error ';'         {printf("Expression statment error\n"); yyerrok;}
-              ;
-
-expression    : assign
-              | inExpr
-              | outExpr
-              | simpleExpr
-              | setExpr
-              ;
-
-assign        : ID '=' simpleExpr
-              ;
-
-inExpr        : READ '(' ID ')'
-              ;
-
-outExpr       : WRITE '(' output ')'
-              | WRITELN '(' output ')'
-              ;
-
-output        : ID
-              | CHAR
-              | STRING
-              ;
-
-simpleExpr    : simpleExpr DISJ disjExpr
-              | disjExpr
-              ;
-
-disjExpr      : disjExpr CONJ negExpr
-              | negExpr
-              ;
-
-negExpr       : '!' negExpr
-              | relExpr
-              ;
-
-relExpr       : relExpr RELOP artExpr1
-              | artExpr1
-              ;
-
-artExpr1      : artExpr1 artop1 artExpr2
-              | artExpr2
-              ;
-
-artop1        : '+'
-              | '-'
-              ;
-
-artExpr2      : artExpr2 artop2 factor
-              | factor
-              ;
-
-artop2        : '*'
-              | '/'
-              ;
-
-factor        : ID
-              | '(' simpleExpr ')'
-              | constant
-              | call
-              | IS_SET '(' ID ')'
-              | elem IN set
-              ;
-
-constant      : INTEGER
-              | FLOAT
-              | EMPTY
-              ;
-
-call          : ID '(' params ')'
-              ;
-
-params        :
-              | paramList
-              ;
-
-paramList     : paramList ',' simpleExpr
-              | simpleExpr
-              ;
-
-setExpr       : setOp '(' elem IN set ')'
-              | EXISTS '(' elem IN set ')'
-              ;
-
-setOp         : REMOVE
-              | ADD
-              ;
-
-elem          : ID
-              | '(' EXISTS '(' elem IN set ')' ')'
-              | call
-              | '(' simpleExpr ')'
-              | constant
-              ;
-
-set           : ID
-              | setOp '(' elem IN set ')'
+set           : ID                                              {$$ = idLeaf($1);}
+              | SETOP '(' pertExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->type_info = $1;}
               ;
 
 
 
 %%
-void yyerror(char *s){
+void yyerror(const char *s){
   printf("%s\n", s);
 }
 

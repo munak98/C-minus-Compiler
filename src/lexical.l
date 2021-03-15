@@ -8,7 +8,7 @@
 %{
 #include "../include/symbtable.h"
 #include <string.h>
-#include "y.tab.h"
+#include "semantic.tab.h"
 #define LT 1
 #define LE 2
 #define EQ 3
@@ -19,6 +19,12 @@
 #define SUB 8
 #define MULT 9
 #define DIV 10
+#define REM 11
+#define ADD 12
+#define CONJ 13
+#define DISJ 13
+#define NEG 15
+
 
 int curr_scope;
 int column = 1;
@@ -54,8 +60,8 @@ for         {column += yyleng; printf("%s\n", yytext); return(FOR);}
 forall      {column += yyleng; printf("%s\n", yytext); return(FORALL);}
 in          {column += yyleng; printf("%s\n", yytext); return(IN);}
 is_set      {column += yyleng; printf("%s\n", yytext); return(IS_SET);}
-add         {column += yyleng; printf("%s\n", yytext); return(ADD);}
-remove      {column += yyleng; printf("%s\n", yytext); return(REMOVE);}
+add         {column += yyleng; yylval.ival = ADD; printf("%s\n", yytext); return(SETOP);}
+remove      {column += yyleng; yylval.ival = REM; printf("%s\n", yytext); return(SETOP);}
 exists      {column += yyleng; printf("%s\n", yytext); return(EXISTS);}
 return      {column += yyleng; printf("%s\n", yytext); return(RETURN);}
 read        {column += yyleng; printf("%s\n", yytext); return(READ);}
@@ -76,20 +82,20 @@ writeln     {column += yyleng; printf("%s\n", yytext); return(WRITELN);}
 ","         {column += yyleng; printf("%s\n", yytext); return(yytext[0]);}
 "{"         {column += yyleng; printf("%s\n", yytext); curr_scope += 1; return(yytext[0]);}
 "}"         {column += yyleng; printf("%s\n", yytext); curr_scope -= 1; return(yytext[0]);}
-"+"         {column += yyleng; printf("%s\n", yytext); return(yytext[0]);}
-"-"         {column += yyleng; printf("%s\n", yytext); return(yytext[0]);}
-"*"         {column += yyleng; printf("%s\n", yytext); return(yytext[0]);}
-"/"         {column += yyleng; printf("%s\n", yytext); return(yytext[0]);}
-"!"         {column += yyleng; printf("%s\n", yytext); return(yytext[0]);}
-"&&"        {column += yyleng; printf("%s\n", yytext); return(DISJ);}
-"||"        {column += yyleng; printf("%s\n", yytext); return(CONJ);}
+"+"         {column += yyleng; yylval.ival = SUM; printf("%s\n", yytext); return(ARTOP1);}
+"-"         {column += yyleng; yylval.ival = SUB; printf("%s\n", yytext); return(ARTOP1);}
+"*"         {column += yyleng; yylval.ival = MULT; printf("%s\n", yytext); return(ARTOP2);}
+"/"         {column += yyleng; yylval.ival = DIV; printf("%s\n", yytext); return(ARTOP2);}
+"!"         {column += yyleng; yylval.ival = NEG; printf("%s\n", yytext); return(NEG);}
+"&&"        {column += yyleng; yylval.ival = DISJ; printf("%s\n", yytext); return(DISJ);}
+"||"        {column += yyleng; yylval.ival = CONJ; printf("%s\n", yytext); return(CONJ);}
 
-EMPTY       {column += yyleng; return(EMPTY);}
-{id}        {yylval.yyref = insert(yytext, yyleng, UNDEF, curr_scope); column += yyleng; return(ID);}
-{integer}   {yylval.ival = atoi(yytext); column += yyleng; return(INTEGER);}
-{float}     {yylval.ival = atof(yytext); column += yyleng; return(FLOAT);}
-{string}    {yylval.sval = strdup(yytext); column += yyleng; return(STRING);}
-{char}      {yylval.cval = yytext[0]; column += yyleng; return(CHAR);}
+EMPTY       {column += yyleng; printf("%s\n", yytext); return(EMPTY);}
+{id}        {yylval.yyref = insert(yytext, yyleng, UNDEF, curr_scope); column += yyleng; printf("%s\n", yytext); return(ID);}
+{integer}   {yylval.ival = atoi(yytext); column += yyleng; printf("%s\n", yytext); return(INTEGER);}
+{float}     {yylval.ival = atof(yytext); column += yyleng; printf("%s\n", yytext); return(FLOAT);}
+{string}    {yylval.sval = strdup(yytext); column += yyleng; printf("%s\n", yytext); return(STRING);}
+{char}      {yylval.cval = yytext[0]; column += yyleng; printf("%s\n", yytext); return(CHAR);}
 
 .           {printf("\t[error (line %d, column %d) Unknown character \"%s\"] ", line, column, yytext); }
 %%

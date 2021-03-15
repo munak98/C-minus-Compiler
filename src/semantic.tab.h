@@ -34,8 +34,8 @@
 /* Undocumented macros, especially those whose name start with YY_,
    are private implementation details.  Do not rely on them.  */
 
-#ifndef YY_YY_Y_TAB_H_INCLUDED
-# define YY_YY_Y_TAB_H_INCLUDED
+#ifndef YY_YY_SEMANTIC_TAB_H_INCLUDED
+# define YY_YY_SEMANTIC_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -50,71 +50,48 @@ extern int yydebug;
   enum yytokentype
   {
     TYPE = 258,
-    ID = 259,
-    RELOP = 260,
-    IF = 261,
-    ELSE = 262,
-    FOR = 263,
-    RETURN = 264,
-    FORALL = 265,
-    IN = 266,
-    IS_SET = 267,
-    ADD = 268,
-    REMOVE = 269,
-    EXISTS = 270,
-    READ = 271,
-    WRITE = 272,
-    WRITELN = 273,
-    INTEGER = 274,
-    FLOAT = 275,
-    CHAR = 276,
-    STRING = 277,
-    EMPTY = 278,
-    DISJ = 279,
-    CONJ = 280,
-    THEN = 281
+    RELOP = 259,
+    SETOP = 260,
+    ARTOP1 = 261,
+    ARTOP2 = 262,
+    ID = 263,
+    IF = 264,
+    ELSE = 265,
+    FOR = 266,
+    RETURN = 267,
+    FORALL = 268,
+    IN = 269,
+    IS_SET = 270,
+    EXISTS = 271,
+    DISJ = 272,
+    CONJ = 273,
+    NEG = 274,
+    READ = 275,
+    WRITE = 276,
+    WRITELN = 277,
+    INTEGER = 278,
+    FLOAT = 279,
+    CHAR = 280,
+    STRING = 281,
+    EMPTY = 282,
+    THEN = 283
   };
 #endif
-/* Tokens.  */
-#define TYPE 258
-#define ID 259
-#define RELOP 260
-#define IF 261
-#define ELSE 262
-#define FOR 263
-#define RETURN 264
-#define FORALL 265
-#define IN 266
-#define IS_SET 267
-#define ADD 268
-#define REMOVE 269
-#define EXISTS 270
-#define READ 271
-#define WRITE 272
-#define WRITELN 273
-#define INTEGER 274
-#define FLOAT 275
-#define CHAR 276
-#define STRING 277
-#define EMPTY 278
-#define DISJ 279
-#define CONJ 280
-#define THEN 281
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 15 "semantic.y"
+#line 19 "semantic.y"
 
   sym *yyref;
   int ival;
   float fval;
   char cval;
   char* sval;
-  node *tval;
+  struct NODE *tnode;
 
-#line 118 "y.tab.h"
+#line 95 "semantic.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -127,4 +104,4 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_Y_TAB_H_INCLUDED  */
+#endif /* !YY_YY_SEMANTIC_TAB_H_INCLUDED  */
