@@ -82,16 +82,15 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 22 "semantic.y"
+#line 23 "semantic.y"
 
-  sym *yyref;
   int ival;
   float fval;
   char cval;
   char* sval;
   struct NODE *tnode;
 
-#line 95 "semantic.tab.h"
+#line 94 "semantic.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

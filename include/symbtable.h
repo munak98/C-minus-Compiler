@@ -43,8 +43,9 @@ void initHashArray(sym *);
 table *createNewTable(int);
 void pushTable(table *);
 
-sym *insert(char *, int, int);
-sym *lookInTable(char *, int, table *);
+sym *insert(char *, int);
+sym *findRef(char *);
+sym *lookInTable(char *, table *);
 sym *insertInTable(char *, int, table *);
 sym *createNewEntry(char *, int);
 sym *pushEntry(sym *, table *);

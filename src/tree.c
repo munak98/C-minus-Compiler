@@ -6,7 +6,6 @@ node *Leaf(){
   node->node_type = LEAF_NODE;
   node->level = 0;
   node->leaf = malloc(sizeof(struct LEAF));
-  node->internal = NULL;
   return node;
 }
 
@@ -148,7 +147,7 @@ void printLeafType(leaf *leaf){
   switch (leaf->leaf_type) {
     case ID_LEAF: printf("%s\n", leaf->ref->identifier); break;
     case INT_LEAF: printf("%d\n", leaf->ival); break;
-    case FLOAT_LEAF: printf("%f\n", leaf->fval); break;
+    case FLOAT_LEAF: printf("%.2f\n", leaf->fval); break;
     case CHAR_LEAF: printf("%c\n", leaf->cval); break;
     case STRING_LEAF: printf("%s\n", leaf->sval); break;
     case SET_LEAF: printf("EMPTY\n"); break;
@@ -159,7 +158,7 @@ void printInternalNode(internal *internal){
   switch (internal->operator) {
     case SEQ: printf("SEQ\n"); break;
     case VARDECL: printf("VARDECL\n"); break;
-    case FUNCDECL: printf("FUNCDECL\n"); break;
+    case FUNCDECL: printf("FUNCDECL %s\n", internal->ref->identifier); break;
     case FUNCBODY: printf("FUNCBODY\n"); break;
     case ARGUMENTS: printf("ARGUMENTS\n"); break;
     case FOR1: printf("FOR1\n"); break;
@@ -171,14 +170,18 @@ void printInternalNode(internal *internal){
     case CALL: printf("CALL\n"); break;
     case DISJ: printf("DISJ\n"); break;
     case CONJ: printf("CONJ\n"); break;
-    case NEG: printf("DISJ\n"); break;
+    case NEG: printf("NEG\n"); break;
     case ARTOP1: printf("ARTOP1\n"); break;
     case ARTOP2: printf("ARTOP2\n"); break;
     case RELOP: printf("RELOP\n"); break;
     case SETOP: printf("SETOP\n"); break;
     case IN: printf("IN\n"); break;
+    case IS_SET: printf("IS_SET\n"); break;
     case EXISTS: printf("EXISTS\n"); break;
     case RETURN: printf("RETURN\n"); break;
+    case READ: printf("READ\n"); break;
+    case WRITE: printf("WRITE\n"); break;
+    case WRITELN: printf("WRITELN\n"); break;
   }
 }
 
@@ -237,6 +240,7 @@ void freeTree(node *node){
       break;
 
     case LEAF_NODE:
+      if (node->leaf->leaf_type == STRING_LEAF) free(node->leaf->sval);
       free(node->leaf);
       free(node);
       break;
