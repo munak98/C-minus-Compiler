@@ -69,7 +69,7 @@
 #line 2 "semantic.y"
 
 #include "../include/symbtable.h"
-#include "../include/tree_new.h"
+#include "../include/tree.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -81,8 +81,11 @@ extern int yylex_destroy();
 extern int yyparse();
 extern FILE *yyin;
 extern node *root;
+extern int line;
+extern int column;
+int varType;
 
-#line 86 "semantic.tab.c"
+#line 89 "semantic.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -163,7 +166,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 19 "semantic.y"
+#line 22 "semantic.y"
 
   sym *yyref;
   int ival;
@@ -172,7 +175,7 @@ union YYSTYPE
   char* sval;
   struct NODE *tnode;
 
-#line 176 "semantic.tab.c"
+#line 179 "semantic.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -550,16 +553,16 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    55,    55,    58,    59,    62,    63,    66,    67,    70,
-      71,    74,    77,    78,    81,    82,    85,    86,    89,    92,
-      93,    94,    95,    98,    99,   100,   101,   104,   105,   106,
-     107,   108,   111,   112,   113,   114,   118,   119,   120,   123,
-     125,   126,   127,   130,   131,   132,   133,   134,   137,   140,
-     143,   144,   147,   148,   149,   152,   153,   156,   157,   160,
-     161,   164,   165,   168,   169,   172,   173,   176,   177,   178,
-     179,   180,   181,   184,   185,   186,   189,   192,   193,   196,
-     197,   200,   203,   204,   208,   209,   210,   211,   212,   216,
-     217
+       0,    58,    58,    61,    62,    65,    66,    69,    70,    73,
+      74,    77,    80,    89,    92,    93,    96,    97,   100,   107,
+     108,   109,   110,   113,   114,   115,   116,   119,   120,   121,
+     122,   123,   126,   127,   128,   129,   133,   134,   135,   138,
+     140,   141,   142,   145,   146,   147,   148,   149,   152,   155,
+     158,   159,   162,   163,   164,   167,   168,   171,   172,   175,
+     176,   179,   180,   183,   184,   187,   188,   191,   192,   193,
+     194,   195,   196,   199,   200,   201,   204,   207,   208,   211,
+     212,   215,   218,   219,   223,   228,   229,   230,   231,   235,
+     240
 };
 #endif
 
@@ -2172,541 +2175,561 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 55 "semantic.y"
-                                                                {root = (yyvsp[0].tnode); int max = bindLevel(root, 0, 0); printTree3(root, max);}
-#line 2178 "semantic.tab.c"
+#line 58 "semantic.y"
+                                                                {root = (yyvsp[0].tnode);}
+#line 2181 "semantic.tab.c"
     break;
 
   case 3:
-#line 58 "semantic.y"
+#line 61 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-1].tnode), (yyvsp[0].tnode));}
-#line 2184 "semantic.tab.c"
+#line 2187 "semantic.tab.c"
     break;
 
   case 4:
-#line 59 "semantic.y"
+#line 62 "semantic.y"
                                                                 {(yyval.tnode) = nullLeaf();}
-#line 2190 "semantic.tab.c"
+#line 2193 "semantic.tab.c"
     break;
 
   case 5:
-#line 62 "semantic.y"
+#line 65 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2196 "semantic.tab.c"
+#line 2199 "semantic.tab.c"
     break;
 
   case 6:
-#line 63 "semantic.y"
+#line 66 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2202 "semantic.tab.c"
+#line 2205 "semantic.tab.c"
     break;
 
   case 7:
-#line 66 "semantic.y"
-                                                                {(yyval.tnode) = UnaryNode(VARDECL, (yyvsp[-1].tnode)); (yyval.tnode)->internal->type_info = (yyvsp[-2].ival);}
-#line 2208 "semantic.tab.c"
+#line 69 "semantic.y"
+                                                                {(yyval.tnode) = UnaryNode(VARDECL, (yyvsp[-1].tnode)); setVarsType((yyvsp[-1].tnode), (yyvsp[-2].ival));}
+#line 2211 "semantic.tab.c"
     break;
 
   case 8:
-#line 67 "semantic.y"
+#line 70 "semantic.y"
                                                                 {(yyval.tnode) = nullLeaf(); yyerrok;}
-#line 2214 "semantic.tab.c"
+#line 2217 "semantic.tab.c"
     break;
 
   case 9:
-#line 70 "semantic.y"
+#line 73 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2220 "semantic.tab.c"
+#line 2223 "semantic.tab.c"
     break;
 
   case 10:
-#line 71 "semantic.y"
+#line 74 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2226 "semantic.tab.c"
+#line 2229 "semantic.tab.c"
     break;
 
   case 11:
-#line 74 "semantic.y"
+#line 77 "semantic.y"
                                                                 {(yyval.tnode) = idLeaf((yyvsp[0].yyref));}
-#line 2232 "semantic.tab.c"
+#line 2235 "semantic.tab.c"
     break;
 
   case 12:
-#line 77 "semantic.y"
-                                                                {(yyval.tnode) = BinaryNode(FUNCDECL, (yyvsp[-4].tnode), (yyvsp[-1].tnode)); (yyval.tnode)->internal->type_info = (yyvsp[-7].ival);}
-#line 2238 "semantic.tab.c"
+#line 80 "semantic.y"
+                                                                {
+                                                                  (yyval.tnode) = BinaryNode(FUNCDECL, (yyvsp[-4].tnode), (yyvsp[-1].tnode));
+                                                                  (yyval.tnode)->internal->ref = (yyvsp[-6].yyref);
+                                                                  (yyvsp[-6].yyref)->sym_kind = FUNCTION;
+                                                                  (yyvsp[-6].yyref)->return_type = (yyvsp[-7].ival);
+                                                                  (yyvsp[-6].yyref)->n_args = countArgs((yyvsp[-4].tnode), 0);
+                                                                  (yyvsp[-6].yyref)->args_type = (int *)malloc(sizeof(int)*(yyvsp[-6].yyref)->n_args);
+                                                                  setArgsInfo((yyvsp[-6].yyref), (yyvsp[-4].tnode), 0);
+                                                                }
+#line 2249 "semantic.tab.c"
     break;
 
   case 13:
-#line 78 "semantic.y"
+#line 89 "semantic.y"
                                                                 {(yyval.tnode) = nullLeaf(); yyerrok;}
-#line 2244 "semantic.tab.c"
+#line 2255 "semantic.tab.c"
     break;
 
   case 14:
-#line 81 "semantic.y"
+#line 92 "semantic.y"
                                                                 {(yyval.tnode) = nullLeaf();}
-#line 2250 "semantic.tab.c"
+#line 2261 "semantic.tab.c"
     break;
 
   case 15:
-#line 82 "semantic.y"
+#line 93 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2256 "semantic.tab.c"
+#line 2267 "semantic.tab.c"
     break;
 
   case 16:
-#line 85 "semantic.y"
+#line 96 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2262 "semantic.tab.c"
+#line 2273 "semantic.tab.c"
     break;
 
   case 17:
-#line 86 "semantic.y"
+#line 97 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2268 "semantic.tab.c"
+#line 2279 "semantic.tab.c"
     break;
 
   case 18:
-#line 89 "semantic.y"
-                                                                {(yyval.tnode) = idLeaf((yyvsp[0].yyref));}
-#line 2274 "semantic.tab.c"
+#line 100 "semantic.y"
+                                                                {
+                                                                  (yyval.tnode) = idLeaf((yyvsp[0].yyref));
+                                                                  (yyval.tnode)->leaf->ref->sym_kind = VARIABLE;
+                                                                  (yyval.tnode)->leaf->ref->var_type = (yyvsp[-1].ival);
+                                                                }
+#line 2289 "semantic.tab.c"
     break;
 
   case 19:
-#line 92 "semantic.y"
+#line 107 "semantic.y"
                                                                 {(yyval.tnode) = nullLeaf();}
-#line 2280 "semantic.tab.c"
+#line 2295 "semantic.tab.c"
     break;
 
   case 20:
-#line 93 "semantic.y"
+#line 108 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-1].tnode), (yyvsp[0].tnode));}
-#line 2286 "semantic.tab.c"
+#line 2301 "semantic.tab.c"
     break;
 
   case 21:
-#line 94 "semantic.y"
+#line 109 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-1].tnode), (yyvsp[0].tnode));}
-#line 2292 "semantic.tab.c"
+#line 2307 "semantic.tab.c"
     break;
 
   case 22:
-#line 95 "semantic.y"
+#line 110 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-1].tnode), (yyvsp[0].tnode));}
-#line 2298 "semantic.tab.c"
+#line 2313 "semantic.tab.c"
     break;
 
   case 23:
-#line 98 "semantic.y"
+#line 113 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2304 "semantic.tab.c"
+#line 2319 "semantic.tab.c"
     break;
 
   case 24:
-#line 99 "semantic.y"
+#line 114 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2310 "semantic.tab.c"
+#line 2325 "semantic.tab.c"
     break;
 
   case 25:
-#line 100 "semantic.y"
+#line 115 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2316 "semantic.tab.c"
+#line 2331 "semantic.tab.c"
     break;
 
   case 26:
-#line 101 "semantic.y"
+#line 116 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2322 "semantic.tab.c"
+#line 2337 "semantic.tab.c"
     break;
 
   case 27:
-#line 104 "semantic.y"
+#line 119 "semantic.y"
                                                                 {(yyval.tnode) = TernaryNode(FOR1, (yyvsp[-3].tnode), (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2328 "semantic.tab.c"
+#line 2343 "semantic.tab.c"
     break;
 
   case 28:
-#line 105 "semantic.y"
+#line 120 "semantic.y"
                                                                 {(yyval.tnode) = QuaternaryNode(FOR2, (yyvsp[-4].tnode), (yyvsp[-3].tnode), (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2334 "semantic.tab.c"
+#line 2349 "semantic.tab.c"
     break;
 
   case 29:
-#line 106 "semantic.y"
+#line 121 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(FORALL, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2340 "semantic.tab.c"
+#line 2355 "semantic.tab.c"
     break;
 
   case 30:
-#line 107 "semantic.y"
+#line 122 "semantic.y"
                                                                 {(yyval.tnode) = nullLeaf(); yyerrok;}
-#line 2346 "semantic.tab.c"
+#line 2361 "semantic.tab.c"
     break;
 
   case 31:
-#line 108 "semantic.y"
+#line 123 "semantic.y"
                                                                 {(yyval.tnode) = nullLeaf(); yyerrok;}
-#line 2352 "semantic.tab.c"
+#line 2367 "semantic.tab.c"
     break;
 
   case 32:
-#line 111 "semantic.y"
+#line 126 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[-1].tnode);}
-#line 2358 "semantic.tab.c"
+#line 2373 "semantic.tab.c"
     break;
 
   case 33:
-#line 112 "semantic.y"
+#line 127 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2364 "semantic.tab.c"
+#line 2379 "semantic.tab.c"
     break;
 
   case 34:
-#line 113 "semantic.y"
+#line 128 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2370 "semantic.tab.c"
+#line 2385 "semantic.tab.c"
     break;
 
   case 35:
-#line 114 "semantic.y"
+#line 129 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2376 "semantic.tab.c"
+#line 2391 "semantic.tab.c"
     break;
 
   case 36:
-#line 118 "semantic.y"
+#line 133 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(IF, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2382 "semantic.tab.c"
+#line 2397 "semantic.tab.c"
     break;
 
   case 37:
-#line 119 "semantic.y"
+#line 134 "semantic.y"
                                                                 {(yyval.tnode) = TernaryNode(IF_ELSE, (yyvsp[-4].tnode), (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2388 "semantic.tab.c"
+#line 2403 "semantic.tab.c"
     break;
 
   case 38:
-#line 120 "semantic.y"
+#line 135 "semantic.y"
                                                                 {(yyval.tnode) = nullLeaf(); yyerrok;}
-#line 2394 "semantic.tab.c"
+#line 2409 "semantic.tab.c"
     break;
 
   case 39:
-#line 123 "semantic.y"
+#line 138 "semantic.y"
                                                                 {(yyval.tnode) = UnaryNode(RETURN, (yyvsp[0].tnode));}
-#line 2400 "semantic.tab.c"
+#line 2415 "semantic.tab.c"
     break;
 
   case 40:
-#line 125 "semantic.y"
+#line 140 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[-1].tnode);}
-#line 2406 "semantic.tab.c"
+#line 2421 "semantic.tab.c"
     break;
 
   case 41:
-#line 126 "semantic.y"
+#line 141 "semantic.y"
                                                                 {(yyval.tnode) = nullLeaf();}
-#line 2412 "semantic.tab.c"
+#line 2427 "semantic.tab.c"
     break;
 
   case 42:
-#line 127 "semantic.y"
+#line 142 "semantic.y"
                                                                 {(yyval.tnode) = nullLeaf(); yyerrok;}
-#line 2418 "semantic.tab.c"
+#line 2433 "semantic.tab.c"
     break;
 
   case 43:
-#line 130 "semantic.y"
+#line 145 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2424 "semantic.tab.c"
+#line 2439 "semantic.tab.c"
     break;
 
   case 44:
-#line 131 "semantic.y"
+#line 146 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2430 "semantic.tab.c"
+#line 2445 "semantic.tab.c"
     break;
 
   case 45:
-#line 132 "semantic.y"
+#line 147 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2436 "semantic.tab.c"
+#line 2451 "semantic.tab.c"
     break;
 
   case 46:
-#line 133 "semantic.y"
+#line 148 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2442 "semantic.tab.c"
+#line 2457 "semantic.tab.c"
     break;
 
   case 47:
-#line 134 "semantic.y"
+#line 149 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2448 "semantic.tab.c"
+#line 2463 "semantic.tab.c"
     break;
 
   case 48:
-#line 137 "semantic.y"
+#line 152 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(ASSIGN, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2454 "semantic.tab.c"
+#line 2469 "semantic.tab.c"
     break;
 
   case 49:
-#line 140 "semantic.y"
+#line 155 "semantic.y"
                                                                 {(yyval.tnode) = UnaryNode(READ, (yyvsp[-1].tnode));}
-#line 2460 "semantic.tab.c"
+#line 2475 "semantic.tab.c"
     break;
 
   case 50:
-#line 143 "semantic.y"
+#line 158 "semantic.y"
                                                                 {(yyval.tnode) = UnaryNode(WRITE, (yyvsp[-1].tnode));}
-#line 2466 "semantic.tab.c"
+#line 2481 "semantic.tab.c"
     break;
 
   case 51:
-#line 144 "semantic.y"
+#line 159 "semantic.y"
                                                                 {(yyval.tnode) = UnaryNode(WRITELN, (yyvsp[-1].tnode));}
-#line 2472 "semantic.tab.c"
+#line 2487 "semantic.tab.c"
     break;
 
   case 52:
-#line 147 "semantic.y"
+#line 162 "semantic.y"
                                                                 {(yyval.tnode) = idLeaf((yyvsp[0].yyref));}
-#line 2478 "semantic.tab.c"
+#line 2493 "semantic.tab.c"
     break;
 
   case 53:
-#line 148 "semantic.y"
+#line 163 "semantic.y"
                                                                 {(yyval.tnode) = charLeaf((yyvsp[0].cval));}
-#line 2484 "semantic.tab.c"
+#line 2499 "semantic.tab.c"
     break;
 
   case 54:
-#line 149 "semantic.y"
+#line 164 "semantic.y"
                                                                 {(yyval.tnode) = stringLeaf((yyvsp[0].sval));}
-#line 2490 "semantic.tab.c"
+#line 2505 "semantic.tab.c"
     break;
 
   case 55:
-#line 152 "semantic.y"
+#line 167 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(DISJ, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2496 "semantic.tab.c"
+#line 2511 "semantic.tab.c"
     break;
 
   case 56:
-#line 153 "semantic.y"
+#line 168 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2502 "semantic.tab.c"
+#line 2517 "semantic.tab.c"
     break;
 
   case 57:
-#line 156 "semantic.y"
+#line 171 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(CONJ, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2508 "semantic.tab.c"
+#line 2523 "semantic.tab.c"
     break;
 
   case 58:
-#line 157 "semantic.y"
+#line 172 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2514 "semantic.tab.c"
+#line 2529 "semantic.tab.c"
     break;
 
   case 59:
-#line 160 "semantic.y"
+#line 175 "semantic.y"
                                                                 {(yyval.tnode) = UnaryNode(NEG, (yyvsp[0].tnode));}
-#line 2520 "semantic.tab.c"
+#line 2535 "semantic.tab.c"
     break;
 
   case 60:
-#line 161 "semantic.y"
+#line 176 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2526 "semantic.tab.c"
+#line 2541 "semantic.tab.c"
     break;
 
   case 61:
-#line 164 "semantic.y"
-                                                                {(yyval.tnode) = BinaryNode(RELOP, (yyvsp[-2].tnode), (yyvsp[0].tnode)); (yyval.tnode)->internal->type_info = (yyvsp[-1].ival);}
-#line 2532 "semantic.tab.c"
+#line 179 "semantic.y"
+                                                                {(yyval.tnode) = BinaryNode(RELOP, (yyvsp[-2].tnode), (yyvsp[0].tnode)); (yyval.tnode)->internal->op_specifier = (yyvsp[-1].ival);}
+#line 2547 "semantic.tab.c"
     break;
 
   case 62:
-#line 165 "semantic.y"
+#line 180 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2538 "semantic.tab.c"
+#line 2553 "semantic.tab.c"
     break;
 
   case 63:
-#line 168 "semantic.y"
-                                                                {(yyval.tnode) = BinaryNode(ARTOP1, (yyvsp[-2].tnode), (yyvsp[0].tnode)); (yyval.tnode)->internal->type_info = (yyvsp[-1].ival);}
-#line 2544 "semantic.tab.c"
+#line 183 "semantic.y"
+                                                                {(yyval.tnode) = BinaryNode(ARTOP1, (yyvsp[-2].tnode), (yyvsp[0].tnode)); (yyval.tnode)->internal->op_specifier = (yyvsp[-1].ival);}
+#line 2559 "semantic.tab.c"
     break;
 
   case 64:
-#line 169 "semantic.y"
+#line 184 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2550 "semantic.tab.c"
+#line 2565 "semantic.tab.c"
     break;
 
   case 65:
-#line 172 "semantic.y"
-                                                                {(yyval.tnode) = BinaryNode(ARTOP2, (yyvsp[-2].tnode), (yyvsp[0].tnode)); (yyval.tnode)->internal->type_info = (yyvsp[-1].ival);}
-#line 2556 "semantic.tab.c"
+#line 187 "semantic.y"
+                                                                {(yyval.tnode) = BinaryNode(ARTOP2, (yyvsp[-2].tnode), (yyvsp[0].tnode)); (yyval.tnode)->internal->op_specifier = (yyvsp[-1].ival);}
+#line 2571 "semantic.tab.c"
     break;
 
   case 66:
-#line 173 "semantic.y"
+#line 188 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2562 "semantic.tab.c"
+#line 2577 "semantic.tab.c"
     break;
 
   case 67:
-#line 176 "semantic.y"
+#line 191 "semantic.y"
                                                                 {(yyval.tnode) = idLeaf((yyvsp[0].yyref));}
-#line 2568 "semantic.tab.c"
+#line 2583 "semantic.tab.c"
     break;
 
   case 68:
-#line 177 "semantic.y"
+#line 192 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[-1].tnode);}
-#line 2574 "semantic.tab.c"
+#line 2589 "semantic.tab.c"
     break;
 
   case 69:
-#line 178 "semantic.y"
+#line 193 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2580 "semantic.tab.c"
+#line 2595 "semantic.tab.c"
     break;
 
   case 70:
-#line 179 "semantic.y"
+#line 194 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2586 "semantic.tab.c"
+#line 2601 "semantic.tab.c"
     break;
 
   case 71:
-#line 180 "semantic.y"
+#line 195 "semantic.y"
                                                                 {(yyval.tnode) = UnaryNode(IS_SET, (yyvsp[-1].tnode));}
-#line 2592 "semantic.tab.c"
+#line 2607 "semantic.tab.c"
     break;
 
   case 72:
-#line 181 "semantic.y"
+#line 196 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2598 "semantic.tab.c"
+#line 2613 "semantic.tab.c"
     break;
 
   case 73:
-#line 184 "semantic.y"
+#line 199 "semantic.y"
                                                                 {(yyval.tnode) = intLeaf((yyvsp[0].ival));}
-#line 2604 "semantic.tab.c"
+#line 2619 "semantic.tab.c"
     break;
 
   case 74:
-#line 185 "semantic.y"
+#line 200 "semantic.y"
                                                                 {(yyval.tnode) = floatLeaf((yyvsp[0].fval));}
-#line 2610 "semantic.tab.c"
+#line 2625 "semantic.tab.c"
     break;
 
   case 75:
-#line 186 "semantic.y"
+#line 201 "semantic.y"
                                                                 {(yyval.tnode) = setLeaf();}
-#line 2616 "semantic.tab.c"
+#line 2631 "semantic.tab.c"
     break;
 
   case 76:
-#line 189 "semantic.y"
+#line 204 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(CALL, (yyvsp[-3].tnode), (yyvsp[-1].tnode));}
-#line 2622 "semantic.tab.c"
+#line 2637 "semantic.tab.c"
     break;
 
   case 77:
-#line 192 "semantic.y"
+#line 207 "semantic.y"
                                                                 {(yyval.tnode) = nullLeaf();}
-#line 2628 "semantic.tab.c"
+#line 2643 "semantic.tab.c"
     break;
 
   case 78:
-#line 193 "semantic.y"
+#line 208 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2634 "semantic.tab.c"
+#line 2649 "semantic.tab.c"
     break;
 
   case 79:
-#line 196 "semantic.y"
+#line 211 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2640 "semantic.tab.c"
+#line 2655 "semantic.tab.c"
     break;
 
   case 80:
-#line 197 "semantic.y"
+#line 212 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2646 "semantic.tab.c"
+#line 2661 "semantic.tab.c"
     break;
 
   case 81:
-#line 200 "semantic.y"
+#line 215 "semantic.y"
                                                                 {(yyval.tnode) = BinaryNode(IN, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2652 "semantic.tab.c"
+#line 2667 "semantic.tab.c"
     break;
 
   case 82:
-#line 203 "semantic.y"
-                                                                {(yyval.tnode) = UnaryNode(SETOP, (yyvsp[-1].tnode));  (yyval.tnode)->internal->type_info = (yyvsp[-3].ival);}
-#line 2658 "semantic.tab.c"
+#line 218 "semantic.y"
+                                                                {(yyval.tnode) = UnaryNode(SETOP, (yyvsp[-1].tnode));  (yyval.tnode)->internal->op_specifier = (yyvsp[-3].ival);}
+#line 2673 "semantic.tab.c"
     break;
 
   case 83:
-#line 204 "semantic.y"
+#line 219 "semantic.y"
                                                                 {(yyval.tnode) = UnaryNode(EXISTS, (yyvsp[-1].tnode));}
-#line 2664 "semantic.tab.c"
+#line 2679 "semantic.tab.c"
     break;
 
   case 84:
-#line 208 "semantic.y"
-                                                                {(yyval.tnode) = idLeaf((yyvsp[0].yyref));}
-#line 2670 "semantic.tab.c"
+#line 223 "semantic.y"
+                                                                {
+                                                                  (yyval.tnode) = idLeaf((yyvsp[0].yyref));
+                                                                  (yyvsp[0].yyref)->sym_kind = VARIABLE;
+                                                                  (yyvsp[0].yyref)->var_type = ELEM_TYPE;
+                                                                }
+#line 2689 "semantic.tab.c"
     break;
 
   case 85:
-#line 209 "semantic.y"
+#line 228 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[-1].tnode);}
-#line 2676 "semantic.tab.c"
+#line 2695 "semantic.tab.c"
     break;
 
   case 86:
-#line 210 "semantic.y"
+#line 229 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2682 "semantic.tab.c"
+#line 2701 "semantic.tab.c"
     break;
 
   case 87:
-#line 211 "semantic.y"
+#line 230 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[-1].tnode);}
-#line 2688 "semantic.tab.c"
+#line 2707 "semantic.tab.c"
     break;
 
   case 88:
-#line 212 "semantic.y"
+#line 231 "semantic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2694 "semantic.tab.c"
+#line 2713 "semantic.tab.c"
     break;
 
   case 89:
-#line 216 "semantic.y"
-                                                                {(yyval.tnode) = idLeaf((yyvsp[0].yyref));}
-#line 2700 "semantic.tab.c"
+#line 235 "semantic.y"
+                                                                {
+                                                                  (yyval.tnode) = idLeaf((yyvsp[0].yyref));
+                                                                  (yyvsp[0].yyref)->sym_kind = VARIABLE;
+                                                                  (yyvsp[0].yyref)->var_type = SET_TYPE;
+                                                                }
+#line 2723 "semantic.tab.c"
     break;
 
   case 90:
-#line 217 "semantic.y"
-                                                                {(yyval.tnode) = UnaryNode(SETOP, (yyvsp[-1].tnode));  (yyval.tnode)->internal->type_info = (yyvsp[-3].ival);}
-#line 2706 "semantic.tab.c"
+#line 240 "semantic.y"
+                                                                {(yyval.tnode) = UnaryNode(SETOP, (yyvsp[-1].tnode));  (yyval.tnode)->internal->op_specifier = (yyvsp[-3].ival);}
+#line 2729 "semantic.tab.c"
     break;
 
 
-#line 2710 "semantic.tab.c"
+#line 2733 "semantic.tab.c"
 
       default: break;
     }
@@ -2938,10 +2961,10 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 222 "semantic.y"
+#line 245 "semantic.y"
 
 void yyerror(const char *s){
-  printf("%s\n", s);
+  printf("(line %d, column %d) [%s]\n", line, column, s);
 }
 
 
@@ -2957,10 +2980,14 @@ int main(int argc, char *argv[]){
     initTablesList();
     yyparse();
 
+    bindLevel(root, 0, 0);
+    printTree(root);
+    showAllTables();
 
     fclose(yyin);
     yylex_destroy();
     freeTables();
+    freeTree(root);
 
 
     return 0;

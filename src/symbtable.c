@@ -33,7 +33,7 @@ table *createNewTable(int scope){
 void initHashArray(sym *array){
   for (int i = 0; i < HASHTABLE_SIZE; i++){
     array[i].identifier = NULL;
-    array[i].type = UNDEF;
+    array[i].sym_kind = UNDEF;
     array[i].next = NULL;
   }
 }
@@ -48,34 +48,34 @@ void pushTable(table * newTable){
 To do this, it searches for the symbol table corresponding
 to the scope in which the element was found and calls the
 insertion function in a table.*/
-sym *insert(char *name, int len, int type, int scope){
+sym *insert(char *name, int len, int scope){
     table *aux = tables_list;
     while (aux != NULL){
       if (aux->scope == scope) {
-        return insertInTable(name, len, type, aux);
+        return insertInTable(name, len, aux);
       }
       aux = aux->bottom;
     }
     pushTable(createNewTable(scope));
-    return insertInTable(name, len, type, tables_list);
+    return insertInTable(name, len, tables_list);
 }
 
 //inserts an element into a given hash table.
-sym *insertInTable(char *name, int len, int type, table *table){
+sym *insertInTable(char *name, int len, table *table){
     int index = hash(name);
     if (table->hasharray[index].identifier == NULL){
       table->hasharray[index].identifier = (char *) malloc(len+1);
       for (int i = 0; i <= len; i++){
         table->hasharray[index].identifier[i] = name[i];
       }
-      table->hasharray[index].type = type;
+      table->hasharray[index].sym_kind = UNDEF;
       table->hasharray[index].next = NULL;
       return &table->hasharray[index];
     }
     else {
       sym *aux = lookInTable(name, index, table);
       if (aux != NULL) return aux;
-      else return pushEntry(createNewEntry(name, len, type), table);
+      else return pushEntry(createNewEntry(name, len), table);
     }
 }
 
@@ -90,13 +90,13 @@ sym *lookInTable(char *name, int index, table *table){
 }
 
 //creates a new table entry, an element of type sym.
-sym *createNewEntry(char *name, int len, int type){
+sym *createNewEntry(char *name, int len){
   sym *newEntry = (sym *) malloc(sizeof(sym));
   newEntry->identifier = (char *) malloc(len+1);
   for (int i = 0; i <= len; i++){
     newEntry->identifier[i] = name[i];
   }
-  newEntry->type = type;
+  newEntry->sym_kind = UNDEF;
   newEntry->next = NULL;
   return newEntry;
 }
@@ -114,22 +114,51 @@ sym *pushEntry(sym *newEntry, table *table){
 }
 
 
+char *printType(int type){
+  switch (type) {
+    case UNDEF: return "undef";
+    case INT_TYPE: return "int";
+    case FLOAT_TYPE: return "float";
+    case SET_TYPE: return "set";
+    case ELEM_TYPE: return "elem";
+  }
+  return NULL;
+}
+
+void printfArgsType(int nargs, int *args_type){
+  printf("args types = [ ");
+  for (int i = 0; i < nargs; i++){
+    printf("%s ", printType(args_type[i]));
+  }
+  printf("]\n");
+}
 
 //prints a chain from a hash table entry
-void showHashArrayChain(sym *list){
+void showHashArrayChain(sym *list, int scope){
+  printf("\t#%d", scope);
   sym *aux = list;
   while (aux != NULL){
-    printf("\t%s\n", aux->identifier);
+    switch (aux->sym_kind) {
+      case UNDEF: printf("\t%-10s\t%s\n", "UNDEF", aux->identifier); break;
+      case FUNCTION:
+        printf("\t%-10s\t%-20.20s \treturn type = %s, ", "FUNCTION", aux->identifier, printType(aux->return_type));
+        printfArgsType(aux->n_args, aux->args_type);
+        break;
+
+      case VARIABLE:
+        printf("\t%-10s\t", "VARIABLE");
+        printf("%-20.20s \ttype = %s\n", aux->identifier, printType(aux->var_type));
+        break;
+    }
     aux = aux->next;
   }
 }
 
 //prints a hash table from the table list
 void showHashArray(table * table){
-  printf("\tScope %d\n", table->scope);
   for (int i = 0; i < HASHTABLE_SIZE; i++){
     if (table->hasharray[i].identifier != NULL){
-      showHashArrayChain(&table->hasharray[i]);
+      showHashArrayChain(&table->hasharray[i], table->scope);
     }
   }
   printf("\n");
@@ -140,6 +169,8 @@ int showAllTables(){
   table *aux = tables_list;
   if (aux == NULL) {printf("Empty table.\n"); return 1;}
   printf("\n\nSymbol tables\n");
+  printf("\t%5s\t%10s\t%-20s\t%-50s\n", "Scope", "Entry type","Identifier", "Information");
+  printf("\t=====\t==========\t====================\t==================================================\n");
   while (aux != NULL){
     showHashArray(aux);
     aux = aux->bottom;
@@ -154,6 +185,7 @@ void freeHashArrayChain(sym *list){
   while (list != NULL){
     aux = list;
     list = list->next;
+    if (aux->sym_kind == FUNCTION) free(aux->args_type);
     free(aux->identifier);
     free(aux);
   }
@@ -165,6 +197,7 @@ void freeHashArray(table * table){
     if (table->hasharray[i].identifier != NULL){
       freeHashArrayChain(&table->hasharray[i]);
       free(table->hasharray[i].identifier);
+      if (table->hasharray[i].sym_kind == FUNCTION) free(table->hasharray[i].args_type);
     }
   }
 }

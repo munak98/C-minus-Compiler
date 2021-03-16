@@ -1,7 +1,7 @@
 /* Definition Section */
 %{
 #include "../include/symbtable.h"
-#include "../include/tree_new.h"
+#include "../include/tree.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -13,6 +13,9 @@ extern int yylex_destroy();
 extern int yyparse();
 extern FILE *yyin;
 extern node *root;
+extern int line;
+extern int column;
+int varType;
 %}
 
 
@@ -52,7 +55,7 @@ extern node *root;
 %%
 /* Grammar Definition */
 
-begin         : program                                         {root = $1; int max = bindLevel(root, 0, 0); printTree3(root, max);}
+begin         : program                                         {root = $1;}
               ;
 
 program       : program  declaration                            {$$ = BinaryNode(SEQ, $1, $2);}
@@ -63,7 +66,7 @@ declaration   : varDecl                                         {$$ = $1;}
               | funcDecl                                        {$$ = $1;}
               ;
 
-varDecl       : TYPE varList ';'                                {$$ = UnaryNode(VARDECL, $2); $$->internal->type_info = $1;}
+varDecl       : TYPE varList ';'                                {$$ = UnaryNode(VARDECL, $2); setVarsType($2, $1);}
               | TYPE error ';'                                  {$$ = nullLeaf(); yyerrok;}
               ;
 
@@ -74,7 +77,15 @@ varList       : varList ',' var                                 {$$ = BinaryNode
 var           : ID                                              {$$ = idLeaf($1);}
               ;
 
-funcDecl      : TYPE ID '(' arguments ')' '{' funcBody '}'      {$$ = BinaryNode(FUNCDECL, $4, $7); $$->internal->type_info = $1;}
+funcDecl      : TYPE ID '(' arguments ')' '{' funcBody '}'      {
+                                                                  $$ = BinaryNode(FUNCDECL, $4, $7);
+                                                                  $$->internal->ref = $2;
+                                                                  $2->sym_kind = FUNCTION;
+                                                                  $2->return_type = $1;
+                                                                  $2->n_args = countArgs($4, 0);
+                                                                  $2->args_type = (int *)malloc(sizeof(int)*$2->n_args);
+                                                                  setArgsInfo($2, $4, 0);
+                                                                }
               | TYPE ID '(' error ')' '{'                       {$$ = nullLeaf(); yyerrok;}
               ;
 
@@ -86,7 +97,11 @@ argsList      : argsList ',' arg                                {$$ = BinaryNode
               | arg                                             {$$ = $1;}
               ;
 
-arg           : TYPE ID                                         {$$ = idLeaf($2);}
+arg           : TYPE ID                                         {
+                                                                  $$ = idLeaf($2);
+                                                                  $$->leaf->ref->sym_kind = VARIABLE;
+                                                                  $$->leaf->ref->var_type = $1;
+                                                                }
               ;
 
 funcBody      : %empty                                          {$$ = nullLeaf();}
@@ -161,15 +176,15 @@ negExpr       : NEG negExpr                                     {$$ = UnaryNode(
               | relExpr                                         {$$ = $1;}
               ;
 
-relExpr       : relExpr RELOP artExpr1                          {$$ = BinaryNode(RELOP, $1, $3); $$->internal->type_info = $2;}
+relExpr       : relExpr RELOP artExpr1                          {$$ = BinaryNode(RELOP, $1, $3); $$->internal->op_specifier = $2;}
               | artExpr1                                        {$$ = $1;}
               ;
 
-artExpr1      : artExpr1 ARTOP1 artExpr2                        {$$ = BinaryNode(ARTOP1, $1, $3); $$->internal->type_info = $2;}
+artExpr1      : artExpr1 ARTOP1 artExpr2                        {$$ = BinaryNode(ARTOP1, $1, $3); $$->internal->op_specifier = $2;}
               | artExpr2                                        {$$ = $1;}
               ;
 
-artExpr2      : artExpr2 ARTOP2 factor                          {$$ = BinaryNode(ARTOP2, $1, $3); $$->internal->type_info = $2;}
+artExpr2      : artExpr2 ARTOP2 factor                          {$$ = BinaryNode(ARTOP2, $1, $3); $$->internal->op_specifier = $2;}
               | factor                                          {$$ = $1;}
               ;
 
@@ -200,12 +215,16 @@ paramList     : paramList ',' simpleExpr                        {$$ = BinaryNode
 pertExpr      : elem IN set                                     {$$ = BinaryNode(IN, $1, $3);}
               ;
 
-setExpr       : SETOP '(' pertExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->type_info = $1;}
+setExpr       : SETOP '(' pertExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->op_specifier = $1;}
               | EXISTS '(' pertExpr ')'                         {$$ = UnaryNode(EXISTS, $3);}
               ;
 
 
-elem          : ID                                              {$$ = idLeaf($1);}
+elem          : ID                                              {
+                                                                  $$ = idLeaf($1);
+                                                                  $1->sym_kind = VARIABLE;
+                                                                  $1->var_type = ELEM_TYPE;
+                                                                }
               | '(' setExpr ')'                                 {$$ = $2;}
               | call                                            {$$ = $1;}
               | '(' simpleExpr ')'                              {$$ = $2;}
@@ -213,15 +232,19 @@ elem          : ID                                              {$$ = idLeaf($1)
               ;
 
 
-set           : ID                                              {$$ = idLeaf($1);}
-              | SETOP '(' pertExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->type_info = $1;}
+set           : ID                                              {
+                                                                  $$ = idLeaf($1);
+                                                                  $1->sym_kind = VARIABLE;
+                                                                  $1->var_type = SET_TYPE;
+                                                                }
+              | SETOP '(' pertExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->op_specifier = $1;}
               ;
 
 
 
 %%
 void yyerror(const char *s){
-  printf("%s\n", s);
+  printf("(line %d, column %d) [%s]\n", line, column, s);
 }
 
 
@@ -237,11 +260,14 @@ int main(int argc, char *argv[]){
     initTablesList();
     yyparse();
 
+    bindLevel(root, 0, 0);
+    printTree(root);
+    showAllTables();
 
     fclose(yyin);
     yylex_destroy();
     freeTables();
-
+    freeTree(root);
 
     return 0;
 }

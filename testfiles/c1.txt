@@ -1,4 +1,6 @@
-int intersect(set a, set b) {
+int intersect(set a, set h, set i, int v, elem k) {
+    int banana;
+    set maca;
     forall(x in a){
       if (x in b) return 1;
     }

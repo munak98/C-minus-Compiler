@@ -1,103 +1,86 @@
 #ifndef TREE
 #define TREE
 
-enum nodeType {CONST, REF, BINARY, CALL, UNARY, SEMICOLON, NON}
-enum unaryOp {WRITE, WRITELN, IS_SET}
-enum binaryOp {EXISTS, IN}
+#include <stdlib.h>
+#include <stdio.h>
+#include "../include/symbtable.h"
 
 
-typedef struct BINARY_NODE {
+#define LEAF_NODE 501
+#define INTERNAL_NODE 502
+
+#define SEQ 500
+#define SIMPLE_IF 503
+#define IF_ELSE 504
+#define FOR1 505
+#define FOR2 506
+#define VARDECL 513
+#define FUNCDECL 514
+#define CALL 515
+#define ASSIGN 516
+
+#define ARGUMENTS 517
+#define FUNCBODY 518
+
+
+#define ID_LEAF 507
+#define INT_LEAF 508
+#define FLOAT_LEAF 509
+#define CHAR_LEAF 510
+#define STRING_LEAF 511
+#define SET_LEAF 512
+
+
+typedef struct INTERNAL{
   int operator;
-  node *first;
-  node *second;
-} binary;
-
-typedef struct UNARY_NODE {
-  int operator;
-  node *first;
-} unary;
-
-typedef struct FUNCDECL
-{
-  int return_type;
+  int op_specifier;
   sym *ref;
-  node *arguments;
-  node *funcBody;
-} funcDecl_node;
+  struct NODE *child1;
+  struct NODE *child2;
+  struct NODE *child3;
+  struct NODE *child4;
+} internal;
 
-typedef struct VARDECL
-{
-  int varType;
-  node *varList;
-} varDecl_node;
-
-typedef struct CALL
-{
-  node *arguments;
+typedef struct LEAF{
+  int leaf_type;
   sym *ref;
-} call_node;
-
-typedef struct REF
-{
-  sym *ref;
-} ref_node;
-
-typedef struct IF
-{
-  node *condition;
-  node *if_body;
-  node *else_body;
-} if_node;
-
-typedef struct FOR {
-  node *begin;
-  node *condition;
-  node *increment;
-  node *body;
-} for_node;
-
-typedef struct FORALL {
-  node *elem;
-  node *set;
-  node *body;
-} forall_node;
-
-typedef struct ASSIGN {
-  sym *ref;
-  node *value;
-} assignment_node;
-
-typedef struct CONST{
-  int type;
   int ival;
   float fval;
   char cval;
   char *sval;
-} constant_node;
-
+} leaf;
 
 typedef struct NODE{
   int node_type;
-  constant_node *constant;
-  sym *ref;
-  call_node *call;
-  binary_node *binary;
-  unary_node *unary;
-  assignment_node *assign;
-  if_node *if;
-  for_node *for;
-  forall_node *forall;
-  funcDecl_node *funcDecl_node;
+  int level;
+  leaf *leaf;
+  internal *internal;
 } node;
 
+node *root;
 
-node *createConstNode(int info, int ival, float fval, char cval, char *sval);
-node *createRefNode(sym *ref);
-node *createBinaryNode(int operator, node *first, node *second);
-node *createCallNode(node *arguments, sym *ref);
-node *createUnaryNode(int operator, node *first);
-node *createAssignNode(sym *ref, node *value);
-node *createReadNode(sym *ref);
-node *createIfNode(node * condition, node *if_body, node *else_body);
-node *createForNode(node * begin, node *condition, node *increment, node *body);
+node *Leaf();
+node *idLeaf(sym *ref);
+node *intLeaf(int ival);
+node *floatLeaf(float fval);
+node *charLeaf(char cval);
+node *stringLeaf(char *sval);
+node *setLeaf();
+node *nullLeaf();
+
+node *Node();
+node *UnaryNode(int op, node *child1);
+node *BinaryNode(int op, node *child1,  node *child2);
+node *TernaryNode(int op, node *child1,  node *child2, node *child3);
+node *QuaternaryNode(int op, node *child1,  node *child2, node *child3, node *child4);
+
+void printTree(node *);
+int bindLevel(node *, int, int);
+void printTree2(node *, int);
+void printTree3(node *, int);
+
+void setVarsType(node *, int);
+int countArgs(node *node, int count);
+int setArgsInfo(sym *func_ref, node *node, int index);
+void freeTree(node *);
 #endif

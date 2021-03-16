@@ -828,12 +828,12 @@ case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
 #line 48 "lexical.l"
-{printf("%s", yytext); line++; column = 0;}
+{line++; column = 0;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 49 "lexical.l"
-{printf("%s", yytext); column += yyleng;}
+{column += yyleng;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
@@ -843,224 +843,224 @@ YY_RULE_SETUP
 case 4:
 YY_RULE_SETUP
 #line 52 "lexical.l"
-{yylval.ival = INT_TYPE; column += yyleng; printf("%s\n", yytext);return(TYPE);}
+{yylval.ival = INT_TYPE; column += yyleng;return(TYPE);}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 53 "lexical.l"
-{yylval.ival = FLOAT_TYPE; column += yyleng; printf("%s\n", yytext); return(TYPE);}
+{yylval.ival = FLOAT_TYPE; column += yyleng; return(TYPE);}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 54 "lexical.l"
-{yylval.ival = SET_TYPE; column += yyleng; printf("%s\n", yytext); return(TYPE);}
+{yylval.ival = SET_TYPE; column += yyleng; return(TYPE);}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 55 "lexical.l"
-{yylval.ival = ELEM_TYPE; column += yyleng; printf("%s\n", yytext); return(TYPE);}
+{yylval.ival = ELEM_TYPE; column += yyleng; return(TYPE);}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 57 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(IF);}
+{column += yyleng; return(IF);}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 58 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(ELSE);}
+{column += yyleng; return(ELSE);}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 59 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(FOR);}
+{column += yyleng; return(FOR);}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 60 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(FORALL);}
+{column += yyleng; return(FORALL);}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 61 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(IN);}
+{column += yyleng; return(IN);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 62 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(IS_SET);}
+{column += yyleng; return(IS_SET);}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 63 "lexical.l"
-{column += yyleng; yylval.ival = ADD; printf("%s\n", yytext); return(SETOP);}
+{column += yyleng; yylval.ival = ADD; return(SETOP);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 64 "lexical.l"
-{column += yyleng; yylval.ival = REM; printf("%s\n", yytext); return(SETOP);}
+{column += yyleng; yylval.ival = REM; return(SETOP);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 65 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(EXISTS);}
+{column += yyleng; return(EXISTS);}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 66 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(RETURN);}
+{column += yyleng; return(RETURN);}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 67 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(READ);}
+{column += yyleng; return(READ);}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 68 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(WRITE);}
+{column += yyleng; return(WRITE);}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 69 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(WRITELN);}
+{column += yyleng; return(WRITELN);}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 72 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(yytext[0]);}
+{column += yyleng; return(yytext[0]);}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 73 "lexical.l"
-{yylval.ival = LT; column += yyleng; printf("%s\n", yytext); return(RELOP);}
+{yylval.ival = LT; column += yyleng; return(RELOP);}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 74 "lexical.l"
-{yylval.ival = LE; column += yyleng; printf("%s\n", yytext); return(RELOP);}
+{yylval.ival = LE; column += yyleng; return(RELOP);}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 75 "lexical.l"
-{yylval.ival = EQ; column += yyleng; printf("%s\n", yytext); return(RELOP);}
+{yylval.ival = EQ; column += yyleng; return(RELOP);}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 76 "lexical.l"
-{yylval.ival = DIF; column += yyleng; printf("%s\n", yytext); return(RELOP);}
+{yylval.ival = DIF; column += yyleng; return(RELOP);}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 77 "lexical.l"
-{yylval.ival = GT; column += yyleng; printf("%s\n", yytext); return(RELOP);}
+{yylval.ival = GT; column += yyleng; return(RELOP);}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 78 "lexical.l"
-{yylval.ival = GE; column += yyleng; printf("%s\n", yytext); return(RELOP);}
+{yylval.ival = GE; column += yyleng; return(RELOP);}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 79 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(yytext[0]);}
+{column += yyleng; return(yytext[0]);}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 80 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(yytext[0]);}
+{column += yyleng; return(yytext[0]);}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 81 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(yytext[0]);}
+{column += yyleng; return(yytext[0]);}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 82 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(yytext[0]);}
+{column += yyleng; return(yytext[0]);}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 83 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); curr_scope += 1; return(yytext[0]);}
+{column += yyleng; curr_scope += 1; return(yytext[0]);}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 84 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); curr_scope -= 1; return(yytext[0]);}
+{column += yyleng; curr_scope -= 1; return(yytext[0]);}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 85 "lexical.l"
-{column += yyleng; yylval.ival = SUM; printf("%s\n", yytext); return(ARTOP1);}
+{column += yyleng; yylval.ival = SUM; return(ARTOP1);}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
 #line 86 "lexical.l"
-{column += yyleng; yylval.ival = SUB; printf("%s\n", yytext); return(ARTOP1);}
+{column += yyleng; yylval.ival = SUB; return(ARTOP1);}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
 #line 87 "lexical.l"
-{column += yyleng; yylval.ival = MULT; printf("%s\n", yytext); return(ARTOP2);}
+{column += yyleng; yylval.ival = MULT; return(ARTOP2);}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 88 "lexical.l"
-{column += yyleng; yylval.ival = DIV; printf("%s\n", yytext); return(ARTOP2);}
+{column += yyleng; yylval.ival = DIV; return(ARTOP2);}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
 #line 89 "lexical.l"
-{column += yyleng; yylval.ival = NEG; printf("%s\n", yytext); return(NEG);}
+{column += yyleng; yylval.ival = NEG; return(NEG);}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 90 "lexical.l"
-{column += yyleng; yylval.ival = DISJ; printf("%s\n", yytext); return(DISJ);}
+{column += yyleng; yylval.ival = DISJ; return(DISJ);}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 91 "lexical.l"
-{column += yyleng; yylval.ival = CONJ; printf("%s\n", yytext); return(CONJ);}
+{column += yyleng; yylval.ival = CONJ; return(CONJ);}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 93 "lexical.l"
-{column += yyleng; printf("%s\n", yytext); return(EMPTY);}
+{column += yyleng; return(EMPTY);}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 94 "lexical.l"
-{yylval.yyref = insert(yytext, yyleng, UNDEF, curr_scope); column += yyleng; printf("%s\n", yytext); return(ID);}
+{yylval.yyref = insert(yytext, yyleng, curr_scope); column += yyleng; return(ID);}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 95 "lexical.l"
-{yylval.ival = atoi(yytext); column += yyleng; printf("%s\n", yytext); return(INTEGER);}
+{yylval.ival = atoi(yytext); column += yyleng; return(INTEGER);}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
 #line 96 "lexical.l"
-{yylval.ival = atof(yytext); column += yyleng; printf("%s\n", yytext); return(FLOAT);}
+{yylval.ival = atof(yytext); column += yyleng; return(FLOAT);}
 	YY_BREAK
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
 #line 97 "lexical.l"
-{yylval.sval = strdup(yytext); column += yyleng; printf("%s\n", yytext); return(STRING);}
+{yylval.sval = strdup(yytext); column += yyleng; return(STRING);}
 	YY_BREAK
 case 46:
 /* rule 46 can match eol */
 YY_RULE_SETUP
 #line 98 "lexical.l"
-{yylval.cval = yytext[0]; column += yyleng; printf("%s\n", yytext); return(CHAR);}
+{yylval.cval = yytext[0]; column += yyleng; return(CHAR);}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
 #line 100 "lexical.l"
-{printf("\t[error (line %d, column %d) Unknown character \"%s\"] ", line, column, yytext); }
+{printf("(line %d, column %d) [lexical error, unknown character \"%s\"]\n", line, column, yytext); }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
