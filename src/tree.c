@@ -13,6 +13,7 @@ node *idLeaf(sym *ref){
   node *node = Leaf();
   node->leaf->leaf_type = ID_LEAF;
   node->leaf->ref = ref;
+  node->leaf->is_decl = 0;
   return node;
 }
 node *intLeaf(int ival){
@@ -141,6 +142,32 @@ int setArgsInfo(sym *func_ref, node *node, int index){
 
 
 
+
+void insertLeafs(table *func_table, node *node){
+  if (node == NULL) return;
+  switch (node->node_type) {
+    case INTERNAL_NODE:
+      insertLeafs(func_table, node->internal->child1);
+      insertLeafs(func_table, node->internal->child2);
+      insertLeafs(func_table, node->internal->child2);
+      insertLeafs(func_table, node->internal->child3);
+      break;
+    case LEAF_NODE:
+      if (node->leaf->leaf_type == ID_LEAF) {
+        printf("%s\n", node->leaf->ref->identifier);
+        if (node->leaf->is_decl == 1) {
+          insertInScope(node->leaf->ref, func_table);
+        }
+        else{
+          if (findRef(node->leaf->ref->identifier) == NULL) {
+            insertInScope(node->leaf->ref, func_table);
+          }
+        }
+      }
+      break;
+  }
+  return;
+}
 
 
 void printLeafType(leaf *leaf){

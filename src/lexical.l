@@ -23,7 +23,8 @@
 #define ADD 12
 
 
-int curr_scope;
+int curr_level;
+char *curr_scope;
 int column = 1;
 int line = 1;
 %}
@@ -77,8 +78,8 @@ writeln     {column += yyleng; return(WRITELN);}
 "("         {column += yyleng; return(yytext[0]);}
 ";"         {column += yyleng; return(yytext[0]);}
 ","         {column += yyleng; return(yytext[0]);}
-"{"         {column += yyleng; return(yytext[0]);}
-"}"         {column += yyleng; return(yytext[0]);}
+"{"         {column += yyleng; curr_level += 1; return(yytext[0]);}
+"}"         {column += yyleng; curr_level -= 1; return(yytext[0]);}
 "+"         {column += yyleng; yylval.ival = SUM; return(ARTOP1);}
 "-"         {column += yyleng; yylval.ival = SUB; return(ARTOP1);}
 "*"         {column += yyleng; yylval.ival = MULT; return(ARTOP2);}

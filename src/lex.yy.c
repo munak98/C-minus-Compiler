@@ -541,7 +541,7 @@ char *yytext;
 #define ADD 12
 
 
-int curr_scope;
+int curr_level;
 int column = 1;
 int line = 1;
 #line 548 "lex.yy.c"
@@ -980,12 +980,12 @@ YY_RULE_SETUP
 case 32:
 YY_RULE_SETUP
 #line 80 "lexical.l"
-{column += yyleng; curr_scope += 1; return(yytext[0]);}
+{column += yyleng; curr_level += 1; return(yytext[0]);}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 81 "lexical.l"
-{column += yyleng; return(yytext[0]);}
+{column += yyleng; curr_level -= 1; return(yytext[0]);}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP

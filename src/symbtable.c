@@ -16,17 +16,8 @@ int hash(char *str){
 
 //initializes the global variable tables_list to NULL
 void initTablesList(){
-  tables_list = NULL;
-}
-
-//creates a new hash table representing a new scope
-table *createNewTable(int scope){
-  table *newTable = (table *)malloc(sizeof(table));
-  newTable->hasharray = (sym *)malloc(sizeof(sym)*HASHTABLE_SIZE);
-  initHashArray(newTable->hasharray);
-  newTable->scope = scope;
-  newTable->bottom = NULL;
-  return newTable;
+  global_scope = createNewTable("global", 0);
+  tables_list = global_scope;
 }
 
 //initializes the hash table values
@@ -38,61 +29,48 @@ void initHashArray(sym *array){
   }
 }
 
+//creates a new hash table representing a new scope
+table *createNewTable(char *scope_name, int level){
+  table *newTable = (table *)malloc(sizeof(table));
+  newTable->hasharray = (sym *)malloc(sizeof(sym)*HASHTABLE_SIZE);
+  initHashArray(newTable->hasharray);
+  newTable->level = level;
+  newTable->scope_name = scope_name;
+  newTable->next_scope = NULL;
+  return newTable;
+}
+
+
 //inserts a hash table into the list of symbol tables
-void pushTable(table * newTable){
-  newTable->bottom = tables_list;
+void pushScope(table *newTable){
+  newTable->next_scope = tables_list;
   tables_list = newTable;
 }
 
 sym *findRef(char *name){
-  table *aux = tables_list;
-  while (aux != NULL) {
-    sym *sym_aux = lookInTable(name, aux);
-    if (sym_aux != NULL) return sym_aux;
-    aux = aux->bottom;
-  }
+  sym *ref;
+  ref = lookInScope(name, tables_list);
+  if (ref != NULL) return ref;
+  ref = lookInScope(name, global_scope);
+  if (ref != NULL) return ref;
   return NULL;
 }
 
-table *findTable(int scope){
-  table *aux = tables_list;
-  while (aux != NULL) {
-    if (aux->scope == scope) return aux;
-    aux = aux->bottom;
+
+void insertInScope(sym *ref, table *table){
+  sym *exist = lookInScope(ref->identifier, table);
+  if (exist == NULL){
+    if (table->hasharray[hash(ref->identifier)].identifier == NULL){
+      table->hasharray[hash(ref->identifier)] = *ref;
+    }
+    else {pushEntry(ref, table);}
   }
-  return NULL;
 }
 
-/*inserts an element in its corresponding symbol table.
-To do this, it searches for the symbol table corresponding
-to the scope in which the element was found and calls the
-insertion function in a table.*/
-sym *insert(char *name, int scope){
-    table *aux = tables_list;
-    while (aux != NULL){
-      if (aux->scope == scope) return insertInTable(name, strlen(name), aux);
-      aux = aux->bottom;
-    }
-    pushTable(createNewTable(scope));
-    return insertInTable(name, strlen(name), tables_list);
-}
 
-//inserts an element into a given hash table.
-sym *insertInTable(char *name, int len, table *table){
-    int index = hash(name);
-    if (table->hasharray[index].identifier == NULL){
-      table->hasharray[index].identifier = name;
-      table->hasharray[index].sym_kind = UNDEF;
-      table->hasharray[index].next = NULL;
-      return &table->hasharray[index];
-    }
-    else {
-      return pushEntry(createNewEntry(name, len), table);
-    }
-}
 
 //looks for an element in a hash table.
-sym *lookInTable(char *name, table *table){
+sym *lookInScope(char *name, table *table){
   int index = hash(name);
   sym *aux = &table->hasharray[index];
   if (aux->identifier == NULL) return NULL;
@@ -104,7 +82,7 @@ sym *lookInTable(char *name, table *table){
 }
 
 //creates a new table entry, an element of type sym.
-sym *createNewEntry(char *name, int len){
+sym *createNewEntry(char *name){
   sym *newEntry = (sym *) malloc(sizeof(sym));
   newEntry->identifier = name;
   newEntry->sym_kind = UNDEF;
@@ -114,16 +92,15 @@ sym *createNewEntry(char *name, int len){
 
 /*inserts an element into a hash table chain.
 used only in the event of a collision.*/
-sym *pushEntry(sym *newEntry, table *table){
+void pushEntry(sym *newEntry, table *table){
   int index = hash(newEntry->identifier);
   sym *aux = &table->hasharray[index];
   while (aux->next != NULL){
     aux = aux->next;
   }
   aux->next = newEntry;
-  return aux->next;
+  return;
 }
-
 
 char *printType(int type){
   switch (type) {
@@ -145,18 +122,18 @@ void printfArgsType(int nargs, int *args_type){
 }
 
 //prints a chain from a hash table entry
-void showHashArrayChain(sym *list, int scope){
+void showHashArrayChain(sym *list){
   sym *aux = list;
   while (aux != NULL){
     switch (aux->sym_kind) {
-      case UNDEF: printf("\t      \t%-10s\t%s\n", "UNDEF", aux->identifier); break;
+      case UNDEF: printf("\t      \t%d\t%-10s\t%s\n", aux->level_found, "UNDEF", aux->identifier); break;
       case FUNCTION:
-        printf("\t      \t%-10s\t%-20.20s \treturn type = %s, ", "FUNCTION", aux->identifier, printType(aux->return_type));
+        printf("\t      \t%d\t%-10s\t%-20.20s \treturn type = %s, ", aux->level_found, "FUNCTION", aux->identifier, printType(aux->return_type));
         printfArgsType(aux->n_args, aux->args_type);
         break;
 
       case VARIABLE:
-        printf("\t      \t%-10s\t", "VARIABLE");
+        printf("\t      \t%d\t%-10s\t", aux->level_found, "VARIABLE");
         printf("%-20.20s \ttype = %s\n", aux->identifier, printType(aux->var_type));
         break;
     }
@@ -166,16 +143,18 @@ void showHashArrayChain(sym *list, int scope){
 
 //prints a hash table from the table list
 void showHashArray(table * table){
-  printf("\tScope %d\n", table->scope);
+  printf("\tScope %s\n", table->scope_name);
   printf("\t      \t%10s\t%-20s\t%-50s\n", "Entry type","Identifier", "Information");
   printf("\t      \t----------\t--------------------\t--------------------------------------------------\n");
   for (int i = 0; i < HASHTABLE_SIZE; i++){
     if (table->hasharray[i].identifier != NULL){
-      showHashArrayChain(&table->hasharray[i], table->scope);
+      showHashArrayChain(&table->hasharray[i]);
     }
   }
   printf("\n\n");
 }
+
+
 
 //prints all hash tables in the table list
 int showAllTables(){
@@ -183,8 +162,9 @@ int showAllTables(){
   if (aux == NULL) {printf("Empty table.\n"); return 1;}
   printf("\n\nSymbol tables\n");
   while (aux != NULL){
+    printf("%s\n", aux->scope_name);
     showHashArray(aux);
-    aux = aux->bottom;
+    aux = aux->next_scope;
   }
   return 0;
 }
@@ -219,7 +199,7 @@ int freeTables(){
   if (tables_list == NULL) {printf("Empty table.\n"); return 1;}
   while (tables_list != NULL){
     aux = tables_list;
-    tables_list = tables_list->bottom;
+    tables_list = tables_list->next_scope;
     freeHashArray(aux);
     free(aux->hasharray);
     free(aux);
