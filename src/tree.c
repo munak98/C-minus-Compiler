@@ -1,5 +1,5 @@
 #include "../include/tree.h"
-#include "semantic.tab.h"
+#include "syntactic.tab.h"
 
 node *Leaf(){
   node *node = malloc(sizeof(struct NODE));

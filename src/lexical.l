@@ -8,7 +8,7 @@
 %{
 #include "../include/symbtable.h"
 #include <string.h>
-#include "semantic.tab.h"
+#include "syntactic.tab.h"
 #define LT 1
 #define LE 2
 #define EQ 3
@@ -77,7 +77,7 @@ writeln     {column += yyleng; return(WRITELN);}
 "("         {column += yyleng; return(yytext[0]);}
 ";"         {column += yyleng; return(yytext[0]);}
 ","         {column += yyleng; return(yytext[0]);}
-"{"         {column += yyleng; curr_scope += 1; return(yytext[0]);}
+"{"         {column += yyleng; return(yytext[0]);}
 "}"         {column += yyleng; return(yytext[0]);}
 "+"         {column += yyleng; yylval.ival = SUM; return(ARTOP1);}
 "-"         {column += yyleng; yylval.ival = SUB; return(ARTOP1);}

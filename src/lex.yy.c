@@ -526,7 +526,7 @@ char *yytext;
 #line 9 "lexical.l"
 #include "../include/symbtable.h"
 #include <string.h>
-#include "semantic.tab.h"
+#include "syntactic.tab.h"
 #define LT 1
 #define LE 2
 #define EQ 3
