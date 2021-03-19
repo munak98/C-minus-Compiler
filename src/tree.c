@@ -141,29 +141,27 @@ int setArgsInfo(sym *func_ref, node *node, int index){
 }
 
 
-
-
-void insertLeafs(table *func_table, node *node){
+void insertLeafs(table *scope, node *node){
+  sym *aux;
   if (node == NULL) return;
   switch (node->node_type) {
     case INTERNAL_NODE:
-      insertLeafs(func_table, node->internal->child1);
-      insertLeafs(func_table, node->internal->child2);
-      insertLeafs(func_table, node->internal->child2);
-      insertLeafs(func_table, node->internal->child3);
+      insertLeafs(scope, node->internal->child1);
+      insertLeafs(scope, node->internal->child2);
+      insertLeafs(scope, node->internal->child3);
+      insertLeafs(scope, node->internal->child4);
       break;
     case LEAF_NODE:
       if (node->leaf->leaf_type == ID_LEAF) {
-        printf("%s\n", node->leaf->ref->identifier);
-        if (node->leaf->is_decl == 1) {
-          insertInScope(node->leaf->ref, func_table);
-        }
-        else{
-          if (findRef(node->leaf->ref->identifier) == NULL) {
-            insertInScope(node->leaf->ref, func_table);
+        if (node->leaf->is_decl == 1) pushEntry(node->leaf->ref, scope);
+        else {
+          aux = insertInScope(node->leaf->ref, scope);
+          if (aux != node->leaf->ref){
+            free(node->leaf->ref);
+            node->leaf->ref = aux;
           }
         }
-      }
+    }
       break;
   }
   return;

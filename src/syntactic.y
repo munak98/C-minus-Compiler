@@ -66,9 +66,11 @@ declaration   : varDecl                                         {$$ = $1;}
               | funcDecl                                        {$$ = $1;}
               ;
 
-varDecl       : TYPE varList ';'                                {$$ = UnaryNode(VARDECL, $2);
+varDecl       : TYPE varList ';'                                {
+                                                                  $$ = UnaryNode(VARDECL, $2);
                                                                   setVarsType($2, $1);
-                                                                  if (tables_list == global_scope) insertLeafs(global_scope, $2);}
+                                                                  if (curr_level == 0) insertLeafs(global_scope, $2);
+                                                                }
               | TYPE error ';'                                  {$$ = nullLeaf(); yyerrok;}
               ;
 
@@ -76,30 +78,31 @@ varList       : varList ',' new_id                                 {$$ = BinaryN
               | new_id                                             {$$ = $1;}
               ;
 
-new_id        : ID                                                 {$$ = idLeaf(createNewEntry($1));
-                                                                    $$->leaf->ref->level_found = curr_level;
-                                                                    $$->leaf->is_decl = 1;
-                                                                    printf("id %s\n", $$->leaf->ref->identifier);
+new_id        : ID                                                  {
+                                                                      $$ = idLeaf(createNewEntry($1, curr_level));
+                                                                      $$->leaf->is_decl = 1;
                                                                     }
               ;
 
 funcDecl      : TYPE new_id '(' arguments ')' '{' funcBody '}'      {
+                                                                        $2->leaf->ref->sym_kind = FUNCTION;
+                                                                        $2->leaf->ref->return_type = $1;
+                                                                        $2->leaf->ref->n_args = countArgs($4, 0);
+                                                                        $2->leaf->ref->args_type = malloc(sizeof(int)*$2->leaf->ref->n_args);
+                                                                        setArgsInfo($2->leaf->ref, $4, 0);
+
                                                                         insertInScope($2->leaf->ref, global_scope);
 
                                                                         $$ = TernaryNode(FUNCDECL, $2, $4, $7);
-                                                                        table *func_table = createNewTable($2->leaf->ref->identifier, 0);
-                                                                        pushScope(func_table);
-
-                                                                        insertLeafs(func_table, $4);
-
-                                                                        insertLeafs(func_table, $7);
-
                                                                         $$->internal->ref = $2->leaf->ref;
-                                                                        $$->internal->ref->sym_kind = FUNCTION;
-                                                                        $$->internal->ref->return_type = $1;
-                                                                        $$->internal->ref->n_args = countArgs($4, 0);
-                                                                        $$->internal->ref->args_type = malloc(sizeof(int)*$$->internal->ref->n_args);
-                                                                        setArgsInfo($$->internal->ref, $4, 0);
+
+                                                                        table *func_scope = createNewScope($2->leaf->ref->identifier);
+                                                                        pushScope(func_scope);
+                                                                        insertLeafs(func_scope, $4);
+                                                                        insertLeafs(func_scope, $7);
+
+
+
                                                                     }
               | TYPE new_id '(' error ')' '{'                       {$$ = nullLeaf(); yyerrok;}
               ;
@@ -115,8 +118,7 @@ argsList      : argsList ',' arg                                {$$ = BinaryNode
               ;
 
 arg           : TYPE ID                                         {
-                                                                  $$ = idLeaf(createNewEntry($2));
-                                                                  $$->leaf->ref->level_found = curr_level+1;
+                                                                  $$ = idLeaf(createNewEntry($2, curr_level+1));
                                                                   $$->leaf->is_decl = 1;
                                                                   $$->leaf->ref->sym_kind = VARIABLE;
                                                                   $$->leaf->ref->var_type = $1;
@@ -179,12 +181,7 @@ assign        : var '=' simpleExpr                              {$$ = BinaryNode
               ;
 
 var           :  ID                                              {
-                                                                  sym * ref = findRef($1);
-                                                                  if (ref == NULL){
-                                                                  $$ = idLeaf(createNewEntry($1));
-                                                                  $$->leaf->ref->level_found = curr_level;
-                                                                  $$->leaf->ref->sym_kind = VARIABLE;}
-                                                                  else $$ = idLeaf(ref);
+                                                                  $$ = idLeaf(createNewEntry($1, curr_level));
                                                                 }
               ;
 
@@ -196,12 +193,7 @@ outExpr       : WRITE '(' output ')'                            {$$ = UnaryNode(
               ;
 
 output        : ID                                              {
-                                                                  sym * ref = findRef($1);
-                                                                  if (ref == NULL){
-                                                                  $$ = idLeaf(createNewEntry($1));
-                                                                  $$->leaf->ref->level_found = curr_level;
-                                                                  $$->leaf->ref->sym_kind = VARIABLE;}
-                                                                  else $$ = idLeaf(ref);
+                                                                  $$ = idLeaf(createNewEntry($1, curr_level));
                                                                 }
               | CHAR                                            {$$ = charLeaf($1);}
               | STRING                                          {$$ = stringLeaf($1);}
@@ -232,12 +224,7 @@ artExpr2      : artExpr2 ARTOP2 factor                          {$$ = BinaryNode
               ;
 
 factor        : ID                                              {
-                                                                  sym * ref = findRef($1);
-                                                                  if (ref == NULL){
-                                                                    $$ = idLeaf(createNewEntry($1));
-                                                                    $$->leaf->ref->level_found = curr_level;
-                                                                    $$->leaf->ref->sym_kind = VARIABLE;}
-                                                                  else $$ = idLeaf(ref);
+                                                                  $$ = idLeaf(createNewEntry($1, curr_level));
                                                                 }
               | '(' simpleExpr ')'                              {$$ = $2;}
               | constant                                        {$$ = $1;}
@@ -273,12 +260,7 @@ setExpr       : SETOP '(' pertExpr ')'                          {$$ = UnaryNode(
 
 
 elem          : ID                                              {
-                                                                  sym * ref = findRef($1);
-                                                                  if (ref == NULL){
-                                                                  $$ = idLeaf(createNewEntry($1));
-                                                                  $$->leaf->ref->level_found = curr_level;
-                                                                  $$->leaf->ref->sym_kind = VARIABLE;}
-                                                                  else $$ = idLeaf(ref);
+                                                                  $$ = idLeaf(createNewEntry($1, curr_level));
                                                                 }
               | '(' setExpr ')'                                 {$$ = $2;}
               | call                                            {$$ = $1;}
@@ -288,12 +270,7 @@ elem          : ID                                              {
 
 
 set           : ID                                              {
-                                                                  sym * ref = findRef($1);
-                                                                  if (ref == NULL){
-                                                                  $$ = idLeaf(createNewEntry($1));
-                                                                  $$->leaf->ref->level_found = curr_level;
-                                                                  $$->leaf->ref->sym_kind = VARIABLE;}
-                                                                  else $$ = idLeaf(ref);
+                                                                  $$ = idLeaf(createNewEntry($1, curr_level));
                                                                 }
               | SETOP '(' pertExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->op_specifier = $1;}
               ;

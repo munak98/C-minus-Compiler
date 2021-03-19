@@ -553,16 +553,16 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    58,    58,    61,    62,    65,    66,    69,    72,    75,
-      76,    79,    86,   104,   109,   110,   113,   114,   117,   126,
-     127,   128,   129,   132,   133,   134,   135,   138,   139,   140,
-     141,   142,   145,   146,   153,   154,   155,   156,   160,   161,
-     164,   166,   167,   168,   171,   172,   173,   174,   175,   178,
-     181,   191,   194,   195,   198,   206,   207,   210,   211,   214,
-     215,   218,   219,   222,   223,   226,   227,   230,   231,   234,
-     242,   243,   244,   245,   246,   249,   250,   251,   254,   259,
-     260,   263,   264,   267,   270,   271,   275,   283,   284,   285,
-     286,   290,   298
+       0,    58,    58,    61,    62,    65,    66,    69,    74,    77,
+      78,    81,    87,   107,   112,   113,   116,   117,   120,   128,
+     129,   130,   131,   134,   135,   136,   137,   140,   141,   142,
+     143,   144,   147,   148,   155,   156,   157,   158,   162,   163,
+     166,   168,   169,   170,   173,   174,   175,   176,   177,   180,
+     183,   188,   191,   192,   195,   198,   199,   202,   203,   206,
+     207,   210,   211,   214,   215,   218,   219,   222,   223,   226,
+     229,   230,   231,   232,   233,   236,   237,   238,   241,   246,
+     247,   250,   251,   254,   257,   258,   262,   265,   266,   267,
+     268,   272,   275
 };
 #endif
 
@@ -2200,590 +2200,567 @@ yyreduce:
 
   case 7:
 #line 69 "syntactic.y"
-                                                                {(yyval.tnode) = UnaryNode(VARDECL, (yyvsp[-1].tnode));
+                                                                {
+                                                                  (yyval.tnode) = UnaryNode(VARDECL, (yyvsp[-1].tnode));
                                                                   setVarsType((yyvsp[-1].tnode), (yyvsp[-2].ival));
-                                                                  if (tables_list == global_scope) insertLeafs(global_scope, (yyvsp[-1].tnode));}
-#line 2207 "syntactic.tab.c"
+                                                                  if (curr_level == 0) insertLeafs(global_scope, (yyvsp[-1].tnode));
+                                                                }
+#line 2209 "syntactic.tab.c"
     break;
 
   case 8:
-#line 72 "syntactic.y"
+#line 74 "syntactic.y"
                                                                 {(yyval.tnode) = nullLeaf(); yyerrok;}
-#line 2213 "syntactic.tab.c"
+#line 2215 "syntactic.tab.c"
     break;
 
   case 9:
-#line 75 "syntactic.y"
+#line 77 "syntactic.y"
                                                                    {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2219 "syntactic.tab.c"
+#line 2221 "syntactic.tab.c"
     break;
 
   case 10:
-#line 76 "syntactic.y"
+#line 78 "syntactic.y"
                                                                    {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2225 "syntactic.tab.c"
+#line 2227 "syntactic.tab.c"
     break;
 
   case 11:
-#line 79 "syntactic.y"
-                                                                   {(yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval)));
-                                                                    (yyval.tnode)->leaf->ref->level_found = curr_level;
-                                                                    (yyval.tnode)->leaf->is_decl = 1;
-                                                                    printf("id %s\n", (yyval.tnode)->leaf->ref->identifier);
+#line 81 "syntactic.y"
+                                                                    {
+                                                                      (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval), curr_level));
+                                                                      (yyval.tnode)->leaf->is_decl = 1;
                                                                     }
-#line 2235 "syntactic.tab.c"
+#line 2236 "syntactic.tab.c"
     break;
 
   case 12:
-#line 86 "syntactic.y"
+#line 87 "syntactic.y"
                                                                     {
+                                                                        (yyvsp[-6].tnode)->leaf->ref->sym_kind = FUNCTION;
+                                                                        (yyvsp[-6].tnode)->leaf->ref->return_type = (yyvsp[-7].ival);
+                                                                        (yyvsp[-6].tnode)->leaf->ref->n_args = countArgs((yyvsp[-4].tnode), 0);
+                                                                        (yyvsp[-6].tnode)->leaf->ref->args_type = malloc(sizeof(int)*(yyvsp[-6].tnode)->leaf->ref->n_args);
+                                                                        setArgsInfo((yyvsp[-6].tnode)->leaf->ref, (yyvsp[-4].tnode), 0);
+
                                                                         insertInScope((yyvsp[-6].tnode)->leaf->ref, global_scope);
 
                                                                         (yyval.tnode) = TernaryNode(FUNCDECL, (yyvsp[-6].tnode), (yyvsp[-4].tnode), (yyvsp[-1].tnode));
-                                                                        table *func_table = createNewTable((yyvsp[-6].tnode)->leaf->ref->identifier, 0);
-                                                                        pushScope(func_table);
-
-                                                                        insertLeafs(func_table, (yyvsp[-4].tnode));
-
-                                                                        insertLeafs(func_table, (yyvsp[-1].tnode));
-
                                                                         (yyval.tnode)->internal->ref = (yyvsp[-6].tnode)->leaf->ref;
-                                                                        (yyval.tnode)->internal->ref->sym_kind = FUNCTION;
-                                                                        (yyval.tnode)->internal->ref->return_type = (yyvsp[-7].ival);
-                                                                        (yyval.tnode)->internal->ref->n_args = countArgs((yyvsp[-4].tnode), 0);
-                                                                        (yyval.tnode)->internal->ref->args_type = malloc(sizeof(int)*(yyval.tnode)->internal->ref->n_args);
-                                                                        setArgsInfo((yyval.tnode)->internal->ref, (yyvsp[-4].tnode), 0);
+
+                                                                        table *func_scope = createNewScope((yyvsp[-6].tnode)->leaf->ref->identifier);
+                                                                        pushScope(func_scope);
+                                                                        insertLeafs(func_scope, (yyvsp[-4].tnode));
+                                                                        insertLeafs(func_scope, (yyvsp[-1].tnode));
+
+
+
                                                                     }
-#line 2258 "syntactic.tab.c"
+#line 2261 "syntactic.tab.c"
     break;
 
   case 13:
-#line 104 "syntactic.y"
+#line 107 "syntactic.y"
                                                                     {(yyval.tnode) = nullLeaf(); yyerrok;}
-#line 2264 "syntactic.tab.c"
+#line 2267 "syntactic.tab.c"
     break;
 
   case 14:
-#line 109 "syntactic.y"
+#line 112 "syntactic.y"
                                                                 {(yyval.tnode) = nullLeaf();}
-#line 2270 "syntactic.tab.c"
+#line 2273 "syntactic.tab.c"
     break;
 
   case 15:
-#line 110 "syntactic.y"
+#line 113 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2276 "syntactic.tab.c"
+#line 2279 "syntactic.tab.c"
     break;
 
   case 16:
-#line 113 "syntactic.y"
+#line 116 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2282 "syntactic.tab.c"
+#line 2285 "syntactic.tab.c"
     break;
 
   case 17:
-#line 114 "syntactic.y"
+#line 117 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2288 "syntactic.tab.c"
+#line 2291 "syntactic.tab.c"
     break;
 
   case 18:
-#line 117 "syntactic.y"
+#line 120 "syntactic.y"
                                                                 {
-                                                                  (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval)));
-                                                                  (yyval.tnode)->leaf->ref->level_found = curr_level+1;
+                                                                  (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval), curr_level+1));
                                                                   (yyval.tnode)->leaf->is_decl = 1;
                                                                   (yyval.tnode)->leaf->ref->sym_kind = VARIABLE;
                                                                   (yyval.tnode)->leaf->ref->var_type = (yyvsp[-1].ival);
                                                                 }
-#line 2300 "syntactic.tab.c"
+#line 2302 "syntactic.tab.c"
     break;
 
   case 19:
-#line 126 "syntactic.y"
+#line 128 "syntactic.y"
                                                                 {(yyval.tnode) = nullLeaf();}
-#line 2306 "syntactic.tab.c"
+#line 2308 "syntactic.tab.c"
     break;
 
   case 20:
-#line 127 "syntactic.y"
+#line 129 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-1].tnode), (yyvsp[0].tnode));}
-#line 2312 "syntactic.tab.c"
+#line 2314 "syntactic.tab.c"
     break;
 
   case 21:
-#line 128 "syntactic.y"
+#line 130 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-1].tnode), (yyvsp[0].tnode));}
-#line 2318 "syntactic.tab.c"
+#line 2320 "syntactic.tab.c"
     break;
 
   case 22:
-#line 129 "syntactic.y"
+#line 131 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-1].tnode), (yyvsp[0].tnode));}
-#line 2324 "syntactic.tab.c"
+#line 2326 "syntactic.tab.c"
     break;
 
   case 23:
-#line 132 "syntactic.y"
+#line 134 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2330 "syntactic.tab.c"
+#line 2332 "syntactic.tab.c"
     break;
 
   case 24:
-#line 133 "syntactic.y"
+#line 135 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2336 "syntactic.tab.c"
+#line 2338 "syntactic.tab.c"
     break;
 
   case 25:
-#line 134 "syntactic.y"
+#line 136 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2342 "syntactic.tab.c"
+#line 2344 "syntactic.tab.c"
     break;
 
   case 26:
-#line 135 "syntactic.y"
+#line 137 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2348 "syntactic.tab.c"
+#line 2350 "syntactic.tab.c"
     break;
 
   case 27:
-#line 138 "syntactic.y"
+#line 140 "syntactic.y"
                                                                 {(yyval.tnode) = TernaryNode(FOR1, (yyvsp[-3].tnode), (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2354 "syntactic.tab.c"
+#line 2356 "syntactic.tab.c"
     break;
 
   case 28:
-#line 139 "syntactic.y"
+#line 141 "syntactic.y"
                                                                 {(yyval.tnode) = QuaternaryNode(FOR2, (yyvsp[-4].tnode), (yyvsp[-3].tnode), (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2360 "syntactic.tab.c"
+#line 2362 "syntactic.tab.c"
     break;
 
   case 29:
-#line 140 "syntactic.y"
+#line 142 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(FORALL, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2366 "syntactic.tab.c"
+#line 2368 "syntactic.tab.c"
     break;
 
   case 30:
-#line 141 "syntactic.y"
+#line 143 "syntactic.y"
                                                                 {(yyval.tnode) = nullLeaf(); yyerrok;}
-#line 2372 "syntactic.tab.c"
+#line 2374 "syntactic.tab.c"
     break;
 
   case 31:
-#line 142 "syntactic.y"
+#line 144 "syntactic.y"
                                                                 {(yyval.tnode) = nullLeaf(); yyerrok;}
-#line 2378 "syntactic.tab.c"
+#line 2380 "syntactic.tab.c"
     break;
 
   case 32:
-#line 145 "syntactic.y"
+#line 147 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2384 "syntactic.tab.c"
+#line 2386 "syntactic.tab.c"
     break;
 
   case 33:
-#line 146 "syntactic.y"
+#line 148 "syntactic.y"
                                                                 {
                                                                   (yyval.tnode) = (yyvsp[-1].tnode);
                                                                   (yyvsp[-1].tnode)->leaf->ref->sym_kind = VARIABLE;
                                                                   (yyvsp[-1].tnode)->leaf->ref->var_type = (yyvsp[-2].ival);
                                                                 }
-#line 2394 "syntactic.tab.c"
+#line 2396 "syntactic.tab.c"
     break;
 
   case 34:
-#line 153 "syntactic.y"
+#line 155 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[-1].tnode);}
-#line 2400 "syntactic.tab.c"
+#line 2402 "syntactic.tab.c"
     break;
 
   case 35:
-#line 154 "syntactic.y"
+#line 156 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2406 "syntactic.tab.c"
+#line 2408 "syntactic.tab.c"
     break;
 
   case 36:
-#line 155 "syntactic.y"
+#line 157 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2412 "syntactic.tab.c"
+#line 2414 "syntactic.tab.c"
     break;
 
   case 37:
-#line 156 "syntactic.y"
+#line 158 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2418 "syntactic.tab.c"
+#line 2420 "syntactic.tab.c"
     break;
 
   case 38:
-#line 160 "syntactic.y"
+#line 162 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(IF, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2424 "syntactic.tab.c"
+#line 2426 "syntactic.tab.c"
     break;
 
   case 39:
-#line 161 "syntactic.y"
+#line 163 "syntactic.y"
                                                                 {(yyval.tnode) = TernaryNode(IF_ELSE, (yyvsp[-4].tnode), (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2430 "syntactic.tab.c"
+#line 2432 "syntactic.tab.c"
     break;
 
   case 40:
-#line 164 "syntactic.y"
+#line 166 "syntactic.y"
                                                                 {(yyval.tnode) = UnaryNode(RETURN, (yyvsp[0].tnode));}
-#line 2436 "syntactic.tab.c"
+#line 2438 "syntactic.tab.c"
     break;
 
   case 41:
-#line 166 "syntactic.y"
+#line 168 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[-1].tnode);}
-#line 2442 "syntactic.tab.c"
+#line 2444 "syntactic.tab.c"
     break;
 
   case 42:
-#line 167 "syntactic.y"
+#line 169 "syntactic.y"
                                                                 {(yyval.tnode) = nullLeaf();}
-#line 2448 "syntactic.tab.c"
+#line 2450 "syntactic.tab.c"
     break;
 
   case 43:
-#line 168 "syntactic.y"
+#line 170 "syntactic.y"
                                                                 {(yyval.tnode) = nullLeaf(); yyerrok;}
-#line 2454 "syntactic.tab.c"
+#line 2456 "syntactic.tab.c"
     break;
 
   case 44:
-#line 171 "syntactic.y"
+#line 173 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2460 "syntactic.tab.c"
+#line 2462 "syntactic.tab.c"
     break;
 
   case 45:
-#line 172 "syntactic.y"
+#line 174 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2466 "syntactic.tab.c"
+#line 2468 "syntactic.tab.c"
     break;
 
   case 46:
-#line 173 "syntactic.y"
+#line 175 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2472 "syntactic.tab.c"
+#line 2474 "syntactic.tab.c"
     break;
 
   case 47:
-#line 174 "syntactic.y"
+#line 176 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2478 "syntactic.tab.c"
+#line 2480 "syntactic.tab.c"
     break;
 
   case 48:
-#line 175 "syntactic.y"
+#line 177 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2484 "syntactic.tab.c"
+#line 2486 "syntactic.tab.c"
     break;
 
   case 49:
-#line 178 "syntactic.y"
+#line 180 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(ASSIGN, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2490 "syntactic.tab.c"
+#line 2492 "syntactic.tab.c"
     break;
 
   case 50:
-#line 181 "syntactic.y"
+#line 183 "syntactic.y"
                                                                  {
-                                                                  sym * ref = findRef((yyvsp[0].sval));
-                                                                  if (ref == NULL){
-                                                                  (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval)));
-                                                                  (yyval.tnode)->leaf->ref->level_found = curr_level;
-                                                                  (yyval.tnode)->leaf->ref->sym_kind = VARIABLE;}
-                                                                  else (yyval.tnode) = idLeaf(ref);
+                                                                  (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval), curr_level));
                                                                 }
-#line 2503 "syntactic.tab.c"
+#line 2500 "syntactic.tab.c"
     break;
 
   case 51:
-#line 191 "syntactic.y"
+#line 188 "syntactic.y"
                                                                 {(yyval.tnode) = UnaryNode(READ, (yyvsp[-1].tnode));}
-#line 2509 "syntactic.tab.c"
+#line 2506 "syntactic.tab.c"
     break;
 
   case 52:
-#line 194 "syntactic.y"
+#line 191 "syntactic.y"
                                                                 {(yyval.tnode) = UnaryNode(WRITE, (yyvsp[-1].tnode));}
-#line 2515 "syntactic.tab.c"
+#line 2512 "syntactic.tab.c"
     break;
 
   case 53:
-#line 195 "syntactic.y"
+#line 192 "syntactic.y"
                                                                 {(yyval.tnode) = UnaryNode(WRITELN, (yyvsp[-1].tnode));}
-#line 2521 "syntactic.tab.c"
+#line 2518 "syntactic.tab.c"
     break;
 
   case 54:
-#line 198 "syntactic.y"
+#line 195 "syntactic.y"
                                                                 {
-                                                                  sym * ref = findRef((yyvsp[0].sval));
-                                                                  if (ref == NULL){
-                                                                  (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval)));
-                                                                  (yyval.tnode)->leaf->ref->level_found = curr_level;
-                                                                  (yyval.tnode)->leaf->ref->sym_kind = VARIABLE;}
-                                                                  else (yyval.tnode) = idLeaf(ref);
+                                                                  (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval), curr_level));
                                                                 }
-#line 2534 "syntactic.tab.c"
+#line 2526 "syntactic.tab.c"
     break;
 
   case 55:
-#line 206 "syntactic.y"
+#line 198 "syntactic.y"
                                                                 {(yyval.tnode) = charLeaf((yyvsp[0].cval));}
-#line 2540 "syntactic.tab.c"
+#line 2532 "syntactic.tab.c"
     break;
 
   case 56:
-#line 207 "syntactic.y"
+#line 199 "syntactic.y"
                                                                 {(yyval.tnode) = stringLeaf((yyvsp[0].sval));}
-#line 2546 "syntactic.tab.c"
+#line 2538 "syntactic.tab.c"
     break;
 
   case 57:
-#line 210 "syntactic.y"
+#line 202 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(DISJ, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2552 "syntactic.tab.c"
+#line 2544 "syntactic.tab.c"
     break;
 
   case 58:
-#line 211 "syntactic.y"
+#line 203 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2558 "syntactic.tab.c"
+#line 2550 "syntactic.tab.c"
     break;
 
   case 59:
-#line 214 "syntactic.y"
+#line 206 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(CONJ, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2564 "syntactic.tab.c"
+#line 2556 "syntactic.tab.c"
     break;
 
   case 60:
-#line 215 "syntactic.y"
+#line 207 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2570 "syntactic.tab.c"
+#line 2562 "syntactic.tab.c"
     break;
 
   case 61:
-#line 218 "syntactic.y"
+#line 210 "syntactic.y"
                                                                 {(yyval.tnode) = UnaryNode(NEG, (yyvsp[0].tnode));}
-#line 2576 "syntactic.tab.c"
+#line 2568 "syntactic.tab.c"
     break;
 
   case 62:
-#line 219 "syntactic.y"
+#line 211 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2582 "syntactic.tab.c"
+#line 2574 "syntactic.tab.c"
     break;
 
   case 63:
-#line 222 "syntactic.y"
+#line 214 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(RELOP, (yyvsp[-2].tnode), (yyvsp[0].tnode)); (yyval.tnode)->internal->op_specifier = (yyvsp[-1].ival);}
-#line 2588 "syntactic.tab.c"
+#line 2580 "syntactic.tab.c"
     break;
 
   case 64:
-#line 223 "syntactic.y"
+#line 215 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2594 "syntactic.tab.c"
+#line 2586 "syntactic.tab.c"
     break;
 
   case 65:
-#line 226 "syntactic.y"
+#line 218 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(ARTOP1, (yyvsp[-2].tnode), (yyvsp[0].tnode)); (yyval.tnode)->internal->op_specifier = (yyvsp[-1].ival);}
-#line 2600 "syntactic.tab.c"
+#line 2592 "syntactic.tab.c"
     break;
 
   case 66:
-#line 227 "syntactic.y"
+#line 219 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2606 "syntactic.tab.c"
+#line 2598 "syntactic.tab.c"
     break;
 
   case 67:
-#line 230 "syntactic.y"
+#line 222 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(ARTOP2, (yyvsp[-2].tnode), (yyvsp[0].tnode)); (yyval.tnode)->internal->op_specifier = (yyvsp[-1].ival);}
-#line 2612 "syntactic.tab.c"
+#line 2604 "syntactic.tab.c"
     break;
 
   case 68:
-#line 231 "syntactic.y"
+#line 223 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2618 "syntactic.tab.c"
+#line 2610 "syntactic.tab.c"
     break;
 
   case 69:
-#line 234 "syntactic.y"
+#line 226 "syntactic.y"
                                                                 {
-                                                                  sym * ref = findRef((yyvsp[0].sval));
-                                                                  if (ref == NULL){
-                                                                    (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval)));
-                                                                    (yyval.tnode)->leaf->ref->level_found = curr_level;
-                                                                    (yyval.tnode)->leaf->ref->sym_kind = VARIABLE;}
-                                                                  else (yyval.tnode) = idLeaf(ref);
+                                                                  (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval), curr_level));
                                                                 }
-#line 2631 "syntactic.tab.c"
+#line 2618 "syntactic.tab.c"
     break;
 
   case 70:
-#line 242 "syntactic.y"
+#line 229 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[-1].tnode);}
-#line 2637 "syntactic.tab.c"
+#line 2624 "syntactic.tab.c"
     break;
 
   case 71:
-#line 243 "syntactic.y"
+#line 230 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2643 "syntactic.tab.c"
+#line 2630 "syntactic.tab.c"
     break;
 
   case 72:
-#line 244 "syntactic.y"
+#line 231 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2649 "syntactic.tab.c"
+#line 2636 "syntactic.tab.c"
     break;
 
   case 73:
-#line 245 "syntactic.y"
+#line 232 "syntactic.y"
                                                                 {(yyval.tnode) = UnaryNode(IS_SET, (yyvsp[-1].tnode));}
-#line 2655 "syntactic.tab.c"
+#line 2642 "syntactic.tab.c"
     break;
 
   case 74:
-#line 246 "syntactic.y"
+#line 233 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2661 "syntactic.tab.c"
+#line 2648 "syntactic.tab.c"
     break;
 
   case 75:
-#line 249 "syntactic.y"
+#line 236 "syntactic.y"
                                                                 {(yyval.tnode) = intLeaf((yyvsp[0].ival));}
-#line 2667 "syntactic.tab.c"
+#line 2654 "syntactic.tab.c"
     break;
 
   case 76:
-#line 250 "syntactic.y"
+#line 237 "syntactic.y"
                                                                 {(yyval.tnode) = floatLeaf((yyvsp[0].fval));}
-#line 2673 "syntactic.tab.c"
+#line 2660 "syntactic.tab.c"
     break;
 
   case 77:
-#line 251 "syntactic.y"
+#line 238 "syntactic.y"
                                                                 {(yyval.tnode) = setLeaf();}
-#line 2679 "syntactic.tab.c"
+#line 2666 "syntactic.tab.c"
     break;
 
   case 78:
-#line 254 "syntactic.y"
+#line 241 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(CALL, (yyvsp[-3].tnode), (yyvsp[-1].tnode));}
-#line 2685 "syntactic.tab.c"
+#line 2672 "syntactic.tab.c"
     break;
 
   case 79:
-#line 259 "syntactic.y"
+#line 246 "syntactic.y"
                                                                 {(yyval.tnode) = nullLeaf();}
-#line 2691 "syntactic.tab.c"
+#line 2678 "syntactic.tab.c"
     break;
 
   case 80:
-#line 260 "syntactic.y"
+#line 247 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2697 "syntactic.tab.c"
+#line 2684 "syntactic.tab.c"
     break;
 
   case 81:
-#line 263 "syntactic.y"
+#line 250 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(SEQ, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2703 "syntactic.tab.c"
+#line 2690 "syntactic.tab.c"
     break;
 
   case 82:
-#line 264 "syntactic.y"
+#line 251 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2709 "syntactic.tab.c"
+#line 2696 "syntactic.tab.c"
     break;
 
   case 83:
-#line 267 "syntactic.y"
+#line 254 "syntactic.y"
                                                                 {(yyval.tnode) = BinaryNode(IN, (yyvsp[-2].tnode), (yyvsp[0].tnode));}
-#line 2715 "syntactic.tab.c"
+#line 2702 "syntactic.tab.c"
     break;
 
   case 84:
-#line 270 "syntactic.y"
+#line 257 "syntactic.y"
                                                                 {(yyval.tnode) = UnaryNode(SETOP, (yyvsp[-1].tnode));  (yyval.tnode)->internal->op_specifier = (yyvsp[-3].ival);}
-#line 2721 "syntactic.tab.c"
+#line 2708 "syntactic.tab.c"
     break;
 
   case 85:
-#line 271 "syntactic.y"
+#line 258 "syntactic.y"
                                                                 {(yyval.tnode) = UnaryNode(EXISTS, (yyvsp[-1].tnode));}
-#line 2727 "syntactic.tab.c"
+#line 2714 "syntactic.tab.c"
     break;
 
   case 86:
-#line 275 "syntactic.y"
+#line 262 "syntactic.y"
                                                                 {
-                                                                  sym * ref = findRef((yyvsp[0].sval));
-                                                                  if (ref == NULL){
-                                                                  (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval)));
-                                                                  (yyval.tnode)->leaf->ref->level_found = curr_level;
-                                                                  (yyval.tnode)->leaf->ref->sym_kind = VARIABLE;}
-                                                                  else (yyval.tnode) = idLeaf(ref);
+                                                                  (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval), curr_level));
                                                                 }
-#line 2740 "syntactic.tab.c"
+#line 2722 "syntactic.tab.c"
     break;
 
   case 87:
-#line 283 "syntactic.y"
+#line 265 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[-1].tnode);}
-#line 2746 "syntactic.tab.c"
+#line 2728 "syntactic.tab.c"
     break;
 
   case 88:
-#line 284 "syntactic.y"
+#line 266 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2752 "syntactic.tab.c"
+#line 2734 "syntactic.tab.c"
     break;
 
   case 89:
-#line 285 "syntactic.y"
+#line 267 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[-1].tnode);}
-#line 2758 "syntactic.tab.c"
+#line 2740 "syntactic.tab.c"
     break;
 
   case 90:
-#line 286 "syntactic.y"
+#line 268 "syntactic.y"
                                                                 {(yyval.tnode) = (yyvsp[0].tnode);}
-#line 2764 "syntactic.tab.c"
+#line 2746 "syntactic.tab.c"
     break;
 
   case 91:
-#line 290 "syntactic.y"
+#line 272 "syntactic.y"
                                                                 {
-                                                                  sym * ref = findRef((yyvsp[0].sval));
-                                                                  if (ref == NULL){
-                                                                  (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval)));
-                                                                  (yyval.tnode)->leaf->ref->level_found = curr_level;
-                                                                  (yyval.tnode)->leaf->ref->sym_kind = VARIABLE;}
-                                                                  else (yyval.tnode) = idLeaf(ref);
+                                                                  (yyval.tnode) = idLeaf(createNewEntry((yyvsp[0].sval), curr_level));
                                                                 }
-#line 2777 "syntactic.tab.c"
+#line 2754 "syntactic.tab.c"
     break;
 
   case 92:
-#line 298 "syntactic.y"
+#line 275 "syntactic.y"
                                                                 {(yyval.tnode) = UnaryNode(SETOP, (yyvsp[-1].tnode));  (yyval.tnode)->internal->op_specifier = (yyvsp[-3].ival);}
-#line 2783 "syntactic.tab.c"
+#line 2760 "syntactic.tab.c"
     break;
 
 
-#line 2787 "syntactic.tab.c"
+#line 2764 "syntactic.tab.c"
 
       default: break;
     }
@@ -3015,7 +2992,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 303 "syntactic.y"
+#line 280 "syntactic.y"
 
 void yyerror(const char *s){
   printf("(line %d, column %d) [%s]\n", line, column, s);

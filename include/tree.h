@@ -43,6 +43,7 @@ typedef struct INTERNAL{
 
 typedef struct LEAF{
   int leaf_type;
+  int is_decl;
   sym *ref;
   int ival;
   float fval;
@@ -83,4 +84,5 @@ void setVarsType(node *, int);
 int countArgs(node *node, int count);
 int setArgsInfo(sym *func_ref, node *node, int index);
 void freeTree(node *);
+void insertLeafs(table *, node *);
 #endif

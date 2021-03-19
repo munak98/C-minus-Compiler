@@ -17,6 +17,7 @@
 //structure that represents an entry in the symbol table
 typedef struct SYMBOL {
 	char *identifier;
+	int level_found;
 	int sym_kind;		//var or function
 	int var_type;
 	int return_type;
@@ -28,31 +29,35 @@ typedef struct SYMBOL {
 //structure that represents the table of symbols of a scope
 typedef struct TABLE {
 	sym *hasharray;
-	int scope;
-  struct TABLE *bottom;
+	char *scope_name;
+  struct TABLE *next_scope;
 } table;
 
 //variable that stores the head of the list of tables
 table *tables_list;
-
+table *global_scope;
 
 //functions for manipulating the symbol table. More details in the code that implements them
 void initTablesList();
 void initHashArray(sym *);
 
-table *createNewTable(int);
-void pushTable(table *);
+table *createNewScope(char *);
+void pushScope(table *);
 
-sym *insert(char *, int);
-sym *findRef(char *);
-sym *lookInTable(char *, table *);
-sym *insertInTable(char *, int, table *);
 sym *createNewEntry(char *, int);
-sym *pushEntry(sym *, table *);
+sym *insertInScope(sym *, table *);
+void pushEntry(sym *, table *);
+
+sym *lookInGlobal(char *name);
+sym *lookInAllScopes(char *name, int level);
+sym *lookInScopeLevel(char *name, int level, table *table);
+
+
+
 
 int showAllTables();
 void showHashArray(table * );
-void showHashArrayChain(sym *, int);
+void showHashArrayChain(sym *);
 
 void freeHashArrayChain(sym *);
 void freeHashArray(table * );
