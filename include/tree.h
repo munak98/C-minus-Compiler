@@ -30,6 +30,18 @@
 #define STRING_LEAF 511
 #define SET_LEAF 512
 
+#define LT 1
+#define LE 2
+#define EQ 3
+#define DIF 4
+#define GT 5
+#define GE 6
+#define SUM 7
+#define SUB 8
+#define MULT 9
+#define DIV 10
+#define REM 11
+#define ADD 12
 
 typedef struct INTERNAL{
   int operator;
@@ -85,4 +97,5 @@ int countArgs(node *node, int count);
 int setArgsInfo(sym *func_ref, node *node, int index);
 void freeTree(node *);
 void insertLeafs(table *, node *);
+void insertGlobalLeafs(node *);
 #endif

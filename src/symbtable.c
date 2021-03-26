@@ -20,19 +20,16 @@ void initTablesList(){
   tables_list = global_scope;
 }
 
-//initializes the hash table values
-void initHashArray(sym *array){
-  for (int i = 0; i < HASHTABLE_SIZE; i++){
-    array[i].identifier = NULL;
-    array[i].sym_kind = UNDEF;
-    array[i].next = NULL;
-  }
+//initializes the hash array to NULL
+void initHashArray(sym **array){
+  for (int i = 0; i < HASHTABLE_SIZE; i++)
+    array[i] = NULL;
 }
 
 //creates a new table representing a new scope
 table *createNewScope(char *scope_name){
   table *newTable = (table *)malloc(sizeof(table));
-  newTable->hasharray = (sym *)malloc(sizeof(sym)*HASHTABLE_SIZE);
+  newTable->hasharray = malloc(HASHTABLE_SIZE*sizeof(sym*));
   initHashArray(newTable->hasharray);
   newTable->scope_name = scope_name;
   newTable->next_scope = NULL;
@@ -59,31 +56,33 @@ sym *createNewEntry(char *name, int level){
 }
 
 //insert entry if there is no other declaration
-//for this identifier in the same level
+//for this identifier in all visible levels
 sym *insertInScope(sym *ref, table *table){
-  sym *exist = lookInAllScopes(ref->identifier, ref->level_found);
+  sym *exist = lookInAllLevels(ref->identifier, ref->level_found);
   if (exist == NULL) {pushEntry(ref, table); return ref;}
   return exist;
 }
 
+
 /*inserts an element into a hash table chain.*/
 void pushEntry(sym *newEntry, table *table){
   int index = hash(newEntry->identifier);
-  sym *aux = &table->hasharray[index];
-  if (table->hasharray[index].identifier == NULL) {table->hasharray[index] = *newEntry;}
+  sym *aux = table->hasharray[index];
+  if (aux == NULL) {
+    table->hasharray[index] = newEntry;
+  }
   else{
-    while (aux->next != NULL)  {
+    while (aux != NULL)  {
       aux = aux->next;
     }
-    aux->next = newEntry;
+    aux = newEntry;
   }
 }
 
 //looks for an element in a hash table by name and level.
 sym *lookInScopeLevel(char *name, int level, table *table){
   int index = hash(name);
-  sym *aux = &table->hasharray[index];
-  if (aux->identifier == NULL) {return NULL;}
+  sym *aux = table->hasharray[index];
   while (aux != NULL){
     if (strcmp(name, aux->identifier)==0 && level == aux->level_found){
       return aux;
@@ -94,7 +93,7 @@ sym *lookInScopeLevel(char *name, int level, table *table){
 }
 
 //looks for an element in a hash table by name and level.
-sym *lookInAllScopes(char *name, int level){
+sym *lookInAllLevels(char *name, int level){
   table *aux = tables_list;
   sym *exists;
   while (level > 0){
@@ -111,8 +110,7 @@ sym *lookInAllScopes(char *name, int level){
 sym *lookInGlobal(char *name){
   table *table = global_scope;
   int index = hash(name);
-  sym *aux = &table->hasharray[index];
-  if (aux->identifier == NULL) {return NULL;}
+  sym *aux = table->hasharray[index];
   while (aux != NULL){
     if (strcmp(name, aux->identifier)==0){
       return aux;
@@ -168,8 +166,8 @@ void showHashArray(table * table){
   printf("\t      \t%11s\t%10s\t%-20s\t%-50s\n", "Scope level", "Entry type","Identifier", "Information");
   printf("\t      \t-----------\t----------\t--------------------\t--------------------------------------------------\n");
   for (int i = 0; i < HASHTABLE_SIZE; i++){
-    if (table->hasharray[i].identifier != NULL){
-      showHashArrayChain(&table->hasharray[i]);
+    if (table->hasharray[i] != NULL){
+      showHashArrayChain(table->hasharray[i]);
     }
   }
   printf("\n\n");
@@ -192,7 +190,6 @@ int showAllTables(){
 //free a chain from a hash table entry
 void freeHashArrayChain(sym *list){
   sym *aux;
-  list = list->next;
   while (list != NULL){
     aux = list;
     list = list->next;
@@ -205,10 +202,8 @@ void freeHashArrayChain(sym *list){
 //free a hash table from the table list
 void freeHashArray(table * table){
   for (int i = 0; i < HASHTABLE_SIZE; i++){
-    if (table->hasharray[i].identifier != NULL){
-      freeHashArrayChain(&table->hasharray[i]);
-      free(table->hasharray[i].identifier);
-      if (table->hasharray[i].sym_kind == FUNCTION) free(table->hasharray[i].args_type);
+    if (table->hasharray[i] != NULL){
+      freeHashArrayChain(table->hasharray[i]);
     }
   }
 }

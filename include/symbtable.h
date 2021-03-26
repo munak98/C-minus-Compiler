@@ -28,7 +28,7 @@ typedef struct SYMBOL {
 
 //structure that represents the table of symbols of a scope
 typedef struct TABLE {
-	sym *hasharray;
+	sym **hasharray;
 	char *scope_name;
   struct TABLE *next_scope;
 } table;
@@ -39,7 +39,7 @@ table *global_scope;
 
 //functions for manipulating the symbol table. More details in the code that implements them
 void initTablesList();
-void initHashArray(sym *);
+void initHashArray(sym **);
 
 table *createNewScope(char *);
 void pushScope(table *);
@@ -49,7 +49,7 @@ sym *insertInScope(sym *, table *);
 void pushEntry(sym *, table *);
 
 sym *lookInGlobal(char *name);
-sym *lookInAllScopes(char *name, int level);
+sym *lookInAllLevels(char *name, int level);
 sym *lookInScopeLevel(char *name, int level, table *table);
 
 

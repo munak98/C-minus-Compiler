@@ -36,7 +36,7 @@ node *charLeaf(char cval){
 }
 node *stringLeaf(char *sval){
   node *node = Leaf();
-  node->leaf->leaf_type = CHAR_LEAF;
+  node->leaf->leaf_type = STRING_LEAF;
   node->leaf->sval = sval;
   return node;
 }
@@ -153,10 +153,13 @@ void insertLeafs(table *scope, node *node){
       break;
     case LEAF_NODE:
       if (node->leaf->leaf_type == ID_LEAF) {
-        if (node->leaf->is_decl == 1) pushEntry(node->leaf->ref, scope);
+        if (node->leaf->is_decl == 1){
+          pushEntry(node->leaf->ref, scope);
+        }
         else {
           aux = insertInScope(node->leaf->ref, scope);
           if (aux != node->leaf->ref){
+            free(node->leaf->ref->identifier);
             free(node->leaf->ref);
             node->leaf->ref = aux;
           }
@@ -167,6 +170,22 @@ void insertLeafs(table *scope, node *node){
   return;
 }
 
+void insertGlobalLeafs(node *node){
+  if (node == NULL) return;
+  switch (node->node_type) {
+    case INTERNAL_NODE:
+      insertGlobalLeafs(node->internal->child1);
+      insertGlobalLeafs(node->internal->child2);
+      insertGlobalLeafs(node->internal->child3);
+      insertGlobalLeafs(node->internal->child4);
+      break;
+    case LEAF_NODE:
+      if (node->leaf->leaf_type == ID_LEAF) {
+        if (node->leaf->ref->level_found == 0) insertInScope(node->leaf->ref, global_scope);
+      }
+  }
+  return;
+}
 
 void printLeafType(leaf *leaf){
   switch (leaf->leaf_type) {
@@ -179,11 +198,28 @@ void printLeafType(leaf *leaf){
   }
 }
 
+void printOP(int op){
+  switch (op) {
+    case SUM: printf("+\n"); break;
+    case SUB: printf("-\n"); break;
+    case MULT: printf("*\n"); break;
+    case DIV: printf("/\n"); break;
+    case LT: printf("<\n"); break;
+    case LE: printf("<=\n"); break;
+    case EQ: printf("==\n"); break;
+    case DIF: printf("!=\n"); break;
+    case GT: printf(">\n"); break;
+    case GE: printf(">=\n"); break;
+    case ADD: printf("add\n"); break;
+    case REM: printf("remove\n"); break;
+  }
+}
+
 void printInternalNode(internal *internal){
   switch (internal->operator) {
     case SEQ: printf("SEQ\n"); break;
     case VARDECL: printf("VARDECL\n"); break;
-    case FUNCDECL: printf("FUNCDECL %s\n", internal->ref->identifier); break;
+    case FUNCDECL: printf("FUNCDECL\n"); break;
     case FUNCBODY: printf("FUNCBODY\n"); break;
     case ARGUMENTS: printf("ARGUMENTS\n"); break;
     case FOR1: printf("FOR1\n"); break;
@@ -193,13 +229,13 @@ void printInternalNode(internal *internal){
     case IF_ELSE: printf("IF_ELSE\n"); break;
     case ASSIGN: printf("ASSIGN\n"); break;
     case CALL: printf("CALL\n"); break;
-    case DISJ: printf("DISJ\n"); break;
-    case CONJ: printf("CONJ\n"); break;
-    case NEG: printf("NEG\n"); break;
-    case ARTOP1: printf("ARTOP1\n"); break;
-    case ARTOP2: printf("ARTOP2\n"); break;
-    case RELOP: printf("RELOP\n"); break;
-    case SETOP: printf("SETOP\n"); break;
+    case DISJ: printf("||\n"); break;
+    case CONJ: printf("&&\n"); break;
+    case NEG: printf("!\n"); break;
+    case ARTOP1: printOP(internal->op_specifier); break;
+    case ARTOP2: printOP(internal->op_specifier); break;
+    case RELOP: printOP(internal->op_specifier); break;
+    case SETOP: printOP(internal->op_specifier); break;
     case IN: printf("IN\n"); break;
     case IS_SET: printf("IS_SET\n"); break;
     case EXISTS: printf("EXISTS\n"); break;

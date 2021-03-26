@@ -1,10 +1,31 @@
-int main() {
-    set s;
-    s = EMPTY;
-    %
-    add(3 in s);
-    add(4 in s);
-    remove(1 in s);
+int global_variable;
+global_variable = 0;
 
-    writeln('T');
+int some_function(float a, float b){
+  int result;
+  result =  a + b * a / b - a;
+  return result;
+}
+
+int size(set s){
+  int count;
+  elem x;
+  count = 0;
+  forall(x in s) count = count + 1;
+  return count;
+}
+
+int main(){
+  set domain;
+  set image;
+  elem x;
+  writeln("Input a set to serve as domain.");
+  read domain);
+  if (!is_set(domain)) {
+    writeln("Invalid set.");
+    return 1;
+  }
+  forall(x in domain) add(some_function(x) in image);
+  if (size(image) != size(domain)) writeln("Not injective.");
+  else writeln("Injective.");
 }

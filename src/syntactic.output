@@ -1,0 +1,6492 @@
+Grammar
+
+    0 $accept: begin $end
+
+    1 begin: program
+
+    2 program: program declaration
+    3        | %empty
+
+    4 declaration: varDecl
+    5            | funcDecl
+
+    6 varDecl: TYPE varList ';'
+    7        | TYPE error
+
+    8 varList: varList ',' new_id
+    9        | new_id
+
+   10 new_id: ID
+
+   11 funcDecl: TYPE new_id arguments '{' funcBody '}'
+
+   12 arguments: '(' ')'
+   13          | '(' argsList ')'
+   14          | '(' error ')'
+
+   15 argsList: argsList ',' arg
+   16         | arg
+
+   17 arg: TYPE ID
+
+   18 funcBody: %empty
+   19         | funcBody varDecl
+   20         | funcBody funcDecl
+   21         | funcBody stmt
+
+   22 stmt: exprStmt
+   23     | returnStmt
+   24     | iterStmt
+   25     | condStmt
+
+   26 iterStmt: FOR '(' init exprStmt ')' body
+   27         | FOR '(' init exprStmt expression ')' body
+   28         | FORALL '(' pertExpr ')' body
+   29         | FORALL '(' error ')' body
+   30         | FOR '(' error ')' body
+
+   31 init: exprStmt
+   32     | TYPE new_id ';'
+
+   33 body: '{' funcBody '}'
+   34     | stmt
+   35     | varDecl
+   36     | funcDecl
+
+   37 condStmt: IF cond body
+   38         | IF cond body ELSE body
+
+   39 cond: '(' expression ')'
+   40     | '(' error ')'
+
+   41 returnStmt: RETURN exprStmt
+
+   42 exprStmt: expression ';'
+   43         | error
+   44         | ';'
+
+   45 expression: assign
+   46           | inExpr
+   47           | outExpr
+   48           | simpleExpr
+   49           | setExpr
+
+   50 assign: var '=' simpleExpr
+
+   51 var: ID
+
+   52 inExpr: READ '(' var ')'
+
+   53 outExpr: WRITE '(' output ')'
+   54        | WRITELN '(' output ')'
+
+   55 output: ID
+   56       | CHAR
+   57       | STRING
+
+   58 simpleExpr: simpleExpr DISJ disjExpr
+   59           | disjExpr
+
+   60 disjExpr: disjExpr CONJ negExpr
+   61         | negExpr
+
+   62 negExpr: NEG negExpr
+   63        | relExpr
+
+   64 relExpr: relExpr RELOP artExpr1
+   65        | artExpr1
+
+   66 artExpr1: artExpr1 ARTOP1 artExpr2
+   67         | artExpr2
+
+   68 artExpr2: artExpr2 ARTOP2 factor
+   69         | factor
+
+   70 factor: ID
+   71       | '(' simpleExpr ')'
+   72       | constant
+   73       | call
+   74       | IS_SET '(' set ')'
+   75       | pertExpr
+
+   76 constant: INTEGER
+   77         | FLOAT
+   78         | EMPTY
+
+   79 call: var '(' params ')'
+
+   80 params: %empty
+   81       | paramList
+
+   82 paramList: paramList ',' simpleExpr
+   83          | simpleExpr
+
+   84 pertExpr: elem IN set
+
+   85 setExpr: SETOP '(' pertExpr ')'
+   86        | EXISTS '(' pertExpr ')'
+
+   87 elem: ID
+   88     | '(' setExpr ')'
+   89     | call
+   90     | '(' simpleExpr ')'
+   91     | constant
+
+   92 set: ID
+   93    | SETOP '(' pertExpr ')'
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '(' (40) 12 13 14 26 27 28 29 30 39 40 52 53 54 71 74 79 85 86 88 90 93
+    ')' (41) 12 13 14 26 27 28 29 30 39 40 52 53 54 71 74 79 85 86 88 90 93
+    ',' (44) 8 15 82
+    ';' (59) 6 32 42 44
+    '=' (61) 50
+    '{' (123) 11 33
+    '}' (125) 11 33
+    error (256) 7 14 29 30 40 43
+    TYPE <ival> (258) 6 7 11 17 32
+    RELOP <ival> (259) 64
+    SETOP <ival> (260) 85 93
+    ARTOP1 <ival> (261) 66
+    ARTOP2 <ival> (262) 68
+    ID <sval> (263) 10 17 51 55 70 87 92
+    IF (264) 37 38
+    ELSE (265) 38
+    FOR (266) 26 27 30
+    RETURN (267) 41
+    FORALL (268) 28 29
+    IN (269) 84
+    IS_SET (270) 74
+    EXISTS (271) 86
+    DISJ (272) 58
+    CONJ (273) 60
+    NEG (274) 62
+    READ (275) 52
+    WRITE (276) 53
+    WRITELN (277) 54
+    INTEGER <ival> (278) 76
+    FLOAT <fval> (279) 77
+    CHAR <cval> (280) 56
+    STRING <sval> (281) 57
+    EMPTY (282) 78
+    THEN (283)
+
+
+Nonterminals, with rules where they appear
+
+    $accept (36)
+        on left: 0
+    begin (37)
+        on left: 1
+        on right: 0
+    program <tnode> (38)
+        on left: 2 3
+        on right: 1 2
+    declaration <tnode> (39)
+        on left: 4 5
+        on right: 2
+    varDecl <tnode> (40)
+        on left: 6 7
+        on right: 4 19 35
+    varList <tnode> (41)
+        on left: 8 9
+        on right: 6 8
+    new_id <tnode> (42)
+        on left: 10
+        on right: 8 9 11 32
+    funcDecl <tnode> (43)
+        on left: 11
+        on right: 5 20 36
+    arguments <tnode> (44)
+        on left: 12 13 14
+        on right: 11
+    argsList <tnode> (45)
+        on left: 15 16
+        on right: 13 15
+    arg <tnode> (46)
+        on left: 17
+        on right: 15 16
+    funcBody <tnode> (47)
+        on left: 18 19 20 21
+        on right: 11 19 20 21 33
+    stmt <tnode> (48)
+        on left: 22 23 24 25
+        on right: 21 34
+    iterStmt <tnode> (49)
+        on left: 26 27 28 29 30
+        on right: 24
+    init <tnode> (50)
+        on left: 31 32
+        on right: 26 27
+    body <tnode> (51)
+        on left: 33 34 35 36
+        on right: 26 27 28 29 30 37 38
+    condStmt <tnode> (52)
+        on left: 37 38
+        on right: 25
+    cond <tnode> (53)
+        on left: 39 40
+        on right: 37 38
+    returnStmt <tnode> (54)
+        on left: 41
+        on right: 23
+    exprStmt <tnode> (55)
+        on left: 42 43 44
+        on right: 22 26 27 31 41
+    expression <tnode> (56)
+        on left: 45 46 47 48 49
+        on right: 27 39 42
+    assign <tnode> (57)
+        on left: 50
+        on right: 45
+    var <tnode> (58)
+        on left: 51
+        on right: 50 52 79
+    inExpr <tnode> (59)
+        on left: 52
+        on right: 46
+    outExpr <tnode> (60)
+        on left: 53 54
+        on right: 47
+    output <tnode> (61)
+        on left: 55 56 57
+        on right: 53 54
+    simpleExpr <tnode> (62)
+        on left: 58 59
+        on right: 48 50 58 71 82 83 90
+    disjExpr <tnode> (63)
+        on left: 60 61
+        on right: 58 59 60
+    negExpr <tnode> (64)
+        on left: 62 63
+        on right: 60 61 62
+    relExpr <tnode> (65)
+        on left: 64 65
+        on right: 63 64
+    artExpr1 <tnode> (66)
+        on left: 66 67
+        on right: 64 65 66
+    artExpr2 <tnode> (67)
+        on left: 68 69
+        on right: 66 67 68
+    factor <tnode> (68)
+        on left: 70 71 72 73 74 75
+        on right: 68 69
+    constant <tnode> (69)
+        on left: 76 77 78
+        on right: 72 91
+    call <tnode> (70)
+        on left: 79
+        on right: 73 89
+    params <tnode> (71)
+        on left: 80 81
+        on right: 79
+    paramList <tnode> (72)
+        on left: 82 83
+        on right: 81 82
+    pertExpr <tnode> (73)
+        on left: 84
+        on right: 28 75 85 86 93
+    setExpr <tnode> (74)
+        on left: 85 86
+        on right: 49 88
+    elem <tnode> (75)
+        on left: 87 88 89 90 91
+        on right: 84
+    set <tnode> (76)
+        on left: 92 93
+        on right: 74 84
+
+
+State 0
+
+    0 $accept: . begin $end
+
+    $end  reduce using rule 3 (program)
+    TYPE  reduce using rule 3 (program)
+
+    begin    go to state 1
+    program  go to state 2
+
+
+State 1
+
+    0 $accept: begin . $end
+
+    $end  shift, and go to state 3
+
+
+State 2
+
+    1 begin: program .
+    2 program: program . declaration
+
+    TYPE  shift, and go to state 4
+
+    $end  reduce using rule 1 (begin)
+
+    declaration  go to state 5
+    varDecl      go to state 6
+    funcDecl     go to state 7
+
+
+State 3
+
+    0 $accept: begin $end .
+
+    $default  accept
+
+
+State 4
+
+    6 varDecl: TYPE . varList ';'
+    7        | TYPE . error
+   11 funcDecl: TYPE . new_id arguments '{' funcBody '}'
+
+    error  shift, and go to state 8
+    ID     shift, and go to state 9
+
+    varList  go to state 10
+    new_id   go to state 11
+
+
+State 5
+
+    2 program: program declaration .
+
+    $end  reduce using rule 2 (program)
+    TYPE  reduce using rule 2 (program)
+
+
+State 6
+
+    4 declaration: varDecl .
+
+    $end  reduce using rule 4 (declaration)
+    TYPE  reduce using rule 4 (declaration)
+
+
+State 7
+
+    5 declaration: funcDecl .
+
+    $end  reduce using rule 5 (declaration)
+    TYPE  reduce using rule 5 (declaration)
+
+
+State 8
+
+    7 varDecl: TYPE error .
+
+    $end  reduce using rule 7 (varDecl)
+    TYPE  reduce using rule 7 (varDecl)
+
+
+State 9
+
+   10 new_id: ID .
+
+    ';'  reduce using rule 10 (new_id)
+    ','  reduce using rule 10 (new_id)
+    '('  reduce using rule 10 (new_id)
+
+
+State 10
+
+    6 varDecl: TYPE varList . ';'
+    8 varList: varList . ',' new_id
+
+    ';'  shift, and go to state 12
+    ','  shift, and go to state 13
+
+
+State 11
+
+    9 varList: new_id .
+   11 funcDecl: TYPE new_id . arguments '{' funcBody '}'
+
+    '('  shift, and go to state 14
+
+    ';'  reduce using rule 9 (varList)
+    ','  reduce using rule 9 (varList)
+
+    arguments  go to state 15
+
+
+State 12
+
+    6 varDecl: TYPE varList ';' .
+
+    $end  reduce using rule 6 (varDecl)
+    TYPE  reduce using rule 6 (varDecl)
+
+
+State 13
+
+    8 varList: varList ',' . new_id
+
+    ID  shift, and go to state 171
+
+    new_id  go to state 16
+
+
+State 14
+
+   12 arguments: '(' . ')'
+   13          | '(' . argsList ')'
+   14          | '(' . error ')'
+
+    error  shift, and go to state 17
+    TYPE   shift, and go to state 18
+    ')'    shift, and go to state 19
+
+    argsList  go to state 20
+    arg       go to state 21
+
+
+State 15
+
+   11 funcDecl: TYPE new_id arguments . '{' funcBody '}'
+
+    '{'  shift, and go to state 22
+
+
+State 16
+
+    8 varList: varList ',' new_id .
+
+    ';'  reduce using rule 8 (varList)
+    ','  reduce using rule 8 (varList)
+
+
+State 17
+
+   14 arguments: '(' error . ')'
+
+    ')'  shift, and go to state 23
+
+
+State 18
+
+   17 arg: TYPE . ID
+
+    ID  shift, and go to state 24
+
+
+State 19
+
+   12 arguments: '(' ')' .
+
+    '{'  reduce using rule 12 (arguments)
+
+
+State 20
+
+   13 arguments: '(' argsList . ')'
+   15 argsList: argsList . ',' arg
+
+    ','  shift, and go to state 25
+    ')'  shift, and go to state 26
+
+
+State 21
+
+   16 argsList: arg .
+
+    ','  reduce using rule 16 (argsList)
+    ')'  reduce using rule 16 (argsList)
+
+
+State 22
+
+   11 funcDecl: TYPE new_id arguments '{' . funcBody '}'
+
+    error    reduce using rule 18 (funcBody)
+    TYPE     reduce using rule 18 (funcBody)
+    SETOP    reduce using rule 18 (funcBody)
+    ID       reduce using rule 18 (funcBody)
+    IF       reduce using rule 18 (funcBody)
+    FOR      reduce using rule 18 (funcBody)
+    RETURN   reduce using rule 18 (funcBody)
+    FORALL   reduce using rule 18 (funcBody)
+    IS_SET   reduce using rule 18 (funcBody)
+    EXISTS   reduce using rule 18 (funcBody)
+    NEG      reduce using rule 18 (funcBody)
+    READ     reduce using rule 18 (funcBody)
+    WRITE    reduce using rule 18 (funcBody)
+    WRITELN  reduce using rule 18 (funcBody)
+    INTEGER  reduce using rule 18 (funcBody)
+    FLOAT    reduce using rule 18 (funcBody)
+    EMPTY    reduce using rule 18 (funcBody)
+    ';'      reduce using rule 18 (funcBody)
+    '}'      reduce using rule 18 (funcBody)
+    '('      reduce using rule 18 (funcBody)
+
+    funcBody  go to state 27
+
+
+State 23
+
+   14 arguments: '(' error ')' .
+
+    '{'  reduce using rule 14 (arguments)
+
+
+State 24
+
+   17 arg: TYPE ID .
+
+    ','  reduce using rule 17 (arg)
+    ')'  reduce using rule 17 (arg)
+
+
+State 25
+
+   15 argsList: argsList ',' . arg
+
+    TYPE  shift, and go to state 18
+
+    arg  go to state 28
+
+
+State 26
+
+   13 arguments: '(' argsList ')' .
+
+    '{'  reduce using rule 13 (arguments)
+
+
+State 27
+
+   11 funcDecl: TYPE new_id arguments '{' funcBody . '}'
+   19 funcBody: funcBody . varDecl
+   20         | funcBody . funcDecl
+   21         | funcBody . stmt
+
+    error    shift, and go to state 29
+    TYPE     shift, and go to state 172
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 32
+    FOR      shift, and go to state 33
+    RETURN   shift, and go to state 34
+    FORALL   shift, and go to state 35
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '}'      shift, and go to state 46
+    '('      shift, and go to state 47
+
+    varDecl     go to state 48
+    funcDecl    go to state 49
+    stmt        go to state 50
+    iterStmt    go to state 51
+    condStmt    go to state 52
+    returnStmt  go to state 53
+    exprStmt    go to state 54
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 28
+
+   15 argsList: argsList ',' arg .
+
+    ','  reduce using rule 15 (argsList)
+    ')'  reduce using rule 15 (argsList)
+
+
+State 29
+
+   43 exprStmt: error .
+
+    error    reduce using rule 43 (exprStmt)
+    TYPE     reduce using rule 43 (exprStmt)
+    SETOP    reduce using rule 43 (exprStmt)
+    ID       reduce using rule 43 (exprStmt)
+    IF       reduce using rule 43 (exprStmt)
+    FOR      reduce using rule 43 (exprStmt)
+    RETURN   reduce using rule 43 (exprStmt)
+    FORALL   reduce using rule 43 (exprStmt)
+    IS_SET   reduce using rule 43 (exprStmt)
+    EXISTS   reduce using rule 43 (exprStmt)
+    NEG      reduce using rule 43 (exprStmt)
+    READ     reduce using rule 43 (exprStmt)
+    WRITE    reduce using rule 43 (exprStmt)
+    WRITELN  reduce using rule 43 (exprStmt)
+    INTEGER  reduce using rule 43 (exprStmt)
+    FLOAT    reduce using rule 43 (exprStmt)
+    EMPTY    reduce using rule 43 (exprStmt)
+    ';'      reduce using rule 43 (exprStmt)
+    '}'      reduce using rule 43 (exprStmt)
+    '('      reduce using rule 43 (exprStmt)
+
+
+State 30
+
+   85 setExpr: SETOP . '(' pertExpr ')'
+
+    '('  shift, and go to state 72
+
+
+State 31
+
+   51 var: ID .
+   70 factor: ID .
+   87 elem: ID .
+
+    RELOP   reduce using rule 70 (factor)
+    ARTOP1  reduce using rule 70 (factor)
+    ARTOP2  reduce using rule 70 (factor)
+    IN      reduce using rule 87 (elem)
+    DISJ    reduce using rule 70 (factor)
+    CONJ    reduce using rule 70 (factor)
+    ';'     reduce using rule 70 (factor)
+    '('     reduce using rule 51 (var)
+    '='     reduce using rule 51 (var)
+
+
+State 32
+
+   37 condStmt: IF . cond body
+   38         | IF . cond body ELSE body
+
+    '('  shift, and go to state 73
+
+    cond  go to state 74
+
+
+State 33
+
+   26 iterStmt: FOR . '(' init exprStmt ')' body
+   27         | FOR . '(' init exprStmt expression ')' body
+   30         | FOR . '(' error ')' body
+
+    '('  shift, and go to state 75
+
+
+State 34
+
+   41 returnStmt: RETURN . exprStmt
+
+    error    shift, and go to state 29
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '('      shift, and go to state 47
+
+    exprStmt    go to state 76
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 35
+
+   28 iterStmt: FORALL . '(' pertExpr ')' body
+   29         | FORALL . '(' error ')' body
+
+    '('  shift, and go to state 77
+
+
+State 36
+
+   74 factor: IS_SET . '(' set ')'
+
+    '('  shift, and go to state 78
+
+
+State 37
+
+   86 setExpr: EXISTS . '(' pertExpr ')'
+
+    '('  shift, and go to state 79
+
+
+State 38
+
+   62 negExpr: NEG . negExpr
+
+    ID       shift, and go to state 173
+    IS_SET   shift, and go to state 36
+    NEG      shift, and go to state 38
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    '('      shift, and go to state 47
+
+    var       go to state 80
+    negExpr   go to state 81
+    relExpr   go to state 63
+    artExpr1  go to state 64
+    artExpr2  go to state 65
+    factor    go to state 66
+    constant  go to state 67
+    call      go to state 68
+    pertExpr  go to state 69
+    elem      go to state 71
+
+
+State 39
+
+   52 inExpr: READ . '(' var ')'
+
+    '('  shift, and go to state 82
+
+
+State 40
+
+   53 outExpr: WRITE . '(' output ')'
+
+    '('  shift, and go to state 83
+
+
+State 41
+
+   54 outExpr: WRITELN . '(' output ')'
+
+    '('  shift, and go to state 84
+
+
+State 42
+
+   76 constant: INTEGER .
+
+    RELOP   reduce using rule 76 (constant)
+    ARTOP1  reduce using rule 76 (constant)
+    ARTOP2  reduce using rule 76 (constant)
+    IN      reduce using rule 76 (constant)
+    DISJ    reduce using rule 76 (constant)
+    CONJ    reduce using rule 76 (constant)
+    ';'     reduce using rule 76 (constant)
+
+
+State 43
+
+   77 constant: FLOAT .
+
+    RELOP   reduce using rule 77 (constant)
+    ARTOP1  reduce using rule 77 (constant)
+    ARTOP2  reduce using rule 77 (constant)
+    IN      reduce using rule 77 (constant)
+    DISJ    reduce using rule 77 (constant)
+    CONJ    reduce using rule 77 (constant)
+    ';'     reduce using rule 77 (constant)
+
+
+State 44
+
+   78 constant: EMPTY .
+
+    RELOP   reduce using rule 78 (constant)
+    ARTOP1  reduce using rule 78 (constant)
+    ARTOP2  reduce using rule 78 (constant)
+    IN      reduce using rule 78 (constant)
+    DISJ    reduce using rule 78 (constant)
+    CONJ    reduce using rule 78 (constant)
+    ';'     reduce using rule 78 (constant)
+
+
+State 45
+
+   44 exprStmt: ';' .
+
+    error    reduce using rule 44 (exprStmt)
+    TYPE     reduce using rule 44 (exprStmt)
+    SETOP    reduce using rule 44 (exprStmt)
+    ID       reduce using rule 44 (exprStmt)
+    IF       reduce using rule 44 (exprStmt)
+    FOR      reduce using rule 44 (exprStmt)
+    RETURN   reduce using rule 44 (exprStmt)
+    FORALL   reduce using rule 44 (exprStmt)
+    IS_SET   reduce using rule 44 (exprStmt)
+    EXISTS   reduce using rule 44 (exprStmt)
+    NEG      reduce using rule 44 (exprStmt)
+    READ     reduce using rule 44 (exprStmt)
+    WRITE    reduce using rule 44 (exprStmt)
+    WRITELN  reduce using rule 44 (exprStmt)
+    INTEGER  reduce using rule 44 (exprStmt)
+    FLOAT    reduce using rule 44 (exprStmt)
+    EMPTY    reduce using rule 44 (exprStmt)
+    ';'      reduce using rule 44 (exprStmt)
+    '}'      reduce using rule 44 (exprStmt)
+    '('      reduce using rule 44 (exprStmt)
+
+
+State 46
+
+   11 funcDecl: TYPE new_id arguments '{' funcBody '}' .
+
+    $end  reduce using rule 11 (funcDecl)
+    TYPE  reduce using rule 11 (funcDecl)
+
+
+State 47
+
+   71 factor: '(' . simpleExpr ')'
+   88 elem: '(' . setExpr ')'
+   90     | '(' . simpleExpr ')'
+
+    SETOP    shift, and go to state 174
+    ID       shift, and go to state 175
+    IS_SET   shift, and go to state 176
+    EXISTS   shift, and go to state 177
+    NEG      shift, and go to state 178
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    var         go to state 183
+    simpleExpr  go to state 85
+    disjExpr    go to state 184
+    negExpr     go to state 185
+    relExpr     go to state 186
+    artExpr1    go to state 187
+    artExpr2    go to state 188
+    factor      go to state 189
+    constant    go to state 190
+    call        go to state 191
+    pertExpr    go to state 192
+    setExpr     go to state 86
+    elem        go to state 193
+
+
+State 48
+
+   19 funcBody: funcBody varDecl .
+
+    error    reduce using rule 19 (funcBody)
+    TYPE     reduce using rule 19 (funcBody)
+    SETOP    reduce using rule 19 (funcBody)
+    ID       reduce using rule 19 (funcBody)
+    IF       reduce using rule 19 (funcBody)
+    FOR      reduce using rule 19 (funcBody)
+    RETURN   reduce using rule 19 (funcBody)
+    FORALL   reduce using rule 19 (funcBody)
+    IS_SET   reduce using rule 19 (funcBody)
+    EXISTS   reduce using rule 19 (funcBody)
+    NEG      reduce using rule 19 (funcBody)
+    READ     reduce using rule 19 (funcBody)
+    WRITE    reduce using rule 19 (funcBody)
+    WRITELN  reduce using rule 19 (funcBody)
+    INTEGER  reduce using rule 19 (funcBody)
+    FLOAT    reduce using rule 19 (funcBody)
+    EMPTY    reduce using rule 19 (funcBody)
+    ';'      reduce using rule 19 (funcBody)
+    '}'      reduce using rule 19 (funcBody)
+    '('      reduce using rule 19 (funcBody)
+
+
+State 49
+
+   20 funcBody: funcBody funcDecl .
+
+    error    reduce using rule 20 (funcBody)
+    TYPE     reduce using rule 20 (funcBody)
+    SETOP    reduce using rule 20 (funcBody)
+    ID       reduce using rule 20 (funcBody)
+    IF       reduce using rule 20 (funcBody)
+    FOR      reduce using rule 20 (funcBody)
+    RETURN   reduce using rule 20 (funcBody)
+    FORALL   reduce using rule 20 (funcBody)
+    IS_SET   reduce using rule 20 (funcBody)
+    EXISTS   reduce using rule 20 (funcBody)
+    NEG      reduce using rule 20 (funcBody)
+    READ     reduce using rule 20 (funcBody)
+    WRITE    reduce using rule 20 (funcBody)
+    WRITELN  reduce using rule 20 (funcBody)
+    INTEGER  reduce using rule 20 (funcBody)
+    FLOAT    reduce using rule 20 (funcBody)
+    EMPTY    reduce using rule 20 (funcBody)
+    ';'      reduce using rule 20 (funcBody)
+    '}'      reduce using rule 20 (funcBody)
+    '('      reduce using rule 20 (funcBody)
+
+
+State 50
+
+   21 funcBody: funcBody stmt .
+
+    error    reduce using rule 21 (funcBody)
+    TYPE     reduce using rule 21 (funcBody)
+    SETOP    reduce using rule 21 (funcBody)
+    ID       reduce using rule 21 (funcBody)
+    IF       reduce using rule 21 (funcBody)
+    FOR      reduce using rule 21 (funcBody)
+    RETURN   reduce using rule 21 (funcBody)
+    FORALL   reduce using rule 21 (funcBody)
+    IS_SET   reduce using rule 21 (funcBody)
+    EXISTS   reduce using rule 21 (funcBody)
+    NEG      reduce using rule 21 (funcBody)
+    READ     reduce using rule 21 (funcBody)
+    WRITE    reduce using rule 21 (funcBody)
+    WRITELN  reduce using rule 21 (funcBody)
+    INTEGER  reduce using rule 21 (funcBody)
+    FLOAT    reduce using rule 21 (funcBody)
+    EMPTY    reduce using rule 21 (funcBody)
+    ';'      reduce using rule 21 (funcBody)
+    '}'      reduce using rule 21 (funcBody)
+    '('      reduce using rule 21 (funcBody)
+
+
+State 51
+
+   24 stmt: iterStmt .
+
+    error    reduce using rule 24 (stmt)
+    TYPE     reduce using rule 24 (stmt)
+    SETOP    reduce using rule 24 (stmt)
+    ID       reduce using rule 24 (stmt)
+    IF       reduce using rule 24 (stmt)
+    FOR      reduce using rule 24 (stmt)
+    RETURN   reduce using rule 24 (stmt)
+    FORALL   reduce using rule 24 (stmt)
+    IS_SET   reduce using rule 24 (stmt)
+    EXISTS   reduce using rule 24 (stmt)
+    NEG      reduce using rule 24 (stmt)
+    READ     reduce using rule 24 (stmt)
+    WRITE    reduce using rule 24 (stmt)
+    WRITELN  reduce using rule 24 (stmt)
+    INTEGER  reduce using rule 24 (stmt)
+    FLOAT    reduce using rule 24 (stmt)
+    EMPTY    reduce using rule 24 (stmt)
+    ';'      reduce using rule 24 (stmt)
+    '}'      reduce using rule 24 (stmt)
+    '('      reduce using rule 24 (stmt)
+
+
+State 52
+
+   25 stmt: condStmt .
+
+    error    reduce using rule 25 (stmt)
+    TYPE     reduce using rule 25 (stmt)
+    SETOP    reduce using rule 25 (stmt)
+    ID       reduce using rule 25 (stmt)
+    IF       reduce using rule 25 (stmt)
+    FOR      reduce using rule 25 (stmt)
+    RETURN   reduce using rule 25 (stmt)
+    FORALL   reduce using rule 25 (stmt)
+    IS_SET   reduce using rule 25 (stmt)
+    EXISTS   reduce using rule 25 (stmt)
+    NEG      reduce using rule 25 (stmt)
+    READ     reduce using rule 25 (stmt)
+    WRITE    reduce using rule 25 (stmt)
+    WRITELN  reduce using rule 25 (stmt)
+    INTEGER  reduce using rule 25 (stmt)
+    FLOAT    reduce using rule 25 (stmt)
+    EMPTY    reduce using rule 25 (stmt)
+    ';'      reduce using rule 25 (stmt)
+    '}'      reduce using rule 25 (stmt)
+    '('      reduce using rule 25 (stmt)
+
+
+State 53
+
+   23 stmt: returnStmt .
+
+    error    reduce using rule 23 (stmt)
+    TYPE     reduce using rule 23 (stmt)
+    SETOP    reduce using rule 23 (stmt)
+    ID       reduce using rule 23 (stmt)
+    IF       reduce using rule 23 (stmt)
+    FOR      reduce using rule 23 (stmt)
+    RETURN   reduce using rule 23 (stmt)
+    FORALL   reduce using rule 23 (stmt)
+    IS_SET   reduce using rule 23 (stmt)
+    EXISTS   reduce using rule 23 (stmt)
+    NEG      reduce using rule 23 (stmt)
+    READ     reduce using rule 23 (stmt)
+    WRITE    reduce using rule 23 (stmt)
+    WRITELN  reduce using rule 23 (stmt)
+    INTEGER  reduce using rule 23 (stmt)
+    FLOAT    reduce using rule 23 (stmt)
+    EMPTY    reduce using rule 23 (stmt)
+    ';'      reduce using rule 23 (stmt)
+    '}'      reduce using rule 23 (stmt)
+    '('      reduce using rule 23 (stmt)
+
+
+State 54
+
+   22 stmt: exprStmt .
+
+    error    reduce using rule 22 (stmt)
+    TYPE     reduce using rule 22 (stmt)
+    SETOP    reduce using rule 22 (stmt)
+    ID       reduce using rule 22 (stmt)
+    IF       reduce using rule 22 (stmt)
+    FOR      reduce using rule 22 (stmt)
+    RETURN   reduce using rule 22 (stmt)
+    FORALL   reduce using rule 22 (stmt)
+    IS_SET   reduce using rule 22 (stmt)
+    EXISTS   reduce using rule 22 (stmt)
+    NEG      reduce using rule 22 (stmt)
+    READ     reduce using rule 22 (stmt)
+    WRITE    reduce using rule 22 (stmt)
+    WRITELN  reduce using rule 22 (stmt)
+    INTEGER  reduce using rule 22 (stmt)
+    FLOAT    reduce using rule 22 (stmt)
+    EMPTY    reduce using rule 22 (stmt)
+    ';'      reduce using rule 22 (stmt)
+    '}'      reduce using rule 22 (stmt)
+    '('      reduce using rule 22 (stmt)
+
+
+State 55
+
+   42 exprStmt: expression . ';'
+
+    ';'  shift, and go to state 87
+
+
+State 56
+
+   45 expression: assign .
+
+    ';'  reduce using rule 45 (expression)
+
+
+State 57
+
+   50 assign: var . '=' simpleExpr
+   79 call: var . '(' params ')'
+
+    '('  shift, and go to state 88
+    '='  shift, and go to state 89
+
+
+State 58
+
+   46 expression: inExpr .
+
+    ';'  reduce using rule 46 (expression)
+
+
+State 59
+
+   47 expression: outExpr .
+
+    ';'  reduce using rule 47 (expression)
+
+
+State 60
+
+   48 expression: simpleExpr .
+   58 simpleExpr: simpleExpr . DISJ disjExpr
+
+    DISJ  shift, and go to state 90
+
+    ';'  reduce using rule 48 (expression)
+
+
+State 61
+
+   59 simpleExpr: disjExpr .
+   60 disjExpr: disjExpr . CONJ negExpr
+
+    CONJ  shift, and go to state 91
+
+    DISJ  reduce using rule 59 (simpleExpr)
+    ';'   reduce using rule 59 (simpleExpr)
+
+
+State 62
+
+   61 disjExpr: negExpr .
+
+    DISJ  reduce using rule 61 (disjExpr)
+    CONJ  reduce using rule 61 (disjExpr)
+    ';'   reduce using rule 61 (disjExpr)
+
+
+State 63
+
+   63 negExpr: relExpr .
+   64 relExpr: relExpr . RELOP artExpr1
+
+    RELOP  shift, and go to state 92
+
+    DISJ  reduce using rule 63 (negExpr)
+    CONJ  reduce using rule 63 (negExpr)
+    ';'   reduce using rule 63 (negExpr)
+
+
+State 64
+
+   65 relExpr: artExpr1 .
+   66 artExpr1: artExpr1 . ARTOP1 artExpr2
+
+    ARTOP1  shift, and go to state 93
+
+    RELOP  reduce using rule 65 (relExpr)
+    DISJ   reduce using rule 65 (relExpr)
+    CONJ   reduce using rule 65 (relExpr)
+    ';'    reduce using rule 65 (relExpr)
+
+
+State 65
+
+   67 artExpr1: artExpr2 .
+   68 artExpr2: artExpr2 . ARTOP2 factor
+
+    ARTOP2  shift, and go to state 94
+
+    RELOP   reduce using rule 67 (artExpr1)
+    ARTOP1  reduce using rule 67 (artExpr1)
+    DISJ    reduce using rule 67 (artExpr1)
+    CONJ    reduce using rule 67 (artExpr1)
+    ';'     reduce using rule 67 (artExpr1)
+
+
+State 66
+
+   69 artExpr2: factor .
+
+    RELOP   reduce using rule 69 (artExpr2)
+    ARTOP1  reduce using rule 69 (artExpr2)
+    ARTOP2  reduce using rule 69 (artExpr2)
+    DISJ    reduce using rule 69 (artExpr2)
+    CONJ    reduce using rule 69 (artExpr2)
+    ';'     reduce using rule 69 (artExpr2)
+
+
+State 67
+
+   72 factor: constant .
+   91 elem: constant .
+
+    RELOP   reduce using rule 72 (factor)
+    ARTOP1  reduce using rule 72 (factor)
+    ARTOP2  reduce using rule 72 (factor)
+    IN      reduce using rule 91 (elem)
+    DISJ    reduce using rule 72 (factor)
+    CONJ    reduce using rule 72 (factor)
+    ';'     reduce using rule 72 (factor)
+
+
+State 68
+
+   73 factor: call .
+   89 elem: call .
+
+    RELOP   reduce using rule 73 (factor)
+    ARTOP1  reduce using rule 73 (factor)
+    ARTOP2  reduce using rule 73 (factor)
+    IN      reduce using rule 89 (elem)
+    DISJ    reduce using rule 73 (factor)
+    CONJ    reduce using rule 73 (factor)
+    ';'     reduce using rule 73 (factor)
+
+
+State 69
+
+   75 factor: pertExpr .
+
+    RELOP   reduce using rule 75 (factor)
+    ARTOP1  reduce using rule 75 (factor)
+    ARTOP2  reduce using rule 75 (factor)
+    DISJ    reduce using rule 75 (factor)
+    CONJ    reduce using rule 75 (factor)
+    ';'     reduce using rule 75 (factor)
+
+
+State 70
+
+   49 expression: setExpr .
+
+    ';'  reduce using rule 49 (expression)
+
+
+State 71
+
+   84 pertExpr: elem . IN set
+
+    IN  shift, and go to state 95
+
+
+State 72
+
+   85 setExpr: SETOP '(' . pertExpr ')'
+
+    ID       shift, and go to state 96
+    INTEGER  shift, and go to state 194
+    FLOAT    shift, and go to state 195
+    EMPTY    shift, and go to state 196
+    '('      shift, and go to state 97
+
+    var       go to state 197
+    constant  go to state 98
+    call      go to state 99
+    pertExpr  go to state 100
+    elem      go to state 198
+
+
+State 73
+
+   39 cond: '(' . expression ')'
+   40     | '(' . error ')'
+
+    error    shift, and go to state 101
+    SETOP    shift, and go to state 174
+    ID       shift, and go to state 199
+    IS_SET   shift, and go to state 176
+    EXISTS   shift, and go to state 177
+    NEG      shift, and go to state 178
+    READ     shift, and go to state 200
+    WRITE    shift, and go to state 201
+    WRITELN  shift, and go to state 202
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    expression  go to state 102
+    assign      go to state 203
+    var         go to state 204
+    inExpr      go to state 205
+    outExpr     go to state 206
+    simpleExpr  go to state 207
+    disjExpr    go to state 184
+    negExpr     go to state 185
+    relExpr     go to state 186
+    artExpr1    go to state 187
+    artExpr2    go to state 188
+    factor      go to state 189
+    constant    go to state 190
+    call        go to state 191
+    pertExpr    go to state 192
+    setExpr     go to state 208
+    elem        go to state 193
+
+
+State 74
+
+   37 condStmt: IF cond . body
+   38         | IF cond . body ELSE body
+
+    error    shift, and go to state 209
+    TYPE     shift, and go to state 210
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 211
+    FOR      shift, and go to state 212
+    RETURN   shift, and go to state 213
+    FORALL   shift, and go to state 214
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 215
+    '{'      shift, and go to state 103
+    '('      shift, and go to state 47
+
+    varDecl     go to state 104
+    funcDecl    go to state 105
+    stmt        go to state 106
+    iterStmt    go to state 216
+    body        go to state 107
+    condStmt    go to state 217
+    returnStmt  go to state 218
+    exprStmt    go to state 219
+    expression  go to state 220
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 75
+
+   26 iterStmt: FOR '(' . init exprStmt ')' body
+   27         | FOR '(' . init exprStmt expression ')' body
+   30         | FOR '(' . error ')' body
+
+    error    shift, and go to state 108
+    TYPE     shift, and go to state 109
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 221
+    '('      shift, and go to state 47
+
+    init        go to state 110
+    exprStmt    go to state 111
+    expression  go to state 222
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 76
+
+   41 returnStmt: RETURN exprStmt .
+
+    error    reduce using rule 41 (returnStmt)
+    TYPE     reduce using rule 41 (returnStmt)
+    SETOP    reduce using rule 41 (returnStmt)
+    ID       reduce using rule 41 (returnStmt)
+    IF       reduce using rule 41 (returnStmt)
+    FOR      reduce using rule 41 (returnStmt)
+    RETURN   reduce using rule 41 (returnStmt)
+    FORALL   reduce using rule 41 (returnStmt)
+    IS_SET   reduce using rule 41 (returnStmt)
+    EXISTS   reduce using rule 41 (returnStmt)
+    NEG      reduce using rule 41 (returnStmt)
+    READ     reduce using rule 41 (returnStmt)
+    WRITE    reduce using rule 41 (returnStmt)
+    WRITELN  reduce using rule 41 (returnStmt)
+    INTEGER  reduce using rule 41 (returnStmt)
+    FLOAT    reduce using rule 41 (returnStmt)
+    EMPTY    reduce using rule 41 (returnStmt)
+    ';'      reduce using rule 41 (returnStmt)
+    '}'      reduce using rule 41 (returnStmt)
+    '('      reduce using rule 41 (returnStmt)
+
+
+State 77
+
+   28 iterStmt: FORALL '(' . pertExpr ')' body
+   29         | FORALL '(' . error ')' body
+
+    error    shift, and go to state 112
+    ID       shift, and go to state 96
+    INTEGER  shift, and go to state 194
+    FLOAT    shift, and go to state 195
+    EMPTY    shift, and go to state 196
+    '('      shift, and go to state 97
+
+    var       go to state 197
+    constant  go to state 98
+    call      go to state 99
+    pertExpr  go to state 113
+    elem      go to state 198
+
+
+State 78
+
+   74 factor: IS_SET '(' . set ')'
+
+    SETOP  shift, and go to state 114
+    ID     shift, and go to state 115
+
+    set  go to state 116
+
+
+State 79
+
+   86 setExpr: EXISTS '(' . pertExpr ')'
+
+    ID       shift, and go to state 96
+    INTEGER  shift, and go to state 194
+    FLOAT    shift, and go to state 195
+    EMPTY    shift, and go to state 196
+    '('      shift, and go to state 97
+
+    var       go to state 197
+    constant  go to state 98
+    call      go to state 99
+    pertExpr  go to state 117
+    elem      go to state 198
+
+
+State 80
+
+   79 call: var . '(' params ')'
+
+    '('  shift, and go to state 88
+
+
+State 81
+
+   62 negExpr: NEG negExpr .
+
+    DISJ  reduce using rule 62 (negExpr)
+    CONJ  reduce using rule 62 (negExpr)
+    ';'   reduce using rule 62 (negExpr)
+
+
+State 82
+
+   52 inExpr: READ '(' . var ')'
+
+    ID  shift, and go to state 118
+
+    var  go to state 119
+
+
+State 83
+
+   53 outExpr: WRITE '(' . output ')'
+
+    ID      shift, and go to state 120
+    CHAR    shift, and go to state 121
+    STRING  shift, and go to state 122
+
+    output  go to state 123
+
+
+State 84
+
+   54 outExpr: WRITELN '(' . output ')'
+
+    ID      shift, and go to state 120
+    CHAR    shift, and go to state 121
+    STRING  shift, and go to state 122
+
+    output  go to state 124
+
+
+State 85
+
+   58 simpleExpr: simpleExpr . DISJ disjExpr
+   71 factor: '(' simpleExpr . ')'
+   90 elem: '(' simpleExpr . ')'
+
+    DISJ  shift, and go to state 223
+    ')'   shift, and go to state 125
+
+
+State 86
+
+   88 elem: '(' setExpr . ')'
+
+    ')'  shift, and go to state 126
+
+
+State 87
+
+   42 exprStmt: expression ';' .
+
+    error    reduce using rule 42 (exprStmt)
+    TYPE     reduce using rule 42 (exprStmt)
+    SETOP    reduce using rule 42 (exprStmt)
+    ID       reduce using rule 42 (exprStmt)
+    IF       reduce using rule 42 (exprStmt)
+    FOR      reduce using rule 42 (exprStmt)
+    RETURN   reduce using rule 42 (exprStmt)
+    FORALL   reduce using rule 42 (exprStmt)
+    IS_SET   reduce using rule 42 (exprStmt)
+    EXISTS   reduce using rule 42 (exprStmt)
+    NEG      reduce using rule 42 (exprStmt)
+    READ     reduce using rule 42 (exprStmt)
+    WRITE    reduce using rule 42 (exprStmt)
+    WRITELN  reduce using rule 42 (exprStmt)
+    INTEGER  reduce using rule 42 (exprStmt)
+    FLOAT    reduce using rule 42 (exprStmt)
+    EMPTY    reduce using rule 42 (exprStmt)
+    ';'      reduce using rule 42 (exprStmt)
+    '}'      reduce using rule 42 (exprStmt)
+    '('      reduce using rule 42 (exprStmt)
+
+
+State 88
+
+   79 call: var '(' . params ')'
+
+    ID       shift, and go to state 224
+    IS_SET   shift, and go to state 225
+    NEG      shift, and go to state 226
+    INTEGER  shift, and go to state 227
+    FLOAT    shift, and go to state 228
+    EMPTY    shift, and go to state 229
+    '('      shift, and go to state 230
+
+    ')'  reduce using rule 80 (params)
+
+    var         go to state 231
+    simpleExpr  go to state 127
+    disjExpr    go to state 232
+    negExpr     go to state 233
+    relExpr     go to state 234
+    artExpr1    go to state 235
+    artExpr2    go to state 236
+    factor      go to state 237
+    constant    go to state 238
+    call        go to state 239
+    params      go to state 128
+    paramList   go to state 129
+    pertExpr    go to state 240
+    elem        go to state 241
+
+
+State 89
+
+   50 assign: var '=' . simpleExpr
+
+    ID       shift, and go to state 173
+    IS_SET   shift, and go to state 36
+    NEG      shift, and go to state 38
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    '('      shift, and go to state 47
+
+    var         go to state 80
+    simpleExpr  go to state 130
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    elem        go to state 71
+
+
+State 90
+
+   58 simpleExpr: simpleExpr DISJ . disjExpr
+
+    ID       shift, and go to state 173
+    IS_SET   shift, and go to state 36
+    NEG      shift, and go to state 38
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    '('      shift, and go to state 47
+
+    var       go to state 80
+    disjExpr  go to state 131
+    negExpr   go to state 62
+    relExpr   go to state 63
+    artExpr1  go to state 64
+    artExpr2  go to state 65
+    factor    go to state 66
+    constant  go to state 67
+    call      go to state 68
+    pertExpr  go to state 69
+    elem      go to state 71
+
+
+State 91
+
+   60 disjExpr: disjExpr CONJ . negExpr
+
+    ID       shift, and go to state 173
+    IS_SET   shift, and go to state 36
+    NEG      shift, and go to state 38
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    '('      shift, and go to state 47
+
+    var       go to state 80
+    negExpr   go to state 132
+    relExpr   go to state 63
+    artExpr1  go to state 64
+    artExpr2  go to state 65
+    factor    go to state 66
+    constant  go to state 67
+    call      go to state 68
+    pertExpr  go to state 69
+    elem      go to state 71
+
+
+State 92
+
+   64 relExpr: relExpr RELOP . artExpr1
+
+    ID       shift, and go to state 173
+    IS_SET   shift, and go to state 36
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    '('      shift, and go to state 47
+
+    var       go to state 80
+    artExpr1  go to state 133
+    artExpr2  go to state 65
+    factor    go to state 66
+    constant  go to state 67
+    call      go to state 68
+    pertExpr  go to state 69
+    elem      go to state 71
+
+
+State 93
+
+   66 artExpr1: artExpr1 ARTOP1 . artExpr2
+
+    ID       shift, and go to state 173
+    IS_SET   shift, and go to state 36
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    '('      shift, and go to state 47
+
+    var       go to state 80
+    artExpr2  go to state 134
+    factor    go to state 66
+    constant  go to state 67
+    call      go to state 68
+    pertExpr  go to state 69
+    elem      go to state 71
+
+
+State 94
+
+   68 artExpr2: artExpr2 ARTOP2 . factor
+
+    ID       shift, and go to state 173
+    IS_SET   shift, and go to state 36
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    '('      shift, and go to state 47
+
+    var       go to state 80
+    factor    go to state 135
+    constant  go to state 67
+    call      go to state 68
+    pertExpr  go to state 69
+    elem      go to state 71
+
+
+State 95
+
+   84 pertExpr: elem IN . set
+
+    SETOP  shift, and go to state 242
+    ID     shift, and go to state 243
+
+    set  go to state 136
+
+
+State 96
+
+   51 var: ID .
+   87 elem: ID .
+
+    IN   reduce using rule 87 (elem)
+    '('  reduce using rule 51 (var)
+
+
+State 97
+
+   88 elem: '(' . setExpr ')'
+   90     | '(' . simpleExpr ')'
+
+    SETOP    shift, and go to state 174
+    ID       shift, and go to state 175
+    IS_SET   shift, and go to state 176
+    EXISTS   shift, and go to state 177
+    NEG      shift, and go to state 178
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    var         go to state 183
+    simpleExpr  go to state 137
+    disjExpr    go to state 184
+    negExpr     go to state 185
+    relExpr     go to state 186
+    artExpr1    go to state 187
+    artExpr2    go to state 188
+    factor      go to state 189
+    constant    go to state 190
+    call        go to state 191
+    pertExpr    go to state 192
+    setExpr     go to state 86
+    elem        go to state 193
+
+
+State 98
+
+   91 elem: constant .
+
+    IN  reduce using rule 91 (elem)
+
+
+State 99
+
+   89 elem: call .
+
+    IN  reduce using rule 89 (elem)
+
+
+State 100
+
+   85 setExpr: SETOP '(' pertExpr . ')'
+
+    ')'  shift, and go to state 138
+
+
+State 101
+
+   40 cond: '(' error . ')'
+
+    ')'  shift, and go to state 139
+
+
+State 102
+
+   39 cond: '(' expression . ')'
+
+    ')'  shift, and go to state 140
+
+
+State 103
+
+   33 body: '{' . funcBody '}'
+
+    error    reduce using rule 18 (funcBody)
+    TYPE     reduce using rule 18 (funcBody)
+    SETOP    reduce using rule 18 (funcBody)
+    ID       reduce using rule 18 (funcBody)
+    IF       reduce using rule 18 (funcBody)
+    FOR      reduce using rule 18 (funcBody)
+    RETURN   reduce using rule 18 (funcBody)
+    FORALL   reduce using rule 18 (funcBody)
+    IS_SET   reduce using rule 18 (funcBody)
+    EXISTS   reduce using rule 18 (funcBody)
+    NEG      reduce using rule 18 (funcBody)
+    READ     reduce using rule 18 (funcBody)
+    WRITE    reduce using rule 18 (funcBody)
+    WRITELN  reduce using rule 18 (funcBody)
+    INTEGER  reduce using rule 18 (funcBody)
+    FLOAT    reduce using rule 18 (funcBody)
+    EMPTY    reduce using rule 18 (funcBody)
+    ';'      reduce using rule 18 (funcBody)
+    '}'      reduce using rule 18 (funcBody)
+    '('      reduce using rule 18 (funcBody)
+
+    funcBody  go to state 141
+
+
+State 104
+
+   35 body: varDecl .
+
+    error    reduce using rule 35 (body)
+    TYPE     reduce using rule 35 (body)
+    SETOP    reduce using rule 35 (body)
+    ID       reduce using rule 35 (body)
+    IF       reduce using rule 35 (body)
+    ELSE     reduce using rule 35 (body)
+    FOR      reduce using rule 35 (body)
+    RETURN   reduce using rule 35 (body)
+    FORALL   reduce using rule 35 (body)
+    IS_SET   reduce using rule 35 (body)
+    EXISTS   reduce using rule 35 (body)
+    NEG      reduce using rule 35 (body)
+    READ     reduce using rule 35 (body)
+    WRITE    reduce using rule 35 (body)
+    WRITELN  reduce using rule 35 (body)
+    INTEGER  reduce using rule 35 (body)
+    FLOAT    reduce using rule 35 (body)
+    EMPTY    reduce using rule 35 (body)
+    ';'      reduce using rule 35 (body)
+    '}'      reduce using rule 35 (body)
+    '('      reduce using rule 35 (body)
+
+
+State 105
+
+   36 body: funcDecl .
+
+    error    reduce using rule 36 (body)
+    TYPE     reduce using rule 36 (body)
+    SETOP    reduce using rule 36 (body)
+    ID       reduce using rule 36 (body)
+    IF       reduce using rule 36 (body)
+    ELSE     reduce using rule 36 (body)
+    FOR      reduce using rule 36 (body)
+    RETURN   reduce using rule 36 (body)
+    FORALL   reduce using rule 36 (body)
+    IS_SET   reduce using rule 36 (body)
+    EXISTS   reduce using rule 36 (body)
+    NEG      reduce using rule 36 (body)
+    READ     reduce using rule 36 (body)
+    WRITE    reduce using rule 36 (body)
+    WRITELN  reduce using rule 36 (body)
+    INTEGER  reduce using rule 36 (body)
+    FLOAT    reduce using rule 36 (body)
+    EMPTY    reduce using rule 36 (body)
+    ';'      reduce using rule 36 (body)
+    '}'      reduce using rule 36 (body)
+    '('      reduce using rule 36 (body)
+
+
+State 106
+
+   34 body: stmt .
+
+    error    reduce using rule 34 (body)
+    TYPE     reduce using rule 34 (body)
+    SETOP    reduce using rule 34 (body)
+    ID       reduce using rule 34 (body)
+    IF       reduce using rule 34 (body)
+    ELSE     reduce using rule 34 (body)
+    FOR      reduce using rule 34 (body)
+    RETURN   reduce using rule 34 (body)
+    FORALL   reduce using rule 34 (body)
+    IS_SET   reduce using rule 34 (body)
+    EXISTS   reduce using rule 34 (body)
+    NEG      reduce using rule 34 (body)
+    READ     reduce using rule 34 (body)
+    WRITE    reduce using rule 34 (body)
+    WRITELN  reduce using rule 34 (body)
+    INTEGER  reduce using rule 34 (body)
+    FLOAT    reduce using rule 34 (body)
+    EMPTY    reduce using rule 34 (body)
+    ';'      reduce using rule 34 (body)
+    '}'      reduce using rule 34 (body)
+    '('      reduce using rule 34 (body)
+
+
+State 107
+
+   37 condStmt: IF cond body .
+   38         | IF cond body . ELSE body
+
+    ELSE  shift, and go to state 142
+
+    error    reduce using rule 37 (condStmt)
+    TYPE     reduce using rule 37 (condStmt)
+    SETOP    reduce using rule 37 (condStmt)
+    ID       reduce using rule 37 (condStmt)
+    IF       reduce using rule 37 (condStmt)
+    FOR      reduce using rule 37 (condStmt)
+    RETURN   reduce using rule 37 (condStmt)
+    FORALL   reduce using rule 37 (condStmt)
+    IS_SET   reduce using rule 37 (condStmt)
+    EXISTS   reduce using rule 37 (condStmt)
+    NEG      reduce using rule 37 (condStmt)
+    READ     reduce using rule 37 (condStmt)
+    WRITE    reduce using rule 37 (condStmt)
+    WRITELN  reduce using rule 37 (condStmt)
+    INTEGER  reduce using rule 37 (condStmt)
+    FLOAT    reduce using rule 37 (condStmt)
+    EMPTY    reduce using rule 37 (condStmt)
+    ';'      reduce using rule 37 (condStmt)
+    '}'      reduce using rule 37 (condStmt)
+    '('      reduce using rule 37 (condStmt)
+
+
+State 108
+
+   30 iterStmt: FOR '(' error . ')' body
+   43 exprStmt: error .
+
+    ')'  shift, and go to state 143
+
+    error    reduce using rule 43 (exprStmt)
+    SETOP    reduce using rule 43 (exprStmt)
+    ID       reduce using rule 43 (exprStmt)
+    IS_SET   reduce using rule 43 (exprStmt)
+    EXISTS   reduce using rule 43 (exprStmt)
+    NEG      reduce using rule 43 (exprStmt)
+    READ     reduce using rule 43 (exprStmt)
+    WRITE    reduce using rule 43 (exprStmt)
+    WRITELN  reduce using rule 43 (exprStmt)
+    INTEGER  reduce using rule 43 (exprStmt)
+    FLOAT    reduce using rule 43 (exprStmt)
+    EMPTY    reduce using rule 43 (exprStmt)
+    ';'      reduce using rule 43 (exprStmt)
+    '('      reduce using rule 43 (exprStmt)
+
+
+State 109
+
+   32 init: TYPE . new_id ';'
+
+    ID  shift, and go to state 244
+
+    new_id  go to state 144
+
+
+State 110
+
+   26 iterStmt: FOR '(' init . exprStmt ')' body
+   27         | FOR '(' init . exprStmt expression ')' body
+
+    error    shift, and go to state 245
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 246
+    '('      shift, and go to state 47
+
+    exprStmt    go to state 145
+    expression  go to state 247
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 111
+
+   31 init: exprStmt .
+
+    error    reduce using rule 31 (init)
+    SETOP    reduce using rule 31 (init)
+    ID       reduce using rule 31 (init)
+    IS_SET   reduce using rule 31 (init)
+    EXISTS   reduce using rule 31 (init)
+    NEG      reduce using rule 31 (init)
+    READ     reduce using rule 31 (init)
+    WRITE    reduce using rule 31 (init)
+    WRITELN  reduce using rule 31 (init)
+    INTEGER  reduce using rule 31 (init)
+    FLOAT    reduce using rule 31 (init)
+    EMPTY    reduce using rule 31 (init)
+    ';'      reduce using rule 31 (init)
+    '('      reduce using rule 31 (init)
+
+
+State 112
+
+   29 iterStmt: FORALL '(' error . ')' body
+
+    ')'  shift, and go to state 146
+
+
+State 113
+
+   28 iterStmt: FORALL '(' pertExpr . ')' body
+
+    ')'  shift, and go to state 147
+
+
+State 114
+
+   93 set: SETOP . '(' pertExpr ')'
+
+    '('  shift, and go to state 148
+
+
+State 115
+
+   92 set: ID .
+
+    ')'  reduce using rule 92 (set)
+
+
+State 116
+
+   74 factor: IS_SET '(' set . ')'
+
+    ')'  shift, and go to state 149
+
+
+State 117
+
+   86 setExpr: EXISTS '(' pertExpr . ')'
+
+    ')'  shift, and go to state 150
+
+
+State 118
+
+   51 var: ID .
+
+    ')'  reduce using rule 51 (var)
+
+
+State 119
+
+   52 inExpr: READ '(' var . ')'
+
+    ')'  shift, and go to state 151
+
+
+State 120
+
+   55 output: ID .
+
+    ')'  reduce using rule 55 (output)
+
+
+State 121
+
+   56 output: CHAR .
+
+    ')'  reduce using rule 56 (output)
+
+
+State 122
+
+   57 output: STRING .
+
+    ')'  reduce using rule 57 (output)
+
+
+State 123
+
+   53 outExpr: WRITE '(' output . ')'
+
+    ')'  shift, and go to state 152
+
+
+State 124
+
+   54 outExpr: WRITELN '(' output . ')'
+
+    ')'  shift, and go to state 153
+
+
+State 125
+
+   71 factor: '(' simpleExpr ')' .
+   90 elem: '(' simpleExpr ')' .
+
+    RELOP   reduce using rule 71 (factor)
+    ARTOP1  reduce using rule 71 (factor)
+    ARTOP2  reduce using rule 71 (factor)
+    IN      reduce using rule 90 (elem)
+    DISJ    reduce using rule 71 (factor)
+    CONJ    reduce using rule 71 (factor)
+    ';'     reduce using rule 71 (factor)
+
+
+State 126
+
+   88 elem: '(' setExpr ')' .
+
+    IN  reduce using rule 88 (elem)
+
+
+State 127
+
+   58 simpleExpr: simpleExpr . DISJ disjExpr
+   83 paramList: simpleExpr .
+
+    DISJ  shift, and go to state 248
+
+    ','  reduce using rule 83 (paramList)
+    ')'  reduce using rule 83 (paramList)
+
+
+State 128
+
+   79 call: var '(' params . ')'
+
+    ')'  shift, and go to state 154
+
+
+State 129
+
+   81 params: paramList .
+   82 paramList: paramList . ',' simpleExpr
+
+    ','  shift, and go to state 155
+
+    ')'  reduce using rule 81 (params)
+
+
+State 130
+
+   50 assign: var '=' simpleExpr .
+   58 simpleExpr: simpleExpr . DISJ disjExpr
+
+    DISJ  shift, and go to state 90
+
+    ';'  reduce using rule 50 (assign)
+
+
+State 131
+
+   58 simpleExpr: simpleExpr DISJ disjExpr .
+   60 disjExpr: disjExpr . CONJ negExpr
+
+    CONJ  shift, and go to state 91
+
+    DISJ  reduce using rule 58 (simpleExpr)
+    ';'   reduce using rule 58 (simpleExpr)
+
+
+State 132
+
+   60 disjExpr: disjExpr CONJ negExpr .
+
+    DISJ  reduce using rule 60 (disjExpr)
+    CONJ  reduce using rule 60 (disjExpr)
+    ';'   reduce using rule 60 (disjExpr)
+
+
+State 133
+
+   64 relExpr: relExpr RELOP artExpr1 .
+   66 artExpr1: artExpr1 . ARTOP1 artExpr2
+
+    ARTOP1  shift, and go to state 93
+
+    RELOP  reduce using rule 64 (relExpr)
+    DISJ   reduce using rule 64 (relExpr)
+    CONJ   reduce using rule 64 (relExpr)
+    ';'    reduce using rule 64 (relExpr)
+
+
+State 134
+
+   66 artExpr1: artExpr1 ARTOP1 artExpr2 .
+   68 artExpr2: artExpr2 . ARTOP2 factor
+
+    ARTOP2  shift, and go to state 94
+
+    RELOP   reduce using rule 66 (artExpr1)
+    ARTOP1  reduce using rule 66 (artExpr1)
+    DISJ    reduce using rule 66 (artExpr1)
+    CONJ    reduce using rule 66 (artExpr1)
+    ';'     reduce using rule 66 (artExpr1)
+
+
+State 135
+
+   68 artExpr2: artExpr2 ARTOP2 factor .
+
+    RELOP   reduce using rule 68 (artExpr2)
+    ARTOP1  reduce using rule 68 (artExpr2)
+    ARTOP2  reduce using rule 68 (artExpr2)
+    DISJ    reduce using rule 68 (artExpr2)
+    CONJ    reduce using rule 68 (artExpr2)
+    ';'     reduce using rule 68 (artExpr2)
+
+
+State 136
+
+   84 pertExpr: elem IN set .
+
+    RELOP   reduce using rule 84 (pertExpr)
+    ARTOP1  reduce using rule 84 (pertExpr)
+    ARTOP2  reduce using rule 84 (pertExpr)
+    DISJ    reduce using rule 84 (pertExpr)
+    CONJ    reduce using rule 84 (pertExpr)
+    ';'     reduce using rule 84 (pertExpr)
+
+
+State 137
+
+   58 simpleExpr: simpleExpr . DISJ disjExpr
+   90 elem: '(' simpleExpr . ')'
+
+    DISJ  shift, and go to state 223
+    ')'   shift, and go to state 156
+
+
+State 138
+
+   85 setExpr: SETOP '(' pertExpr ')' .
+
+    ';'  reduce using rule 85 (setExpr)
+
+
+State 139
+
+   40 cond: '(' error ')' .
+
+    error    reduce using rule 40 (cond)
+    TYPE     reduce using rule 40 (cond)
+    SETOP    reduce using rule 40 (cond)
+    ID       reduce using rule 40 (cond)
+    IF       reduce using rule 40 (cond)
+    FOR      reduce using rule 40 (cond)
+    RETURN   reduce using rule 40 (cond)
+    FORALL   reduce using rule 40 (cond)
+    IS_SET   reduce using rule 40 (cond)
+    EXISTS   reduce using rule 40 (cond)
+    NEG      reduce using rule 40 (cond)
+    READ     reduce using rule 40 (cond)
+    WRITE    reduce using rule 40 (cond)
+    WRITELN  reduce using rule 40 (cond)
+    INTEGER  reduce using rule 40 (cond)
+    FLOAT    reduce using rule 40 (cond)
+    EMPTY    reduce using rule 40 (cond)
+    ';'      reduce using rule 40 (cond)
+    '{'      reduce using rule 40 (cond)
+    '('      reduce using rule 40 (cond)
+
+
+State 140
+
+   39 cond: '(' expression ')' .
+
+    error    reduce using rule 39 (cond)
+    TYPE     reduce using rule 39 (cond)
+    SETOP    reduce using rule 39 (cond)
+    ID       reduce using rule 39 (cond)
+    IF       reduce using rule 39 (cond)
+    FOR      reduce using rule 39 (cond)
+    RETURN   reduce using rule 39 (cond)
+    FORALL   reduce using rule 39 (cond)
+    IS_SET   reduce using rule 39 (cond)
+    EXISTS   reduce using rule 39 (cond)
+    NEG      reduce using rule 39 (cond)
+    READ     reduce using rule 39 (cond)
+    WRITE    reduce using rule 39 (cond)
+    WRITELN  reduce using rule 39 (cond)
+    INTEGER  reduce using rule 39 (cond)
+    FLOAT    reduce using rule 39 (cond)
+    EMPTY    reduce using rule 39 (cond)
+    ';'      reduce using rule 39 (cond)
+    '{'      reduce using rule 39 (cond)
+    '('      reduce using rule 39 (cond)
+
+
+State 141
+
+   19 funcBody: funcBody . varDecl
+   20         | funcBody . funcDecl
+   21         | funcBody . stmt
+   33 body: '{' funcBody . '}'
+
+    error    shift, and go to state 29
+    TYPE     shift, and go to state 172
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 32
+    FOR      shift, and go to state 33
+    RETURN   shift, and go to state 34
+    FORALL   shift, and go to state 35
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '}'      shift, and go to state 157
+    '('      shift, and go to state 47
+
+    varDecl     go to state 48
+    funcDecl    go to state 49
+    stmt        go to state 50
+    iterStmt    go to state 51
+    condStmt    go to state 52
+    returnStmt  go to state 53
+    exprStmt    go to state 54
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 142
+
+   38 condStmt: IF cond body ELSE . body
+
+    error    shift, and go to state 29
+    TYPE     shift, and go to state 172
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 32
+    FOR      shift, and go to state 33
+    RETURN   shift, and go to state 34
+    FORALL   shift, and go to state 35
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '{'      shift, and go to state 249
+    '('      shift, and go to state 47
+
+    varDecl     go to state 250
+    funcDecl    go to state 251
+    stmt        go to state 252
+    iterStmt    go to state 51
+    body        go to state 158
+    condStmt    go to state 52
+    returnStmt  go to state 53
+    exprStmt    go to state 54
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 143
+
+   30 iterStmt: FOR '(' error ')' . body
+
+    error    shift, and go to state 29
+    TYPE     shift, and go to state 172
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 32
+    FOR      shift, and go to state 33
+    RETURN   shift, and go to state 34
+    FORALL   shift, and go to state 35
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '{'      shift, and go to state 249
+    '('      shift, and go to state 47
+
+    varDecl     go to state 250
+    funcDecl    go to state 251
+    stmt        go to state 252
+    iterStmt    go to state 51
+    body        go to state 159
+    condStmt    go to state 52
+    returnStmt  go to state 53
+    exprStmt    go to state 54
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 144
+
+   32 init: TYPE new_id . ';'
+
+    ';'  shift, and go to state 160
+
+
+State 145
+
+   26 iterStmt: FOR '(' init exprStmt . ')' body
+   27         | FOR '(' init exprStmt . expression ')' body
+
+    SETOP    shift, and go to state 174
+    ID       shift, and go to state 199
+    IS_SET   shift, and go to state 176
+    EXISTS   shift, and go to state 177
+    NEG      shift, and go to state 178
+    READ     shift, and go to state 200
+    WRITE    shift, and go to state 201
+    WRITELN  shift, and go to state 202
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+    ')'      shift, and go to state 161
+
+    expression  go to state 162
+    assign      go to state 203
+    var         go to state 204
+    inExpr      go to state 205
+    outExpr     go to state 206
+    simpleExpr  go to state 207
+    disjExpr    go to state 184
+    negExpr     go to state 185
+    relExpr     go to state 186
+    artExpr1    go to state 187
+    artExpr2    go to state 188
+    factor      go to state 189
+    constant    go to state 190
+    call        go to state 191
+    pertExpr    go to state 192
+    setExpr     go to state 208
+    elem        go to state 193
+
+
+State 146
+
+   29 iterStmt: FORALL '(' error ')' . body
+
+    error    shift, and go to state 29
+    TYPE     shift, and go to state 172
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 32
+    FOR      shift, and go to state 33
+    RETURN   shift, and go to state 34
+    FORALL   shift, and go to state 35
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '{'      shift, and go to state 249
+    '('      shift, and go to state 47
+
+    varDecl     go to state 250
+    funcDecl    go to state 251
+    stmt        go to state 252
+    iterStmt    go to state 51
+    body        go to state 163
+    condStmt    go to state 52
+    returnStmt  go to state 53
+    exprStmt    go to state 54
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 147
+
+   28 iterStmt: FORALL '(' pertExpr ')' . body
+
+    error    shift, and go to state 29
+    TYPE     shift, and go to state 172
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 32
+    FOR      shift, and go to state 33
+    RETURN   shift, and go to state 34
+    FORALL   shift, and go to state 35
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '{'      shift, and go to state 249
+    '('      shift, and go to state 47
+
+    varDecl     go to state 250
+    funcDecl    go to state 251
+    stmt        go to state 252
+    iterStmt    go to state 51
+    body        go to state 164
+    condStmt    go to state 52
+    returnStmt  go to state 53
+    exprStmt    go to state 54
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 148
+
+   93 set: SETOP '(' . pertExpr ')'
+
+    ID       shift, and go to state 96
+    INTEGER  shift, and go to state 194
+    FLOAT    shift, and go to state 195
+    EMPTY    shift, and go to state 196
+    '('      shift, and go to state 97
+
+    var       go to state 197
+    constant  go to state 98
+    call      go to state 99
+    pertExpr  go to state 165
+    elem      go to state 198
+
+
+State 149
+
+   74 factor: IS_SET '(' set ')' .
+
+    RELOP   reduce using rule 74 (factor)
+    ARTOP1  reduce using rule 74 (factor)
+    ARTOP2  reduce using rule 74 (factor)
+    DISJ    reduce using rule 74 (factor)
+    CONJ    reduce using rule 74 (factor)
+    ';'     reduce using rule 74 (factor)
+
+
+State 150
+
+   86 setExpr: EXISTS '(' pertExpr ')' .
+
+    ';'  reduce using rule 86 (setExpr)
+
+
+State 151
+
+   52 inExpr: READ '(' var ')' .
+
+    ';'  reduce using rule 52 (inExpr)
+
+
+State 152
+
+   53 outExpr: WRITE '(' output ')' .
+
+    ';'  reduce using rule 53 (outExpr)
+
+
+State 153
+
+   54 outExpr: WRITELN '(' output ')' .
+
+    ';'  reduce using rule 54 (outExpr)
+
+
+State 154
+
+   79 call: var '(' params ')' .
+
+    RELOP   reduce using rule 79 (call)
+    ARTOP1  reduce using rule 79 (call)
+    ARTOP2  reduce using rule 79 (call)
+    IN      reduce using rule 79 (call)
+    DISJ    reduce using rule 79 (call)
+    CONJ    reduce using rule 79 (call)
+    ';'     reduce using rule 79 (call)
+
+
+State 155
+
+   82 paramList: paramList ',' . simpleExpr
+
+    ID       shift, and go to state 224
+    IS_SET   shift, and go to state 225
+    NEG      shift, and go to state 226
+    INTEGER  shift, and go to state 227
+    FLOAT    shift, and go to state 228
+    EMPTY    shift, and go to state 229
+    '('      shift, and go to state 230
+
+    var         go to state 231
+    simpleExpr  go to state 166
+    disjExpr    go to state 232
+    negExpr     go to state 233
+    relExpr     go to state 234
+    artExpr1    go to state 235
+    artExpr2    go to state 236
+    factor      go to state 237
+    constant    go to state 238
+    call        go to state 239
+    pertExpr    go to state 240
+    elem        go to state 241
+
+
+State 156
+
+   90 elem: '(' simpleExpr ')' .
+
+    IN  reduce using rule 90 (elem)
+
+
+State 157
+
+   33 body: '{' funcBody '}' .
+
+    error    reduce using rule 33 (body)
+    TYPE     reduce using rule 33 (body)
+    SETOP    reduce using rule 33 (body)
+    ID       reduce using rule 33 (body)
+    IF       reduce using rule 33 (body)
+    ELSE     reduce using rule 33 (body)
+    FOR      reduce using rule 33 (body)
+    RETURN   reduce using rule 33 (body)
+    FORALL   reduce using rule 33 (body)
+    IS_SET   reduce using rule 33 (body)
+    EXISTS   reduce using rule 33 (body)
+    NEG      reduce using rule 33 (body)
+    READ     reduce using rule 33 (body)
+    WRITE    reduce using rule 33 (body)
+    WRITELN  reduce using rule 33 (body)
+    INTEGER  reduce using rule 33 (body)
+    FLOAT    reduce using rule 33 (body)
+    EMPTY    reduce using rule 33 (body)
+    ';'      reduce using rule 33 (body)
+    '}'      reduce using rule 33 (body)
+    '('      reduce using rule 33 (body)
+
+
+State 158
+
+   38 condStmt: IF cond body ELSE body .
+
+    error    reduce using rule 38 (condStmt)
+    TYPE     reduce using rule 38 (condStmt)
+    SETOP    reduce using rule 38 (condStmt)
+    ID       reduce using rule 38 (condStmt)
+    IF       reduce using rule 38 (condStmt)
+    FOR      reduce using rule 38 (condStmt)
+    RETURN   reduce using rule 38 (condStmt)
+    FORALL   reduce using rule 38 (condStmt)
+    IS_SET   reduce using rule 38 (condStmt)
+    EXISTS   reduce using rule 38 (condStmt)
+    NEG      reduce using rule 38 (condStmt)
+    READ     reduce using rule 38 (condStmt)
+    WRITE    reduce using rule 38 (condStmt)
+    WRITELN  reduce using rule 38 (condStmt)
+    INTEGER  reduce using rule 38 (condStmt)
+    FLOAT    reduce using rule 38 (condStmt)
+    EMPTY    reduce using rule 38 (condStmt)
+    ';'      reduce using rule 38 (condStmt)
+    '}'      reduce using rule 38 (condStmt)
+    '('      reduce using rule 38 (condStmt)
+
+
+State 159
+
+   30 iterStmt: FOR '(' error ')' body .
+
+    error    reduce using rule 30 (iterStmt)
+    TYPE     reduce using rule 30 (iterStmt)
+    SETOP    reduce using rule 30 (iterStmt)
+    ID       reduce using rule 30 (iterStmt)
+    IF       reduce using rule 30 (iterStmt)
+    FOR      reduce using rule 30 (iterStmt)
+    RETURN   reduce using rule 30 (iterStmt)
+    FORALL   reduce using rule 30 (iterStmt)
+    IS_SET   reduce using rule 30 (iterStmt)
+    EXISTS   reduce using rule 30 (iterStmt)
+    NEG      reduce using rule 30 (iterStmt)
+    READ     reduce using rule 30 (iterStmt)
+    WRITE    reduce using rule 30 (iterStmt)
+    WRITELN  reduce using rule 30 (iterStmt)
+    INTEGER  reduce using rule 30 (iterStmt)
+    FLOAT    reduce using rule 30 (iterStmt)
+    EMPTY    reduce using rule 30 (iterStmt)
+    ';'      reduce using rule 30 (iterStmt)
+    '}'      reduce using rule 30 (iterStmt)
+    '('      reduce using rule 30 (iterStmt)
+
+
+State 160
+
+   32 init: TYPE new_id ';' .
+
+    error    reduce using rule 32 (init)
+    SETOP    reduce using rule 32 (init)
+    ID       reduce using rule 32 (init)
+    IS_SET   reduce using rule 32 (init)
+    EXISTS   reduce using rule 32 (init)
+    NEG      reduce using rule 32 (init)
+    READ     reduce using rule 32 (init)
+    WRITE    reduce using rule 32 (init)
+    WRITELN  reduce using rule 32 (init)
+    INTEGER  reduce using rule 32 (init)
+    FLOAT    reduce using rule 32 (init)
+    EMPTY    reduce using rule 32 (init)
+    ';'      reduce using rule 32 (init)
+    '('      reduce using rule 32 (init)
+
+
+State 161
+
+   26 iterStmt: FOR '(' init exprStmt ')' . body
+
+    error    shift, and go to state 29
+    TYPE     shift, and go to state 172
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 32
+    FOR      shift, and go to state 33
+    RETURN   shift, and go to state 34
+    FORALL   shift, and go to state 35
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '{'      shift, and go to state 249
+    '('      shift, and go to state 47
+
+    varDecl     go to state 250
+    funcDecl    go to state 251
+    stmt        go to state 252
+    iterStmt    go to state 51
+    body        go to state 167
+    condStmt    go to state 52
+    returnStmt  go to state 53
+    exprStmt    go to state 54
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 162
+
+   27 iterStmt: FOR '(' init exprStmt expression . ')' body
+
+    ')'  shift, and go to state 168
+
+
+State 163
+
+   29 iterStmt: FORALL '(' error ')' body .
+
+    error    reduce using rule 29 (iterStmt)
+    TYPE     reduce using rule 29 (iterStmt)
+    SETOP    reduce using rule 29 (iterStmt)
+    ID       reduce using rule 29 (iterStmt)
+    IF       reduce using rule 29 (iterStmt)
+    FOR      reduce using rule 29 (iterStmt)
+    RETURN   reduce using rule 29 (iterStmt)
+    FORALL   reduce using rule 29 (iterStmt)
+    IS_SET   reduce using rule 29 (iterStmt)
+    EXISTS   reduce using rule 29 (iterStmt)
+    NEG      reduce using rule 29 (iterStmt)
+    READ     reduce using rule 29 (iterStmt)
+    WRITE    reduce using rule 29 (iterStmt)
+    WRITELN  reduce using rule 29 (iterStmt)
+    INTEGER  reduce using rule 29 (iterStmt)
+    FLOAT    reduce using rule 29 (iterStmt)
+    EMPTY    reduce using rule 29 (iterStmt)
+    ';'      reduce using rule 29 (iterStmt)
+    '}'      reduce using rule 29 (iterStmt)
+    '('      reduce using rule 29 (iterStmt)
+
+
+State 164
+
+   28 iterStmt: FORALL '(' pertExpr ')' body .
+
+    error    reduce using rule 28 (iterStmt)
+    TYPE     reduce using rule 28 (iterStmt)
+    SETOP    reduce using rule 28 (iterStmt)
+    ID       reduce using rule 28 (iterStmt)
+    IF       reduce using rule 28 (iterStmt)
+    FOR      reduce using rule 28 (iterStmt)
+    RETURN   reduce using rule 28 (iterStmt)
+    FORALL   reduce using rule 28 (iterStmt)
+    IS_SET   reduce using rule 28 (iterStmt)
+    EXISTS   reduce using rule 28 (iterStmt)
+    NEG      reduce using rule 28 (iterStmt)
+    READ     reduce using rule 28 (iterStmt)
+    WRITE    reduce using rule 28 (iterStmt)
+    WRITELN  reduce using rule 28 (iterStmt)
+    INTEGER  reduce using rule 28 (iterStmt)
+    FLOAT    reduce using rule 28 (iterStmt)
+    EMPTY    reduce using rule 28 (iterStmt)
+    ';'      reduce using rule 28 (iterStmt)
+    '}'      reduce using rule 28 (iterStmt)
+    '('      reduce using rule 28 (iterStmt)
+
+
+State 165
+
+   93 set: SETOP '(' pertExpr . ')'
+
+    ')'  shift, and go to state 169
+
+
+State 166
+
+   58 simpleExpr: simpleExpr . DISJ disjExpr
+   82 paramList: paramList ',' simpleExpr .
+
+    DISJ  shift, and go to state 248
+
+    ','  reduce using rule 82 (paramList)
+    ')'  reduce using rule 82 (paramList)
+
+
+State 167
+
+   26 iterStmt: FOR '(' init exprStmt ')' body .
+
+    error    reduce using rule 26 (iterStmt)
+    TYPE     reduce using rule 26 (iterStmt)
+    SETOP    reduce using rule 26 (iterStmt)
+    ID       reduce using rule 26 (iterStmt)
+    IF       reduce using rule 26 (iterStmt)
+    FOR      reduce using rule 26 (iterStmt)
+    RETURN   reduce using rule 26 (iterStmt)
+    FORALL   reduce using rule 26 (iterStmt)
+    IS_SET   reduce using rule 26 (iterStmt)
+    EXISTS   reduce using rule 26 (iterStmt)
+    NEG      reduce using rule 26 (iterStmt)
+    READ     reduce using rule 26 (iterStmt)
+    WRITE    reduce using rule 26 (iterStmt)
+    WRITELN  reduce using rule 26 (iterStmt)
+    INTEGER  reduce using rule 26 (iterStmt)
+    FLOAT    reduce using rule 26 (iterStmt)
+    EMPTY    reduce using rule 26 (iterStmt)
+    ';'      reduce using rule 26 (iterStmt)
+    '}'      reduce using rule 26 (iterStmt)
+    '('      reduce using rule 26 (iterStmt)
+
+
+State 168
+
+   27 iterStmt: FOR '(' init exprStmt expression ')' . body
+
+    error    shift, and go to state 29
+    TYPE     shift, and go to state 172
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 32
+    FOR      shift, and go to state 33
+    RETURN   shift, and go to state 34
+    FORALL   shift, and go to state 35
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '{'      shift, and go to state 249
+    '('      shift, and go to state 47
+
+    varDecl     go to state 250
+    funcDecl    go to state 251
+    stmt        go to state 252
+    iterStmt    go to state 51
+    body        go to state 170
+    condStmt    go to state 52
+    returnStmt  go to state 53
+    exprStmt    go to state 54
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 169
+
+   93 set: SETOP '(' pertExpr ')' .
+
+    ')'  reduce using rule 93 (set)
+
+
+State 170
+
+   27 iterStmt: FOR '(' init exprStmt expression ')' body .
+
+    error    reduce using rule 27 (iterStmt)
+    TYPE     reduce using rule 27 (iterStmt)
+    SETOP    reduce using rule 27 (iterStmt)
+    ID       reduce using rule 27 (iterStmt)
+    IF       reduce using rule 27 (iterStmt)
+    FOR      reduce using rule 27 (iterStmt)
+    RETURN   reduce using rule 27 (iterStmt)
+    FORALL   reduce using rule 27 (iterStmt)
+    IS_SET   reduce using rule 27 (iterStmt)
+    EXISTS   reduce using rule 27 (iterStmt)
+    NEG      reduce using rule 27 (iterStmt)
+    READ     reduce using rule 27 (iterStmt)
+    WRITE    reduce using rule 27 (iterStmt)
+    WRITELN  reduce using rule 27 (iterStmt)
+    INTEGER  reduce using rule 27 (iterStmt)
+    FLOAT    reduce using rule 27 (iterStmt)
+    EMPTY    reduce using rule 27 (iterStmt)
+    ';'      reduce using rule 27 (iterStmt)
+    '}'      reduce using rule 27 (iterStmt)
+    '('      reduce using rule 27 (iterStmt)
+
+
+State 171
+
+   10 new_id: ID .
+
+    ';'  reduce using rule 10 (new_id)
+    ','  reduce using rule 10 (new_id)
+
+
+State 172
+
+    6 varDecl: TYPE . varList ';'
+    7        | TYPE . error
+   11 funcDecl: TYPE . new_id arguments '{' funcBody '}'
+
+    error  shift, and go to state 253
+    ID     shift, and go to state 9
+
+    varList  go to state 254
+    new_id   go to state 255
+
+
+State 173
+
+   51 var: ID .
+   70 factor: ID .
+   87 elem: ID .
+
+    RELOP   reduce using rule 70 (factor)
+    ARTOP1  reduce using rule 70 (factor)
+    ARTOP2  reduce using rule 70 (factor)
+    IN      reduce using rule 87 (elem)
+    DISJ    reduce using rule 70 (factor)
+    CONJ    reduce using rule 70 (factor)
+    ';'     reduce using rule 70 (factor)
+    '('     reduce using rule 51 (var)
+
+
+State 174
+
+   85 setExpr: SETOP . '(' pertExpr ')'
+
+    '('  shift, and go to state 256
+
+
+State 175
+
+   51 var: ID .
+   70 factor: ID .
+   87 elem: ID .
+
+    RELOP   reduce using rule 70 (factor)
+    ARTOP1  reduce using rule 70 (factor)
+    ARTOP2  reduce using rule 70 (factor)
+    IN      reduce using rule 87 (elem)
+    DISJ    reduce using rule 70 (factor)
+    CONJ    reduce using rule 70 (factor)
+    '('     reduce using rule 51 (var)
+    ')'     reduce using rule 70 (factor)
+
+
+State 176
+
+   74 factor: IS_SET . '(' set ')'
+
+    '('  shift, and go to state 257
+
+
+State 177
+
+   86 setExpr: EXISTS . '(' pertExpr ')'
+
+    '('  shift, and go to state 258
+
+
+State 178
+
+   62 negExpr: NEG . negExpr
+
+    ID       shift, and go to state 175
+    IS_SET   shift, and go to state 176
+    NEG      shift, and go to state 178
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    var       go to state 183
+    negExpr   go to state 259
+    relExpr   go to state 186
+    artExpr1  go to state 187
+    artExpr2  go to state 188
+    factor    go to state 189
+    constant  go to state 190
+    call      go to state 191
+    pertExpr  go to state 192
+    elem      go to state 193
+
+
+State 179
+
+   76 constant: INTEGER .
+
+    RELOP   reduce using rule 76 (constant)
+    ARTOP1  reduce using rule 76 (constant)
+    ARTOP2  reduce using rule 76 (constant)
+    IN      reduce using rule 76 (constant)
+    DISJ    reduce using rule 76 (constant)
+    CONJ    reduce using rule 76 (constant)
+    ')'     reduce using rule 76 (constant)
+
+
+State 180
+
+   77 constant: FLOAT .
+
+    RELOP   reduce using rule 77 (constant)
+    ARTOP1  reduce using rule 77 (constant)
+    ARTOP2  reduce using rule 77 (constant)
+    IN      reduce using rule 77 (constant)
+    DISJ    reduce using rule 77 (constant)
+    CONJ    reduce using rule 77 (constant)
+    ')'     reduce using rule 77 (constant)
+
+
+State 181
+
+   78 constant: EMPTY .
+
+    RELOP   reduce using rule 78 (constant)
+    ARTOP1  reduce using rule 78 (constant)
+    ARTOP2  reduce using rule 78 (constant)
+    IN      reduce using rule 78 (constant)
+    DISJ    reduce using rule 78 (constant)
+    CONJ    reduce using rule 78 (constant)
+    ')'     reduce using rule 78 (constant)
+
+
+State 182
+
+   71 factor: '(' . simpleExpr ')'
+   88 elem: '(' . setExpr ')'
+   90     | '(' . simpleExpr ')'
+
+    SETOP    shift, and go to state 174
+    ID       shift, and go to state 175
+    IS_SET   shift, and go to state 176
+    EXISTS   shift, and go to state 177
+    NEG      shift, and go to state 178
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    var         go to state 183
+    simpleExpr  go to state 260
+    disjExpr    go to state 184
+    negExpr     go to state 185
+    relExpr     go to state 186
+    artExpr1    go to state 187
+    artExpr2    go to state 188
+    factor      go to state 189
+    constant    go to state 190
+    call        go to state 191
+    pertExpr    go to state 192
+    setExpr     go to state 86
+    elem        go to state 193
+
+
+State 183
+
+   79 call: var . '(' params ')'
+
+    '('  shift, and go to state 261
+
+
+State 184
+
+   59 simpleExpr: disjExpr .
+   60 disjExpr: disjExpr . CONJ negExpr
+
+    CONJ  shift, and go to state 262
+
+    DISJ  reduce using rule 59 (simpleExpr)
+    ')'   reduce using rule 59 (simpleExpr)
+
+
+State 185
+
+   61 disjExpr: negExpr .
+
+    DISJ  reduce using rule 61 (disjExpr)
+    CONJ  reduce using rule 61 (disjExpr)
+    ')'   reduce using rule 61 (disjExpr)
+
+
+State 186
+
+   63 negExpr: relExpr .
+   64 relExpr: relExpr . RELOP artExpr1
+
+    RELOP  shift, and go to state 263
+
+    DISJ  reduce using rule 63 (negExpr)
+    CONJ  reduce using rule 63 (negExpr)
+    ')'   reduce using rule 63 (negExpr)
+
+
+State 187
+
+   65 relExpr: artExpr1 .
+   66 artExpr1: artExpr1 . ARTOP1 artExpr2
+
+    ARTOP1  shift, and go to state 264
+
+    RELOP  reduce using rule 65 (relExpr)
+    DISJ   reduce using rule 65 (relExpr)
+    CONJ   reduce using rule 65 (relExpr)
+    ')'    reduce using rule 65 (relExpr)
+
+
+State 188
+
+   67 artExpr1: artExpr2 .
+   68 artExpr2: artExpr2 . ARTOP2 factor
+
+    ARTOP2  shift, and go to state 265
+
+    RELOP   reduce using rule 67 (artExpr1)
+    ARTOP1  reduce using rule 67 (artExpr1)
+    DISJ    reduce using rule 67 (artExpr1)
+    CONJ    reduce using rule 67 (artExpr1)
+    ')'     reduce using rule 67 (artExpr1)
+
+
+State 189
+
+   69 artExpr2: factor .
+
+    RELOP   reduce using rule 69 (artExpr2)
+    ARTOP1  reduce using rule 69 (artExpr2)
+    ARTOP2  reduce using rule 69 (artExpr2)
+    DISJ    reduce using rule 69 (artExpr2)
+    CONJ    reduce using rule 69 (artExpr2)
+    ')'     reduce using rule 69 (artExpr2)
+
+
+State 190
+
+   72 factor: constant .
+   91 elem: constant .
+
+    RELOP   reduce using rule 72 (factor)
+    ARTOP1  reduce using rule 72 (factor)
+    ARTOP2  reduce using rule 72 (factor)
+    IN      reduce using rule 91 (elem)
+    DISJ    reduce using rule 72 (factor)
+    CONJ    reduce using rule 72 (factor)
+    ')'     reduce using rule 72 (factor)
+
+
+State 191
+
+   73 factor: call .
+   89 elem: call .
+
+    RELOP   reduce using rule 73 (factor)
+    ARTOP1  reduce using rule 73 (factor)
+    ARTOP2  reduce using rule 73 (factor)
+    IN      reduce using rule 89 (elem)
+    DISJ    reduce using rule 73 (factor)
+    CONJ    reduce using rule 73 (factor)
+    ')'     reduce using rule 73 (factor)
+
+
+State 192
+
+   75 factor: pertExpr .
+
+    RELOP   reduce using rule 75 (factor)
+    ARTOP1  reduce using rule 75 (factor)
+    ARTOP2  reduce using rule 75 (factor)
+    DISJ    reduce using rule 75 (factor)
+    CONJ    reduce using rule 75 (factor)
+    ')'     reduce using rule 75 (factor)
+
+
+State 193
+
+   84 pertExpr: elem . IN set
+
+    IN  shift, and go to state 266
+
+
+State 194
+
+   76 constant: INTEGER .
+
+    IN  reduce using rule 76 (constant)
+
+
+State 195
+
+   77 constant: FLOAT .
+
+    IN  reduce using rule 77 (constant)
+
+
+State 196
+
+   78 constant: EMPTY .
+
+    IN  reduce using rule 78 (constant)
+
+
+State 197
+
+   79 call: var . '(' params ')'
+
+    '('  shift, and go to state 267
+
+
+State 198
+
+   84 pertExpr: elem . IN set
+
+    IN  shift, and go to state 268
+
+
+State 199
+
+   51 var: ID .
+   70 factor: ID .
+   87 elem: ID .
+
+    RELOP   reduce using rule 70 (factor)
+    ARTOP1  reduce using rule 70 (factor)
+    ARTOP2  reduce using rule 70 (factor)
+    IN      reduce using rule 87 (elem)
+    DISJ    reduce using rule 70 (factor)
+    CONJ    reduce using rule 70 (factor)
+    '('     reduce using rule 51 (var)
+    ')'     reduce using rule 70 (factor)
+    '='     reduce using rule 51 (var)
+
+
+State 200
+
+   52 inExpr: READ . '(' var ')'
+
+    '('  shift, and go to state 269
+
+
+State 201
+
+   53 outExpr: WRITE . '(' output ')'
+
+    '('  shift, and go to state 270
+
+
+State 202
+
+   54 outExpr: WRITELN . '(' output ')'
+
+    '('  shift, and go to state 271
+
+
+State 203
+
+   45 expression: assign .
+
+    ')'  reduce using rule 45 (expression)
+
+
+State 204
+
+   50 assign: var . '=' simpleExpr
+   79 call: var . '(' params ')'
+
+    '('  shift, and go to state 261
+    '='  shift, and go to state 272
+
+
+State 205
+
+   46 expression: inExpr .
+
+    ')'  reduce using rule 46 (expression)
+
+
+State 206
+
+   47 expression: outExpr .
+
+    ')'  reduce using rule 47 (expression)
+
+
+State 207
+
+   48 expression: simpleExpr .
+   58 simpleExpr: simpleExpr . DISJ disjExpr
+
+    DISJ  shift, and go to state 223
+
+    ')'  reduce using rule 48 (expression)
+
+
+State 208
+
+   49 expression: setExpr .
+
+    ')'  reduce using rule 49 (expression)
+
+
+State 209
+
+   43 exprStmt: error .
+
+    error    reduce using rule 43 (exprStmt)
+    TYPE     reduce using rule 43 (exprStmt)
+    SETOP    reduce using rule 43 (exprStmt)
+    ID       reduce using rule 43 (exprStmt)
+    IF       reduce using rule 43 (exprStmt)
+    ELSE     reduce using rule 43 (exprStmt)
+    FOR      reduce using rule 43 (exprStmt)
+    RETURN   reduce using rule 43 (exprStmt)
+    FORALL   reduce using rule 43 (exprStmt)
+    IS_SET   reduce using rule 43 (exprStmt)
+    EXISTS   reduce using rule 43 (exprStmt)
+    NEG      reduce using rule 43 (exprStmt)
+    READ     reduce using rule 43 (exprStmt)
+    WRITE    reduce using rule 43 (exprStmt)
+    WRITELN  reduce using rule 43 (exprStmt)
+    INTEGER  reduce using rule 43 (exprStmt)
+    FLOAT    reduce using rule 43 (exprStmt)
+    EMPTY    reduce using rule 43 (exprStmt)
+    ';'      reduce using rule 43 (exprStmt)
+    '}'      reduce using rule 43 (exprStmt)
+    '('      reduce using rule 43 (exprStmt)
+
+
+State 210
+
+    6 varDecl: TYPE . varList ';'
+    7        | TYPE . error
+   11 funcDecl: TYPE . new_id arguments '{' funcBody '}'
+
+    error  shift, and go to state 273
+    ID     shift, and go to state 9
+
+    varList  go to state 274
+    new_id   go to state 275
+
+
+State 211
+
+   37 condStmt: IF . cond body
+   38         | IF . cond body ELSE body
+
+    '('  shift, and go to state 73
+
+    cond  go to state 276
+
+
+State 212
+
+   26 iterStmt: FOR . '(' init exprStmt ')' body
+   27         | FOR . '(' init exprStmt expression ')' body
+   30         | FOR . '(' error ')' body
+
+    '('  shift, and go to state 277
+
+
+State 213
+
+   41 returnStmt: RETURN . exprStmt
+
+    error    shift, and go to state 209
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 215
+    '('      shift, and go to state 47
+
+    exprStmt    go to state 278
+    expression  go to state 220
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 214
+
+   28 iterStmt: FORALL . '(' pertExpr ')' body
+   29         | FORALL . '(' error ')' body
+
+    '('  shift, and go to state 279
+
+
+State 215
+
+   44 exprStmt: ';' .
+
+    error    reduce using rule 44 (exprStmt)
+    TYPE     reduce using rule 44 (exprStmt)
+    SETOP    reduce using rule 44 (exprStmt)
+    ID       reduce using rule 44 (exprStmt)
+    IF       reduce using rule 44 (exprStmt)
+    ELSE     reduce using rule 44 (exprStmt)
+    FOR      reduce using rule 44 (exprStmt)
+    RETURN   reduce using rule 44 (exprStmt)
+    FORALL   reduce using rule 44 (exprStmt)
+    IS_SET   reduce using rule 44 (exprStmt)
+    EXISTS   reduce using rule 44 (exprStmt)
+    NEG      reduce using rule 44 (exprStmt)
+    READ     reduce using rule 44 (exprStmt)
+    WRITE    reduce using rule 44 (exprStmt)
+    WRITELN  reduce using rule 44 (exprStmt)
+    INTEGER  reduce using rule 44 (exprStmt)
+    FLOAT    reduce using rule 44 (exprStmt)
+    EMPTY    reduce using rule 44 (exprStmt)
+    ';'      reduce using rule 44 (exprStmt)
+    '}'      reduce using rule 44 (exprStmt)
+    '('      reduce using rule 44 (exprStmt)
+
+
+State 216
+
+   24 stmt: iterStmt .
+
+    error    reduce using rule 24 (stmt)
+    TYPE     reduce using rule 24 (stmt)
+    SETOP    reduce using rule 24 (stmt)
+    ID       reduce using rule 24 (stmt)
+    IF       reduce using rule 24 (stmt)
+    ELSE     reduce using rule 24 (stmt)
+    FOR      reduce using rule 24 (stmt)
+    RETURN   reduce using rule 24 (stmt)
+    FORALL   reduce using rule 24 (stmt)
+    IS_SET   reduce using rule 24 (stmt)
+    EXISTS   reduce using rule 24 (stmt)
+    NEG      reduce using rule 24 (stmt)
+    READ     reduce using rule 24 (stmt)
+    WRITE    reduce using rule 24 (stmt)
+    WRITELN  reduce using rule 24 (stmt)
+    INTEGER  reduce using rule 24 (stmt)
+    FLOAT    reduce using rule 24 (stmt)
+    EMPTY    reduce using rule 24 (stmt)
+    ';'      reduce using rule 24 (stmt)
+    '}'      reduce using rule 24 (stmt)
+    '('      reduce using rule 24 (stmt)
+
+
+State 217
+
+   25 stmt: condStmt .
+
+    error    reduce using rule 25 (stmt)
+    TYPE     reduce using rule 25 (stmt)
+    SETOP    reduce using rule 25 (stmt)
+    ID       reduce using rule 25 (stmt)
+    IF       reduce using rule 25 (stmt)
+    ELSE     reduce using rule 25 (stmt)
+    FOR      reduce using rule 25 (stmt)
+    RETURN   reduce using rule 25 (stmt)
+    FORALL   reduce using rule 25 (stmt)
+    IS_SET   reduce using rule 25 (stmt)
+    EXISTS   reduce using rule 25 (stmt)
+    NEG      reduce using rule 25 (stmt)
+    READ     reduce using rule 25 (stmt)
+    WRITE    reduce using rule 25 (stmt)
+    WRITELN  reduce using rule 25 (stmt)
+    INTEGER  reduce using rule 25 (stmt)
+    FLOAT    reduce using rule 25 (stmt)
+    EMPTY    reduce using rule 25 (stmt)
+    ';'      reduce using rule 25 (stmt)
+    '}'      reduce using rule 25 (stmt)
+    '('      reduce using rule 25 (stmt)
+
+
+State 218
+
+   23 stmt: returnStmt .
+
+    error    reduce using rule 23 (stmt)
+    TYPE     reduce using rule 23 (stmt)
+    SETOP    reduce using rule 23 (stmt)
+    ID       reduce using rule 23 (stmt)
+    IF       reduce using rule 23 (stmt)
+    ELSE     reduce using rule 23 (stmt)
+    FOR      reduce using rule 23 (stmt)
+    RETURN   reduce using rule 23 (stmt)
+    FORALL   reduce using rule 23 (stmt)
+    IS_SET   reduce using rule 23 (stmt)
+    EXISTS   reduce using rule 23 (stmt)
+    NEG      reduce using rule 23 (stmt)
+    READ     reduce using rule 23 (stmt)
+    WRITE    reduce using rule 23 (stmt)
+    WRITELN  reduce using rule 23 (stmt)
+    INTEGER  reduce using rule 23 (stmt)
+    FLOAT    reduce using rule 23 (stmt)
+    EMPTY    reduce using rule 23 (stmt)
+    ';'      reduce using rule 23 (stmt)
+    '}'      reduce using rule 23 (stmt)
+    '('      reduce using rule 23 (stmt)
+
+
+State 219
+
+   22 stmt: exprStmt .
+
+    error    reduce using rule 22 (stmt)
+    TYPE     reduce using rule 22 (stmt)
+    SETOP    reduce using rule 22 (stmt)
+    ID       reduce using rule 22 (stmt)
+    IF       reduce using rule 22 (stmt)
+    ELSE     reduce using rule 22 (stmt)
+    FOR      reduce using rule 22 (stmt)
+    RETURN   reduce using rule 22 (stmt)
+    FORALL   reduce using rule 22 (stmt)
+    IS_SET   reduce using rule 22 (stmt)
+    EXISTS   reduce using rule 22 (stmt)
+    NEG      reduce using rule 22 (stmt)
+    READ     reduce using rule 22 (stmt)
+    WRITE    reduce using rule 22 (stmt)
+    WRITELN  reduce using rule 22 (stmt)
+    INTEGER  reduce using rule 22 (stmt)
+    FLOAT    reduce using rule 22 (stmt)
+    EMPTY    reduce using rule 22 (stmt)
+    ';'      reduce using rule 22 (stmt)
+    '}'      reduce using rule 22 (stmt)
+    '('      reduce using rule 22 (stmt)
+
+
+State 220
+
+   42 exprStmt: expression . ';'
+
+    ';'  shift, and go to state 280
+
+
+State 221
+
+   44 exprStmt: ';' .
+
+    error    reduce using rule 44 (exprStmt)
+    SETOP    reduce using rule 44 (exprStmt)
+    ID       reduce using rule 44 (exprStmt)
+    IS_SET   reduce using rule 44 (exprStmt)
+    EXISTS   reduce using rule 44 (exprStmt)
+    NEG      reduce using rule 44 (exprStmt)
+    READ     reduce using rule 44 (exprStmt)
+    WRITE    reduce using rule 44 (exprStmt)
+    WRITELN  reduce using rule 44 (exprStmt)
+    INTEGER  reduce using rule 44 (exprStmt)
+    FLOAT    reduce using rule 44 (exprStmt)
+    EMPTY    reduce using rule 44 (exprStmt)
+    ';'      reduce using rule 44 (exprStmt)
+    '('      reduce using rule 44 (exprStmt)
+
+
+State 222
+
+   42 exprStmt: expression . ';'
+
+    ';'  shift, and go to state 281
+
+
+State 223
+
+   58 simpleExpr: simpleExpr DISJ . disjExpr
+
+    ID       shift, and go to state 175
+    IS_SET   shift, and go to state 176
+    NEG      shift, and go to state 178
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    var       go to state 183
+    disjExpr  go to state 282
+    negExpr   go to state 185
+    relExpr   go to state 186
+    artExpr1  go to state 187
+    artExpr2  go to state 188
+    factor    go to state 189
+    constant  go to state 190
+    call      go to state 191
+    pertExpr  go to state 192
+    elem      go to state 193
+
+
+State 224
+
+   51 var: ID .
+   70 factor: ID .
+   87 elem: ID .
+
+    RELOP   reduce using rule 70 (factor)
+    ARTOP1  reduce using rule 70 (factor)
+    ARTOP2  reduce using rule 70 (factor)
+    IN      reduce using rule 87 (elem)
+    DISJ    reduce using rule 70 (factor)
+    CONJ    reduce using rule 70 (factor)
+    ','     reduce using rule 70 (factor)
+    '('     reduce using rule 51 (var)
+    ')'     reduce using rule 70 (factor)
+
+
+State 225
+
+   74 factor: IS_SET . '(' set ')'
+
+    '('  shift, and go to state 283
+
+
+State 226
+
+   62 negExpr: NEG . negExpr
+
+    ID       shift, and go to state 224
+    IS_SET   shift, and go to state 225
+    NEG      shift, and go to state 226
+    INTEGER  shift, and go to state 227
+    FLOAT    shift, and go to state 228
+    EMPTY    shift, and go to state 229
+    '('      shift, and go to state 230
+
+    var       go to state 231
+    negExpr   go to state 284
+    relExpr   go to state 234
+    artExpr1  go to state 235
+    artExpr2  go to state 236
+    factor    go to state 237
+    constant  go to state 238
+    call      go to state 239
+    pertExpr  go to state 240
+    elem      go to state 241
+
+
+State 227
+
+   76 constant: INTEGER .
+
+    RELOP   reduce using rule 76 (constant)
+    ARTOP1  reduce using rule 76 (constant)
+    ARTOP2  reduce using rule 76 (constant)
+    IN      reduce using rule 76 (constant)
+    DISJ    reduce using rule 76 (constant)
+    CONJ    reduce using rule 76 (constant)
+    ','     reduce using rule 76 (constant)
+    ')'     reduce using rule 76 (constant)
+
+
+State 228
+
+   77 constant: FLOAT .
+
+    RELOP   reduce using rule 77 (constant)
+    ARTOP1  reduce using rule 77 (constant)
+    ARTOP2  reduce using rule 77 (constant)
+    IN      reduce using rule 77 (constant)
+    DISJ    reduce using rule 77 (constant)
+    CONJ    reduce using rule 77 (constant)
+    ','     reduce using rule 77 (constant)
+    ')'     reduce using rule 77 (constant)
+
+
+State 229
+
+   78 constant: EMPTY .
+
+    RELOP   reduce using rule 78 (constant)
+    ARTOP1  reduce using rule 78 (constant)
+    ARTOP2  reduce using rule 78 (constant)
+    IN      reduce using rule 78 (constant)
+    DISJ    reduce using rule 78 (constant)
+    CONJ    reduce using rule 78 (constant)
+    ','     reduce using rule 78 (constant)
+    ')'     reduce using rule 78 (constant)
+
+
+State 230
+
+   71 factor: '(' . simpleExpr ')'
+   88 elem: '(' . setExpr ')'
+   90     | '(' . simpleExpr ')'
+
+    SETOP    shift, and go to state 174
+    ID       shift, and go to state 175
+    IS_SET   shift, and go to state 176
+    EXISTS   shift, and go to state 177
+    NEG      shift, and go to state 178
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    var         go to state 183
+    simpleExpr  go to state 285
+    disjExpr    go to state 184
+    negExpr     go to state 185
+    relExpr     go to state 186
+    artExpr1    go to state 187
+    artExpr2    go to state 188
+    factor      go to state 189
+    constant    go to state 190
+    call        go to state 191
+    pertExpr    go to state 192
+    setExpr     go to state 86
+    elem        go to state 193
+
+
+State 231
+
+   79 call: var . '(' params ')'
+
+    '('  shift, and go to state 286
+
+
+State 232
+
+   59 simpleExpr: disjExpr .
+   60 disjExpr: disjExpr . CONJ negExpr
+
+    CONJ  shift, and go to state 287
+
+    DISJ  reduce using rule 59 (simpleExpr)
+    ','   reduce using rule 59 (simpleExpr)
+    ')'   reduce using rule 59 (simpleExpr)
+
+
+State 233
+
+   61 disjExpr: negExpr .
+
+    DISJ  reduce using rule 61 (disjExpr)
+    CONJ  reduce using rule 61 (disjExpr)
+    ','   reduce using rule 61 (disjExpr)
+    ')'   reduce using rule 61 (disjExpr)
+
+
+State 234
+
+   63 negExpr: relExpr .
+   64 relExpr: relExpr . RELOP artExpr1
+
+    RELOP  shift, and go to state 288
+
+    DISJ  reduce using rule 63 (negExpr)
+    CONJ  reduce using rule 63 (negExpr)
+    ','   reduce using rule 63 (negExpr)
+    ')'   reduce using rule 63 (negExpr)
+
+
+State 235
+
+   65 relExpr: artExpr1 .
+   66 artExpr1: artExpr1 . ARTOP1 artExpr2
+
+    ARTOP1  shift, and go to state 289
+
+    RELOP  reduce using rule 65 (relExpr)
+    DISJ   reduce using rule 65 (relExpr)
+    CONJ   reduce using rule 65 (relExpr)
+    ','    reduce using rule 65 (relExpr)
+    ')'    reduce using rule 65 (relExpr)
+
+
+State 236
+
+   67 artExpr1: artExpr2 .
+   68 artExpr2: artExpr2 . ARTOP2 factor
+
+    ARTOP2  shift, and go to state 290
+
+    RELOP   reduce using rule 67 (artExpr1)
+    ARTOP1  reduce using rule 67 (artExpr1)
+    DISJ    reduce using rule 67 (artExpr1)
+    CONJ    reduce using rule 67 (artExpr1)
+    ','     reduce using rule 67 (artExpr1)
+    ')'     reduce using rule 67 (artExpr1)
+
+
+State 237
+
+   69 artExpr2: factor .
+
+    RELOP   reduce using rule 69 (artExpr2)
+    ARTOP1  reduce using rule 69 (artExpr2)
+    ARTOP2  reduce using rule 69 (artExpr2)
+    DISJ    reduce using rule 69 (artExpr2)
+    CONJ    reduce using rule 69 (artExpr2)
+    ','     reduce using rule 69 (artExpr2)
+    ')'     reduce using rule 69 (artExpr2)
+
+
+State 238
+
+   72 factor: constant .
+   91 elem: constant .
+
+    RELOP   reduce using rule 72 (factor)
+    ARTOP1  reduce using rule 72 (factor)
+    ARTOP2  reduce using rule 72 (factor)
+    IN      reduce using rule 91 (elem)
+    DISJ    reduce using rule 72 (factor)
+    CONJ    reduce using rule 72 (factor)
+    ','     reduce using rule 72 (factor)
+    ')'     reduce using rule 72 (factor)
+
+
+State 239
+
+   73 factor: call .
+   89 elem: call .
+
+    RELOP   reduce using rule 73 (factor)
+    ARTOP1  reduce using rule 73 (factor)
+    ARTOP2  reduce using rule 73 (factor)
+    IN      reduce using rule 89 (elem)
+    DISJ    reduce using rule 73 (factor)
+    CONJ    reduce using rule 73 (factor)
+    ','     reduce using rule 73 (factor)
+    ')'     reduce using rule 73 (factor)
+
+
+State 240
+
+   75 factor: pertExpr .
+
+    RELOP   reduce using rule 75 (factor)
+    ARTOP1  reduce using rule 75 (factor)
+    ARTOP2  reduce using rule 75 (factor)
+    DISJ    reduce using rule 75 (factor)
+    CONJ    reduce using rule 75 (factor)
+    ','     reduce using rule 75 (factor)
+    ')'     reduce using rule 75 (factor)
+
+
+State 241
+
+   84 pertExpr: elem . IN set
+
+    IN  shift, and go to state 291
+
+
+State 242
+
+   93 set: SETOP . '(' pertExpr ')'
+
+    '('  shift, and go to state 292
+
+
+State 243
+
+   92 set: ID .
+
+    RELOP   reduce using rule 92 (set)
+    ARTOP1  reduce using rule 92 (set)
+    ARTOP2  reduce using rule 92 (set)
+    DISJ    reduce using rule 92 (set)
+    CONJ    reduce using rule 92 (set)
+    ';'     reduce using rule 92 (set)
+
+
+State 244
+
+   10 new_id: ID .
+
+    ';'  reduce using rule 10 (new_id)
+
+
+State 245
+
+   43 exprStmt: error .
+
+    SETOP    reduce using rule 43 (exprStmt)
+    ID       reduce using rule 43 (exprStmt)
+    IS_SET   reduce using rule 43 (exprStmt)
+    EXISTS   reduce using rule 43 (exprStmt)
+    NEG      reduce using rule 43 (exprStmt)
+    READ     reduce using rule 43 (exprStmt)
+    WRITE    reduce using rule 43 (exprStmt)
+    WRITELN  reduce using rule 43 (exprStmt)
+    INTEGER  reduce using rule 43 (exprStmt)
+    FLOAT    reduce using rule 43 (exprStmt)
+    EMPTY    reduce using rule 43 (exprStmt)
+    '('      reduce using rule 43 (exprStmt)
+    ')'      reduce using rule 43 (exprStmt)
+
+
+State 246
+
+   44 exprStmt: ';' .
+
+    SETOP    reduce using rule 44 (exprStmt)
+    ID       reduce using rule 44 (exprStmt)
+    IS_SET   reduce using rule 44 (exprStmt)
+    EXISTS   reduce using rule 44 (exprStmt)
+    NEG      reduce using rule 44 (exprStmt)
+    READ     reduce using rule 44 (exprStmt)
+    WRITE    reduce using rule 44 (exprStmt)
+    WRITELN  reduce using rule 44 (exprStmt)
+    INTEGER  reduce using rule 44 (exprStmt)
+    FLOAT    reduce using rule 44 (exprStmt)
+    EMPTY    reduce using rule 44 (exprStmt)
+    '('      reduce using rule 44 (exprStmt)
+    ')'      reduce using rule 44 (exprStmt)
+
+
+State 247
+
+   42 exprStmt: expression . ';'
+
+    ';'  shift, and go to state 293
+
+
+State 248
+
+   58 simpleExpr: simpleExpr DISJ . disjExpr
+
+    ID       shift, and go to state 224
+    IS_SET   shift, and go to state 225
+    NEG      shift, and go to state 226
+    INTEGER  shift, and go to state 227
+    FLOAT    shift, and go to state 228
+    EMPTY    shift, and go to state 229
+    '('      shift, and go to state 230
+
+    var       go to state 231
+    disjExpr  go to state 294
+    negExpr   go to state 233
+    relExpr   go to state 234
+    artExpr1  go to state 235
+    artExpr2  go to state 236
+    factor    go to state 237
+    constant  go to state 238
+    call      go to state 239
+    pertExpr  go to state 240
+    elem      go to state 241
+
+
+State 249
+
+   33 body: '{' . funcBody '}'
+
+    error    reduce using rule 18 (funcBody)
+    TYPE     reduce using rule 18 (funcBody)
+    SETOP    reduce using rule 18 (funcBody)
+    ID       reduce using rule 18 (funcBody)
+    IF       reduce using rule 18 (funcBody)
+    FOR      reduce using rule 18 (funcBody)
+    RETURN   reduce using rule 18 (funcBody)
+    FORALL   reduce using rule 18 (funcBody)
+    IS_SET   reduce using rule 18 (funcBody)
+    EXISTS   reduce using rule 18 (funcBody)
+    NEG      reduce using rule 18 (funcBody)
+    READ     reduce using rule 18 (funcBody)
+    WRITE    reduce using rule 18 (funcBody)
+    WRITELN  reduce using rule 18 (funcBody)
+    INTEGER  reduce using rule 18 (funcBody)
+    FLOAT    reduce using rule 18 (funcBody)
+    EMPTY    reduce using rule 18 (funcBody)
+    ';'      reduce using rule 18 (funcBody)
+    '}'      reduce using rule 18 (funcBody)
+    '('      reduce using rule 18 (funcBody)
+
+    funcBody  go to state 295
+
+
+State 250
+
+   35 body: varDecl .
+
+    error    reduce using rule 35 (body)
+    TYPE     reduce using rule 35 (body)
+    SETOP    reduce using rule 35 (body)
+    ID       reduce using rule 35 (body)
+    IF       reduce using rule 35 (body)
+    FOR      reduce using rule 35 (body)
+    RETURN   reduce using rule 35 (body)
+    FORALL   reduce using rule 35 (body)
+    IS_SET   reduce using rule 35 (body)
+    EXISTS   reduce using rule 35 (body)
+    NEG      reduce using rule 35 (body)
+    READ     reduce using rule 35 (body)
+    WRITE    reduce using rule 35 (body)
+    WRITELN  reduce using rule 35 (body)
+    INTEGER  reduce using rule 35 (body)
+    FLOAT    reduce using rule 35 (body)
+    EMPTY    reduce using rule 35 (body)
+    ';'      reduce using rule 35 (body)
+    '}'      reduce using rule 35 (body)
+    '('      reduce using rule 35 (body)
+
+
+State 251
+
+   36 body: funcDecl .
+
+    error    reduce using rule 36 (body)
+    TYPE     reduce using rule 36 (body)
+    SETOP    reduce using rule 36 (body)
+    ID       reduce using rule 36 (body)
+    IF       reduce using rule 36 (body)
+    FOR      reduce using rule 36 (body)
+    RETURN   reduce using rule 36 (body)
+    FORALL   reduce using rule 36 (body)
+    IS_SET   reduce using rule 36 (body)
+    EXISTS   reduce using rule 36 (body)
+    NEG      reduce using rule 36 (body)
+    READ     reduce using rule 36 (body)
+    WRITE    reduce using rule 36 (body)
+    WRITELN  reduce using rule 36 (body)
+    INTEGER  reduce using rule 36 (body)
+    FLOAT    reduce using rule 36 (body)
+    EMPTY    reduce using rule 36 (body)
+    ';'      reduce using rule 36 (body)
+    '}'      reduce using rule 36 (body)
+    '('      reduce using rule 36 (body)
+
+
+State 252
+
+   34 body: stmt .
+
+    error    reduce using rule 34 (body)
+    TYPE     reduce using rule 34 (body)
+    SETOP    reduce using rule 34 (body)
+    ID       reduce using rule 34 (body)
+    IF       reduce using rule 34 (body)
+    FOR      reduce using rule 34 (body)
+    RETURN   reduce using rule 34 (body)
+    FORALL   reduce using rule 34 (body)
+    IS_SET   reduce using rule 34 (body)
+    EXISTS   reduce using rule 34 (body)
+    NEG      reduce using rule 34 (body)
+    READ     reduce using rule 34 (body)
+    WRITE    reduce using rule 34 (body)
+    WRITELN  reduce using rule 34 (body)
+    INTEGER  reduce using rule 34 (body)
+    FLOAT    reduce using rule 34 (body)
+    EMPTY    reduce using rule 34 (body)
+    ';'      reduce using rule 34 (body)
+    '}'      reduce using rule 34 (body)
+    '('      reduce using rule 34 (body)
+
+
+State 253
+
+    7 varDecl: TYPE error .
+
+    error    reduce using rule 7 (varDecl)
+    TYPE     reduce using rule 7 (varDecl)
+    SETOP    reduce using rule 7 (varDecl)
+    ID       reduce using rule 7 (varDecl)
+    IF       reduce using rule 7 (varDecl)
+    FOR      reduce using rule 7 (varDecl)
+    RETURN   reduce using rule 7 (varDecl)
+    FORALL   reduce using rule 7 (varDecl)
+    IS_SET   reduce using rule 7 (varDecl)
+    EXISTS   reduce using rule 7 (varDecl)
+    NEG      reduce using rule 7 (varDecl)
+    READ     reduce using rule 7 (varDecl)
+    WRITE    reduce using rule 7 (varDecl)
+    WRITELN  reduce using rule 7 (varDecl)
+    INTEGER  reduce using rule 7 (varDecl)
+    FLOAT    reduce using rule 7 (varDecl)
+    EMPTY    reduce using rule 7 (varDecl)
+    ';'      reduce using rule 7 (varDecl)
+    '}'      reduce using rule 7 (varDecl)
+    '('      reduce using rule 7 (varDecl)
+
+
+State 254
+
+    6 varDecl: TYPE varList . ';'
+    8 varList: varList . ',' new_id
+
+    ';'  shift, and go to state 296
+    ','  shift, and go to state 13
+
+
+State 255
+
+    9 varList: new_id .
+   11 funcDecl: TYPE new_id . arguments '{' funcBody '}'
+
+    '('  shift, and go to state 14
+
+    ';'  reduce using rule 9 (varList)
+    ','  reduce using rule 9 (varList)
+
+    arguments  go to state 297
+
+
+State 256
+
+   85 setExpr: SETOP '(' . pertExpr ')'
+
+    ID       shift, and go to state 96
+    INTEGER  shift, and go to state 194
+    FLOAT    shift, and go to state 195
+    EMPTY    shift, and go to state 196
+    '('      shift, and go to state 97
+
+    var       go to state 197
+    constant  go to state 98
+    call      go to state 99
+    pertExpr  go to state 298
+    elem      go to state 198
+
+
+State 257
+
+   74 factor: IS_SET '(' . set ')'
+
+    SETOP  shift, and go to state 114
+    ID     shift, and go to state 115
+
+    set  go to state 299
+
+
+State 258
+
+   86 setExpr: EXISTS '(' . pertExpr ')'
+
+    ID       shift, and go to state 96
+    INTEGER  shift, and go to state 194
+    FLOAT    shift, and go to state 195
+    EMPTY    shift, and go to state 196
+    '('      shift, and go to state 97
+
+    var       go to state 197
+    constant  go to state 98
+    call      go to state 99
+    pertExpr  go to state 300
+    elem      go to state 198
+
+
+State 259
+
+   62 negExpr: NEG negExpr .
+
+    DISJ  reduce using rule 62 (negExpr)
+    CONJ  reduce using rule 62 (negExpr)
+    ')'   reduce using rule 62 (negExpr)
+
+
+State 260
+
+   58 simpleExpr: simpleExpr . DISJ disjExpr
+   71 factor: '(' simpleExpr . ')'
+   90 elem: '(' simpleExpr . ')'
+
+    DISJ  shift, and go to state 223
+    ')'   shift, and go to state 301
+
+
+State 261
+
+   79 call: var '(' . params ')'
+
+    ID       shift, and go to state 224
+    IS_SET   shift, and go to state 225
+    NEG      shift, and go to state 226
+    INTEGER  shift, and go to state 227
+    FLOAT    shift, and go to state 228
+    EMPTY    shift, and go to state 229
+    '('      shift, and go to state 230
+
+    ')'  reduce using rule 80 (params)
+
+    var         go to state 231
+    simpleExpr  go to state 127
+    disjExpr    go to state 232
+    negExpr     go to state 233
+    relExpr     go to state 234
+    artExpr1    go to state 235
+    artExpr2    go to state 236
+    factor      go to state 237
+    constant    go to state 238
+    call        go to state 239
+    params      go to state 302
+    paramList   go to state 129
+    pertExpr    go to state 240
+    elem        go to state 241
+
+
+State 262
+
+   60 disjExpr: disjExpr CONJ . negExpr
+
+    ID       shift, and go to state 175
+    IS_SET   shift, and go to state 176
+    NEG      shift, and go to state 178
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    var       go to state 183
+    negExpr   go to state 303
+    relExpr   go to state 186
+    artExpr1  go to state 187
+    artExpr2  go to state 188
+    factor    go to state 189
+    constant  go to state 190
+    call      go to state 191
+    pertExpr  go to state 192
+    elem      go to state 193
+
+
+State 263
+
+   64 relExpr: relExpr RELOP . artExpr1
+
+    ID       shift, and go to state 175
+    IS_SET   shift, and go to state 176
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    var       go to state 183
+    artExpr1  go to state 304
+    artExpr2  go to state 188
+    factor    go to state 189
+    constant  go to state 190
+    call      go to state 191
+    pertExpr  go to state 192
+    elem      go to state 193
+
+
+State 264
+
+   66 artExpr1: artExpr1 ARTOP1 . artExpr2
+
+    ID       shift, and go to state 175
+    IS_SET   shift, and go to state 176
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    var       go to state 183
+    artExpr2  go to state 305
+    factor    go to state 189
+    constant  go to state 190
+    call      go to state 191
+    pertExpr  go to state 192
+    elem      go to state 193
+
+
+State 265
+
+   68 artExpr2: artExpr2 ARTOP2 . factor
+
+    ID       shift, and go to state 175
+    IS_SET   shift, and go to state 176
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    var       go to state 183
+    factor    go to state 306
+    constant  go to state 190
+    call      go to state 191
+    pertExpr  go to state 192
+    elem      go to state 193
+
+
+State 266
+
+   84 pertExpr: elem IN . set
+
+    SETOP  shift, and go to state 307
+    ID     shift, and go to state 308
+
+    set  go to state 309
+
+
+State 267
+
+   79 call: var '(' . params ')'
+
+    ID       shift, and go to state 224
+    IS_SET   shift, and go to state 225
+    NEG      shift, and go to state 226
+    INTEGER  shift, and go to state 227
+    FLOAT    shift, and go to state 228
+    EMPTY    shift, and go to state 229
+    '('      shift, and go to state 230
+
+    ')'  reduce using rule 80 (params)
+
+    var         go to state 231
+    simpleExpr  go to state 127
+    disjExpr    go to state 232
+    negExpr     go to state 233
+    relExpr     go to state 234
+    artExpr1    go to state 235
+    artExpr2    go to state 236
+    factor      go to state 237
+    constant    go to state 238
+    call        go to state 239
+    params      go to state 310
+    paramList   go to state 129
+    pertExpr    go to state 240
+    elem        go to state 241
+
+
+State 268
+
+   84 pertExpr: elem IN . set
+
+    SETOP  shift, and go to state 114
+    ID     shift, and go to state 115
+
+    set  go to state 311
+
+
+State 269
+
+   52 inExpr: READ '(' . var ')'
+
+    ID  shift, and go to state 118
+
+    var  go to state 312
+
+
+State 270
+
+   53 outExpr: WRITE '(' . output ')'
+
+    ID      shift, and go to state 120
+    CHAR    shift, and go to state 121
+    STRING  shift, and go to state 122
+
+    output  go to state 313
+
+
+State 271
+
+   54 outExpr: WRITELN '(' . output ')'
+
+    ID      shift, and go to state 120
+    CHAR    shift, and go to state 121
+    STRING  shift, and go to state 122
+
+    output  go to state 314
+
+
+State 272
+
+   50 assign: var '=' . simpleExpr
+
+    ID       shift, and go to state 175
+    IS_SET   shift, and go to state 176
+    NEG      shift, and go to state 178
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+
+    var         go to state 183
+    simpleExpr  go to state 315
+    disjExpr    go to state 184
+    negExpr     go to state 185
+    relExpr     go to state 186
+    artExpr1    go to state 187
+    artExpr2    go to state 188
+    factor      go to state 189
+    constant    go to state 190
+    call        go to state 191
+    pertExpr    go to state 192
+    elem        go to state 193
+
+
+State 273
+
+    7 varDecl: TYPE error .
+
+    error    reduce using rule 7 (varDecl)
+    TYPE     reduce using rule 7 (varDecl)
+    SETOP    reduce using rule 7 (varDecl)
+    ID       reduce using rule 7 (varDecl)
+    IF       reduce using rule 7 (varDecl)
+    ELSE     reduce using rule 7 (varDecl)
+    FOR      reduce using rule 7 (varDecl)
+    RETURN   reduce using rule 7 (varDecl)
+    FORALL   reduce using rule 7 (varDecl)
+    IS_SET   reduce using rule 7 (varDecl)
+    EXISTS   reduce using rule 7 (varDecl)
+    NEG      reduce using rule 7 (varDecl)
+    READ     reduce using rule 7 (varDecl)
+    WRITE    reduce using rule 7 (varDecl)
+    WRITELN  reduce using rule 7 (varDecl)
+    INTEGER  reduce using rule 7 (varDecl)
+    FLOAT    reduce using rule 7 (varDecl)
+    EMPTY    reduce using rule 7 (varDecl)
+    ';'      reduce using rule 7 (varDecl)
+    '}'      reduce using rule 7 (varDecl)
+    '('      reduce using rule 7 (varDecl)
+
+
+State 274
+
+    6 varDecl: TYPE varList . ';'
+    8 varList: varList . ',' new_id
+
+    ';'  shift, and go to state 316
+    ','  shift, and go to state 13
+
+
+State 275
+
+    9 varList: new_id .
+   11 funcDecl: TYPE new_id . arguments '{' funcBody '}'
+
+    '('  shift, and go to state 14
+
+    ';'  reduce using rule 9 (varList)
+    ','  reduce using rule 9 (varList)
+
+    arguments  go to state 317
+
+
+State 276
+
+   37 condStmt: IF cond . body
+   38         | IF cond . body ELSE body
+
+    error    shift, and go to state 209
+    TYPE     shift, and go to state 210
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 211
+    FOR      shift, and go to state 212
+    RETURN   shift, and go to state 213
+    FORALL   shift, and go to state 214
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 215
+    '{'      shift, and go to state 103
+    '('      shift, and go to state 47
+
+    varDecl     go to state 104
+    funcDecl    go to state 105
+    stmt        go to state 106
+    iterStmt    go to state 216
+    body        go to state 318
+    condStmt    go to state 217
+    returnStmt  go to state 218
+    exprStmt    go to state 219
+    expression  go to state 220
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 277
+
+   26 iterStmt: FOR '(' . init exprStmt ')' body
+   27         | FOR '(' . init exprStmt expression ')' body
+   30         | FOR '(' . error ')' body
+
+    error    shift, and go to state 319
+    TYPE     shift, and go to state 109
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 221
+    '('      shift, and go to state 47
+
+    init        go to state 320
+    exprStmt    go to state 111
+    expression  go to state 222
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 278
+
+   41 returnStmt: RETURN exprStmt .
+
+    error    reduce using rule 41 (returnStmt)
+    TYPE     reduce using rule 41 (returnStmt)
+    SETOP    reduce using rule 41 (returnStmt)
+    ID       reduce using rule 41 (returnStmt)
+    IF       reduce using rule 41 (returnStmt)
+    ELSE     reduce using rule 41 (returnStmt)
+    FOR      reduce using rule 41 (returnStmt)
+    RETURN   reduce using rule 41 (returnStmt)
+    FORALL   reduce using rule 41 (returnStmt)
+    IS_SET   reduce using rule 41 (returnStmt)
+    EXISTS   reduce using rule 41 (returnStmt)
+    NEG      reduce using rule 41 (returnStmt)
+    READ     reduce using rule 41 (returnStmt)
+    WRITE    reduce using rule 41 (returnStmt)
+    WRITELN  reduce using rule 41 (returnStmt)
+    INTEGER  reduce using rule 41 (returnStmt)
+    FLOAT    reduce using rule 41 (returnStmt)
+    EMPTY    reduce using rule 41 (returnStmt)
+    ';'      reduce using rule 41 (returnStmt)
+    '}'      reduce using rule 41 (returnStmt)
+    '('      reduce using rule 41 (returnStmt)
+
+
+State 279
+
+   28 iterStmt: FORALL '(' . pertExpr ')' body
+   29         | FORALL '(' . error ')' body
+
+    error    shift, and go to state 321
+    ID       shift, and go to state 96
+    INTEGER  shift, and go to state 194
+    FLOAT    shift, and go to state 195
+    EMPTY    shift, and go to state 196
+    '('      shift, and go to state 97
+
+    var       go to state 197
+    constant  go to state 98
+    call      go to state 99
+    pertExpr  go to state 322
+    elem      go to state 198
+
+
+State 280
+
+   42 exprStmt: expression ';' .
+
+    error    reduce using rule 42 (exprStmt)
+    TYPE     reduce using rule 42 (exprStmt)
+    SETOP    reduce using rule 42 (exprStmt)
+    ID       reduce using rule 42 (exprStmt)
+    IF       reduce using rule 42 (exprStmt)
+    ELSE     reduce using rule 42 (exprStmt)
+    FOR      reduce using rule 42 (exprStmt)
+    RETURN   reduce using rule 42 (exprStmt)
+    FORALL   reduce using rule 42 (exprStmt)
+    IS_SET   reduce using rule 42 (exprStmt)
+    EXISTS   reduce using rule 42 (exprStmt)
+    NEG      reduce using rule 42 (exprStmt)
+    READ     reduce using rule 42 (exprStmt)
+    WRITE    reduce using rule 42 (exprStmt)
+    WRITELN  reduce using rule 42 (exprStmt)
+    INTEGER  reduce using rule 42 (exprStmt)
+    FLOAT    reduce using rule 42 (exprStmt)
+    EMPTY    reduce using rule 42 (exprStmt)
+    ';'      reduce using rule 42 (exprStmt)
+    '}'      reduce using rule 42 (exprStmt)
+    '('      reduce using rule 42 (exprStmt)
+
+
+State 281
+
+   42 exprStmt: expression ';' .
+
+    error    reduce using rule 42 (exprStmt)
+    SETOP    reduce using rule 42 (exprStmt)
+    ID       reduce using rule 42 (exprStmt)
+    IS_SET   reduce using rule 42 (exprStmt)
+    EXISTS   reduce using rule 42 (exprStmt)
+    NEG      reduce using rule 42 (exprStmt)
+    READ     reduce using rule 42 (exprStmt)
+    WRITE    reduce using rule 42 (exprStmt)
+    WRITELN  reduce using rule 42 (exprStmt)
+    INTEGER  reduce using rule 42 (exprStmt)
+    FLOAT    reduce using rule 42 (exprStmt)
+    EMPTY    reduce using rule 42 (exprStmt)
+    ';'      reduce using rule 42 (exprStmt)
+    '('      reduce using rule 42 (exprStmt)
+
+
+State 282
+
+   58 simpleExpr: simpleExpr DISJ disjExpr .
+   60 disjExpr: disjExpr . CONJ negExpr
+
+    CONJ  shift, and go to state 262
+
+    DISJ  reduce using rule 58 (simpleExpr)
+    ')'   reduce using rule 58 (simpleExpr)
+
+
+State 283
+
+   74 factor: IS_SET '(' . set ')'
+
+    SETOP  shift, and go to state 114
+    ID     shift, and go to state 115
+
+    set  go to state 323
+
+
+State 284
+
+   62 negExpr: NEG negExpr .
+
+    DISJ  reduce using rule 62 (negExpr)
+    CONJ  reduce using rule 62 (negExpr)
+    ','   reduce using rule 62 (negExpr)
+    ')'   reduce using rule 62 (negExpr)
+
+
+State 285
+
+   58 simpleExpr: simpleExpr . DISJ disjExpr
+   71 factor: '(' simpleExpr . ')'
+   90 elem: '(' simpleExpr . ')'
+
+    DISJ  shift, and go to state 223
+    ')'   shift, and go to state 324
+
+
+State 286
+
+   79 call: var '(' . params ')'
+
+    ID       shift, and go to state 224
+    IS_SET   shift, and go to state 225
+    NEG      shift, and go to state 226
+    INTEGER  shift, and go to state 227
+    FLOAT    shift, and go to state 228
+    EMPTY    shift, and go to state 229
+    '('      shift, and go to state 230
+
+    ')'  reduce using rule 80 (params)
+
+    var         go to state 231
+    simpleExpr  go to state 127
+    disjExpr    go to state 232
+    negExpr     go to state 233
+    relExpr     go to state 234
+    artExpr1    go to state 235
+    artExpr2    go to state 236
+    factor      go to state 237
+    constant    go to state 238
+    call        go to state 239
+    params      go to state 325
+    paramList   go to state 129
+    pertExpr    go to state 240
+    elem        go to state 241
+
+
+State 287
+
+   60 disjExpr: disjExpr CONJ . negExpr
+
+    ID       shift, and go to state 224
+    IS_SET   shift, and go to state 225
+    NEG      shift, and go to state 226
+    INTEGER  shift, and go to state 227
+    FLOAT    shift, and go to state 228
+    EMPTY    shift, and go to state 229
+    '('      shift, and go to state 230
+
+    var       go to state 231
+    negExpr   go to state 326
+    relExpr   go to state 234
+    artExpr1  go to state 235
+    artExpr2  go to state 236
+    factor    go to state 237
+    constant  go to state 238
+    call      go to state 239
+    pertExpr  go to state 240
+    elem      go to state 241
+
+
+State 288
+
+   64 relExpr: relExpr RELOP . artExpr1
+
+    ID       shift, and go to state 224
+    IS_SET   shift, and go to state 225
+    INTEGER  shift, and go to state 227
+    FLOAT    shift, and go to state 228
+    EMPTY    shift, and go to state 229
+    '('      shift, and go to state 230
+
+    var       go to state 231
+    artExpr1  go to state 327
+    artExpr2  go to state 236
+    factor    go to state 237
+    constant  go to state 238
+    call      go to state 239
+    pertExpr  go to state 240
+    elem      go to state 241
+
+
+State 289
+
+   66 artExpr1: artExpr1 ARTOP1 . artExpr2
+
+    ID       shift, and go to state 224
+    IS_SET   shift, and go to state 225
+    INTEGER  shift, and go to state 227
+    FLOAT    shift, and go to state 228
+    EMPTY    shift, and go to state 229
+    '('      shift, and go to state 230
+
+    var       go to state 231
+    artExpr2  go to state 328
+    factor    go to state 237
+    constant  go to state 238
+    call      go to state 239
+    pertExpr  go to state 240
+    elem      go to state 241
+
+
+State 290
+
+   68 artExpr2: artExpr2 ARTOP2 . factor
+
+    ID       shift, and go to state 224
+    IS_SET   shift, and go to state 225
+    INTEGER  shift, and go to state 227
+    FLOAT    shift, and go to state 228
+    EMPTY    shift, and go to state 229
+    '('      shift, and go to state 230
+
+    var       go to state 231
+    factor    go to state 329
+    constant  go to state 238
+    call      go to state 239
+    pertExpr  go to state 240
+    elem      go to state 241
+
+
+State 291
+
+   84 pertExpr: elem IN . set
+
+    SETOP  shift, and go to state 330
+    ID     shift, and go to state 331
+
+    set  go to state 332
+
+
+State 292
+
+   93 set: SETOP '(' . pertExpr ')'
+
+    ID       shift, and go to state 96
+    INTEGER  shift, and go to state 194
+    FLOAT    shift, and go to state 195
+    EMPTY    shift, and go to state 196
+    '('      shift, and go to state 97
+
+    var       go to state 197
+    constant  go to state 98
+    call      go to state 99
+    pertExpr  go to state 333
+    elem      go to state 198
+
+
+State 293
+
+   42 exprStmt: expression ';' .
+
+    SETOP    reduce using rule 42 (exprStmt)
+    ID       reduce using rule 42 (exprStmt)
+    IS_SET   reduce using rule 42 (exprStmt)
+    EXISTS   reduce using rule 42 (exprStmt)
+    NEG      reduce using rule 42 (exprStmt)
+    READ     reduce using rule 42 (exprStmt)
+    WRITE    reduce using rule 42 (exprStmt)
+    WRITELN  reduce using rule 42 (exprStmt)
+    INTEGER  reduce using rule 42 (exprStmt)
+    FLOAT    reduce using rule 42 (exprStmt)
+    EMPTY    reduce using rule 42 (exprStmt)
+    '('      reduce using rule 42 (exprStmt)
+    ')'      reduce using rule 42 (exprStmt)
+
+
+State 294
+
+   58 simpleExpr: simpleExpr DISJ disjExpr .
+   60 disjExpr: disjExpr . CONJ negExpr
+
+    CONJ  shift, and go to state 287
+
+    DISJ  reduce using rule 58 (simpleExpr)
+    ','   reduce using rule 58 (simpleExpr)
+    ')'   reduce using rule 58 (simpleExpr)
+
+
+State 295
+
+   19 funcBody: funcBody . varDecl
+   20         | funcBody . funcDecl
+   21         | funcBody . stmt
+   33 body: '{' funcBody . '}'
+
+    error    shift, and go to state 29
+    TYPE     shift, and go to state 172
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 32
+    FOR      shift, and go to state 33
+    RETURN   shift, and go to state 34
+    FORALL   shift, and go to state 35
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '}'      shift, and go to state 334
+    '('      shift, and go to state 47
+
+    varDecl     go to state 48
+    funcDecl    go to state 49
+    stmt        go to state 50
+    iterStmt    go to state 51
+    condStmt    go to state 52
+    returnStmt  go to state 53
+    exprStmt    go to state 54
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 296
+
+    6 varDecl: TYPE varList ';' .
+
+    error    reduce using rule 6 (varDecl)
+    TYPE     reduce using rule 6 (varDecl)
+    SETOP    reduce using rule 6 (varDecl)
+    ID       reduce using rule 6 (varDecl)
+    IF       reduce using rule 6 (varDecl)
+    FOR      reduce using rule 6 (varDecl)
+    RETURN   reduce using rule 6 (varDecl)
+    FORALL   reduce using rule 6 (varDecl)
+    IS_SET   reduce using rule 6 (varDecl)
+    EXISTS   reduce using rule 6 (varDecl)
+    NEG      reduce using rule 6 (varDecl)
+    READ     reduce using rule 6 (varDecl)
+    WRITE    reduce using rule 6 (varDecl)
+    WRITELN  reduce using rule 6 (varDecl)
+    INTEGER  reduce using rule 6 (varDecl)
+    FLOAT    reduce using rule 6 (varDecl)
+    EMPTY    reduce using rule 6 (varDecl)
+    ';'      reduce using rule 6 (varDecl)
+    '}'      reduce using rule 6 (varDecl)
+    '('      reduce using rule 6 (varDecl)
+
+
+State 297
+
+   11 funcDecl: TYPE new_id arguments . '{' funcBody '}'
+
+    '{'  shift, and go to state 335
+
+
+State 298
+
+   85 setExpr: SETOP '(' pertExpr . ')'
+
+    ')'  shift, and go to state 336
+
+
+State 299
+
+   74 factor: IS_SET '(' set . ')'
+
+    ')'  shift, and go to state 337
+
+
+State 300
+
+   86 setExpr: EXISTS '(' pertExpr . ')'
+
+    ')'  shift, and go to state 338
+
+
+State 301
+
+   71 factor: '(' simpleExpr ')' .
+   90 elem: '(' simpleExpr ')' .
+
+    RELOP   reduce using rule 71 (factor)
+    ARTOP1  reduce using rule 71 (factor)
+    ARTOP2  reduce using rule 71 (factor)
+    IN      reduce using rule 90 (elem)
+    DISJ    reduce using rule 71 (factor)
+    CONJ    reduce using rule 71 (factor)
+    ')'     reduce using rule 71 (factor)
+
+
+State 302
+
+   79 call: var '(' params . ')'
+
+    ')'  shift, and go to state 339
+
+
+State 303
+
+   60 disjExpr: disjExpr CONJ negExpr .
+
+    DISJ  reduce using rule 60 (disjExpr)
+    CONJ  reduce using rule 60 (disjExpr)
+    ')'   reduce using rule 60 (disjExpr)
+
+
+State 304
+
+   64 relExpr: relExpr RELOP artExpr1 .
+   66 artExpr1: artExpr1 . ARTOP1 artExpr2
+
+    ARTOP1  shift, and go to state 264
+
+    RELOP  reduce using rule 64 (relExpr)
+    DISJ   reduce using rule 64 (relExpr)
+    CONJ   reduce using rule 64 (relExpr)
+    ')'    reduce using rule 64 (relExpr)
+
+
+State 305
+
+   66 artExpr1: artExpr1 ARTOP1 artExpr2 .
+   68 artExpr2: artExpr2 . ARTOP2 factor
+
+    ARTOP2  shift, and go to state 265
+
+    RELOP   reduce using rule 66 (artExpr1)
+    ARTOP1  reduce using rule 66 (artExpr1)
+    DISJ    reduce using rule 66 (artExpr1)
+    CONJ    reduce using rule 66 (artExpr1)
+    ')'     reduce using rule 66 (artExpr1)
+
+
+State 306
+
+   68 artExpr2: artExpr2 ARTOP2 factor .
+
+    RELOP   reduce using rule 68 (artExpr2)
+    ARTOP1  reduce using rule 68 (artExpr2)
+    ARTOP2  reduce using rule 68 (artExpr2)
+    DISJ    reduce using rule 68 (artExpr2)
+    CONJ    reduce using rule 68 (artExpr2)
+    ')'     reduce using rule 68 (artExpr2)
+
+
+State 307
+
+   93 set: SETOP . '(' pertExpr ')'
+
+    '('  shift, and go to state 340
+
+
+State 308
+
+   92 set: ID .
+
+    RELOP   reduce using rule 92 (set)
+    ARTOP1  reduce using rule 92 (set)
+    ARTOP2  reduce using rule 92 (set)
+    DISJ    reduce using rule 92 (set)
+    CONJ    reduce using rule 92 (set)
+    ')'     reduce using rule 92 (set)
+
+
+State 309
+
+   84 pertExpr: elem IN set .
+
+    RELOP   reduce using rule 84 (pertExpr)
+    ARTOP1  reduce using rule 84 (pertExpr)
+    ARTOP2  reduce using rule 84 (pertExpr)
+    DISJ    reduce using rule 84 (pertExpr)
+    CONJ    reduce using rule 84 (pertExpr)
+    ')'     reduce using rule 84 (pertExpr)
+
+
+State 310
+
+   79 call: var '(' params . ')'
+
+    ')'  shift, and go to state 341
+
+
+State 311
+
+   84 pertExpr: elem IN set .
+
+    ')'  reduce using rule 84 (pertExpr)
+
+
+State 312
+
+   52 inExpr: READ '(' var . ')'
+
+    ')'  shift, and go to state 342
+
+
+State 313
+
+   53 outExpr: WRITE '(' output . ')'
+
+    ')'  shift, and go to state 343
+
+
+State 314
+
+   54 outExpr: WRITELN '(' output . ')'
+
+    ')'  shift, and go to state 344
+
+
+State 315
+
+   50 assign: var '=' simpleExpr .
+   58 simpleExpr: simpleExpr . DISJ disjExpr
+
+    DISJ  shift, and go to state 223
+
+    ')'  reduce using rule 50 (assign)
+
+
+State 316
+
+    6 varDecl: TYPE varList ';' .
+
+    error    reduce using rule 6 (varDecl)
+    TYPE     reduce using rule 6 (varDecl)
+    SETOP    reduce using rule 6 (varDecl)
+    ID       reduce using rule 6 (varDecl)
+    IF       reduce using rule 6 (varDecl)
+    ELSE     reduce using rule 6 (varDecl)
+    FOR      reduce using rule 6 (varDecl)
+    RETURN   reduce using rule 6 (varDecl)
+    FORALL   reduce using rule 6 (varDecl)
+    IS_SET   reduce using rule 6 (varDecl)
+    EXISTS   reduce using rule 6 (varDecl)
+    NEG      reduce using rule 6 (varDecl)
+    READ     reduce using rule 6 (varDecl)
+    WRITE    reduce using rule 6 (varDecl)
+    WRITELN  reduce using rule 6 (varDecl)
+    INTEGER  reduce using rule 6 (varDecl)
+    FLOAT    reduce using rule 6 (varDecl)
+    EMPTY    reduce using rule 6 (varDecl)
+    ';'      reduce using rule 6 (varDecl)
+    '}'      reduce using rule 6 (varDecl)
+    '('      reduce using rule 6 (varDecl)
+
+
+State 317
+
+   11 funcDecl: TYPE new_id arguments . '{' funcBody '}'
+
+    '{'  shift, and go to state 345
+
+
+State 318
+
+   37 condStmt: IF cond body .
+   38         | IF cond body . ELSE body
+
+    ELSE  shift, and go to state 346
+
+    error    reduce using rule 37 (condStmt)
+    TYPE     reduce using rule 37 (condStmt)
+    SETOP    reduce using rule 37 (condStmt)
+    ID       reduce using rule 37 (condStmt)
+    IF       reduce using rule 37 (condStmt)
+    FOR      reduce using rule 37 (condStmt)
+    RETURN   reduce using rule 37 (condStmt)
+    FORALL   reduce using rule 37 (condStmt)
+    IS_SET   reduce using rule 37 (condStmt)
+    EXISTS   reduce using rule 37 (condStmt)
+    NEG      reduce using rule 37 (condStmt)
+    READ     reduce using rule 37 (condStmt)
+    WRITE    reduce using rule 37 (condStmt)
+    WRITELN  reduce using rule 37 (condStmt)
+    INTEGER  reduce using rule 37 (condStmt)
+    FLOAT    reduce using rule 37 (condStmt)
+    EMPTY    reduce using rule 37 (condStmt)
+    ';'      reduce using rule 37 (condStmt)
+    '}'      reduce using rule 37 (condStmt)
+    '('      reduce using rule 37 (condStmt)
+
+
+State 319
+
+   30 iterStmt: FOR '(' error . ')' body
+   43 exprStmt: error .
+
+    ')'  shift, and go to state 347
+
+    error    reduce using rule 43 (exprStmt)
+    SETOP    reduce using rule 43 (exprStmt)
+    ID       reduce using rule 43 (exprStmt)
+    IS_SET   reduce using rule 43 (exprStmt)
+    EXISTS   reduce using rule 43 (exprStmt)
+    NEG      reduce using rule 43 (exprStmt)
+    READ     reduce using rule 43 (exprStmt)
+    WRITE    reduce using rule 43 (exprStmt)
+    WRITELN  reduce using rule 43 (exprStmt)
+    INTEGER  reduce using rule 43 (exprStmt)
+    FLOAT    reduce using rule 43 (exprStmt)
+    EMPTY    reduce using rule 43 (exprStmt)
+    ';'      reduce using rule 43 (exprStmt)
+    '('      reduce using rule 43 (exprStmt)
+
+
+State 320
+
+   26 iterStmt: FOR '(' init . exprStmt ')' body
+   27         | FOR '(' init . exprStmt expression ')' body
+
+    error    shift, and go to state 245
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 246
+    '('      shift, and go to state 47
+
+    exprStmt    go to state 348
+    expression  go to state 247
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 321
+
+   29 iterStmt: FORALL '(' error . ')' body
+
+    ')'  shift, and go to state 349
+
+
+State 322
+
+   28 iterStmt: FORALL '(' pertExpr . ')' body
+
+    ')'  shift, and go to state 350
+
+
+State 323
+
+   74 factor: IS_SET '(' set . ')'
+
+    ')'  shift, and go to state 351
+
+
+State 324
+
+   71 factor: '(' simpleExpr ')' .
+   90 elem: '(' simpleExpr ')' .
+
+    RELOP   reduce using rule 71 (factor)
+    ARTOP1  reduce using rule 71 (factor)
+    ARTOP2  reduce using rule 71 (factor)
+    IN      reduce using rule 90 (elem)
+    DISJ    reduce using rule 71 (factor)
+    CONJ    reduce using rule 71 (factor)
+    ','     reduce using rule 71 (factor)
+    ')'     reduce using rule 71 (factor)
+
+
+State 325
+
+   79 call: var '(' params . ')'
+
+    ')'  shift, and go to state 352
+
+
+State 326
+
+   60 disjExpr: disjExpr CONJ negExpr .
+
+    DISJ  reduce using rule 60 (disjExpr)
+    CONJ  reduce using rule 60 (disjExpr)
+    ','   reduce using rule 60 (disjExpr)
+    ')'   reduce using rule 60 (disjExpr)
+
+
+State 327
+
+   64 relExpr: relExpr RELOP artExpr1 .
+   66 artExpr1: artExpr1 . ARTOP1 artExpr2
+
+    ARTOP1  shift, and go to state 289
+
+    RELOP  reduce using rule 64 (relExpr)
+    DISJ   reduce using rule 64 (relExpr)
+    CONJ   reduce using rule 64 (relExpr)
+    ','    reduce using rule 64 (relExpr)
+    ')'    reduce using rule 64 (relExpr)
+
+
+State 328
+
+   66 artExpr1: artExpr1 ARTOP1 artExpr2 .
+   68 artExpr2: artExpr2 . ARTOP2 factor
+
+    ARTOP2  shift, and go to state 290
+
+    RELOP   reduce using rule 66 (artExpr1)
+    ARTOP1  reduce using rule 66 (artExpr1)
+    DISJ    reduce using rule 66 (artExpr1)
+    CONJ    reduce using rule 66 (artExpr1)
+    ','     reduce using rule 66 (artExpr1)
+    ')'     reduce using rule 66 (artExpr1)
+
+
+State 329
+
+   68 artExpr2: artExpr2 ARTOP2 factor .
+
+    RELOP   reduce using rule 68 (artExpr2)
+    ARTOP1  reduce using rule 68 (artExpr2)
+    ARTOP2  reduce using rule 68 (artExpr2)
+    DISJ    reduce using rule 68 (artExpr2)
+    CONJ    reduce using rule 68 (artExpr2)
+    ','     reduce using rule 68 (artExpr2)
+    ')'     reduce using rule 68 (artExpr2)
+
+
+State 330
+
+   93 set: SETOP . '(' pertExpr ')'
+
+    '('  shift, and go to state 353
+
+
+State 331
+
+   92 set: ID .
+
+    RELOP   reduce using rule 92 (set)
+    ARTOP1  reduce using rule 92 (set)
+    ARTOP2  reduce using rule 92 (set)
+    DISJ    reduce using rule 92 (set)
+    CONJ    reduce using rule 92 (set)
+    ','     reduce using rule 92 (set)
+    ')'     reduce using rule 92 (set)
+
+
+State 332
+
+   84 pertExpr: elem IN set .
+
+    RELOP   reduce using rule 84 (pertExpr)
+    ARTOP1  reduce using rule 84 (pertExpr)
+    ARTOP2  reduce using rule 84 (pertExpr)
+    DISJ    reduce using rule 84 (pertExpr)
+    CONJ    reduce using rule 84 (pertExpr)
+    ','     reduce using rule 84 (pertExpr)
+    ')'     reduce using rule 84 (pertExpr)
+
+
+State 333
+
+   93 set: SETOP '(' pertExpr . ')'
+
+    ')'  shift, and go to state 354
+
+
+State 334
+
+   33 body: '{' funcBody '}' .
+
+    error    reduce using rule 33 (body)
+    TYPE     reduce using rule 33 (body)
+    SETOP    reduce using rule 33 (body)
+    ID       reduce using rule 33 (body)
+    IF       reduce using rule 33 (body)
+    FOR      reduce using rule 33 (body)
+    RETURN   reduce using rule 33 (body)
+    FORALL   reduce using rule 33 (body)
+    IS_SET   reduce using rule 33 (body)
+    EXISTS   reduce using rule 33 (body)
+    NEG      reduce using rule 33 (body)
+    READ     reduce using rule 33 (body)
+    WRITE    reduce using rule 33 (body)
+    WRITELN  reduce using rule 33 (body)
+    INTEGER  reduce using rule 33 (body)
+    FLOAT    reduce using rule 33 (body)
+    EMPTY    reduce using rule 33 (body)
+    ';'      reduce using rule 33 (body)
+    '}'      reduce using rule 33 (body)
+    '('      reduce using rule 33 (body)
+
+
+State 335
+
+   11 funcDecl: TYPE new_id arguments '{' . funcBody '}'
+
+    error    reduce using rule 18 (funcBody)
+    TYPE     reduce using rule 18 (funcBody)
+    SETOP    reduce using rule 18 (funcBody)
+    ID       reduce using rule 18 (funcBody)
+    IF       reduce using rule 18 (funcBody)
+    FOR      reduce using rule 18 (funcBody)
+    RETURN   reduce using rule 18 (funcBody)
+    FORALL   reduce using rule 18 (funcBody)
+    IS_SET   reduce using rule 18 (funcBody)
+    EXISTS   reduce using rule 18 (funcBody)
+    NEG      reduce using rule 18 (funcBody)
+    READ     reduce using rule 18 (funcBody)
+    WRITE    reduce using rule 18 (funcBody)
+    WRITELN  reduce using rule 18 (funcBody)
+    INTEGER  reduce using rule 18 (funcBody)
+    FLOAT    reduce using rule 18 (funcBody)
+    EMPTY    reduce using rule 18 (funcBody)
+    ';'      reduce using rule 18 (funcBody)
+    '}'      reduce using rule 18 (funcBody)
+    '('      reduce using rule 18 (funcBody)
+
+    funcBody  go to state 355
+
+
+State 336
+
+   85 setExpr: SETOP '(' pertExpr ')' .
+
+    ')'  reduce using rule 85 (setExpr)
+
+
+State 337
+
+   74 factor: IS_SET '(' set ')' .
+
+    RELOP   reduce using rule 74 (factor)
+    ARTOP1  reduce using rule 74 (factor)
+    ARTOP2  reduce using rule 74 (factor)
+    DISJ    reduce using rule 74 (factor)
+    CONJ    reduce using rule 74 (factor)
+    ')'     reduce using rule 74 (factor)
+
+
+State 338
+
+   86 setExpr: EXISTS '(' pertExpr ')' .
+
+    ')'  reduce using rule 86 (setExpr)
+
+
+State 339
+
+   79 call: var '(' params ')' .
+
+    RELOP   reduce using rule 79 (call)
+    ARTOP1  reduce using rule 79 (call)
+    ARTOP2  reduce using rule 79 (call)
+    IN      reduce using rule 79 (call)
+    DISJ    reduce using rule 79 (call)
+    CONJ    reduce using rule 79 (call)
+    ')'     reduce using rule 79 (call)
+
+
+State 340
+
+   93 set: SETOP '(' . pertExpr ')'
+
+    ID       shift, and go to state 96
+    INTEGER  shift, and go to state 194
+    FLOAT    shift, and go to state 195
+    EMPTY    shift, and go to state 196
+    '('      shift, and go to state 97
+
+    var       go to state 197
+    constant  go to state 98
+    call      go to state 99
+    pertExpr  go to state 356
+    elem      go to state 198
+
+
+State 341
+
+   79 call: var '(' params ')' .
+
+    IN  reduce using rule 79 (call)
+
+
+State 342
+
+   52 inExpr: READ '(' var ')' .
+
+    ')'  reduce using rule 52 (inExpr)
+
+
+State 343
+
+   53 outExpr: WRITE '(' output ')' .
+
+    ')'  reduce using rule 53 (outExpr)
+
+
+State 344
+
+   54 outExpr: WRITELN '(' output ')' .
+
+    ')'  reduce using rule 54 (outExpr)
+
+
+State 345
+
+   11 funcDecl: TYPE new_id arguments '{' . funcBody '}'
+
+    error    reduce using rule 18 (funcBody)
+    TYPE     reduce using rule 18 (funcBody)
+    SETOP    reduce using rule 18 (funcBody)
+    ID       reduce using rule 18 (funcBody)
+    IF       reduce using rule 18 (funcBody)
+    FOR      reduce using rule 18 (funcBody)
+    RETURN   reduce using rule 18 (funcBody)
+    FORALL   reduce using rule 18 (funcBody)
+    IS_SET   reduce using rule 18 (funcBody)
+    EXISTS   reduce using rule 18 (funcBody)
+    NEG      reduce using rule 18 (funcBody)
+    READ     reduce using rule 18 (funcBody)
+    WRITE    reduce using rule 18 (funcBody)
+    WRITELN  reduce using rule 18 (funcBody)
+    INTEGER  reduce using rule 18 (funcBody)
+    FLOAT    reduce using rule 18 (funcBody)
+    EMPTY    reduce using rule 18 (funcBody)
+    ';'      reduce using rule 18 (funcBody)
+    '}'      reduce using rule 18 (funcBody)
+    '('      reduce using rule 18 (funcBody)
+
+    funcBody  go to state 357
+
+
+State 346
+
+   38 condStmt: IF cond body ELSE . body
+
+    error    shift, and go to state 209
+    TYPE     shift, and go to state 210
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 211
+    FOR      shift, and go to state 212
+    RETURN   shift, and go to state 213
+    FORALL   shift, and go to state 214
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 215
+    '{'      shift, and go to state 103
+    '('      shift, and go to state 47
+
+    varDecl     go to state 104
+    funcDecl    go to state 105
+    stmt        go to state 106
+    iterStmt    go to state 216
+    body        go to state 358
+    condStmt    go to state 217
+    returnStmt  go to state 218
+    exprStmt    go to state 219
+    expression  go to state 220
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 347
+
+   30 iterStmt: FOR '(' error ')' . body
+
+    error    shift, and go to state 209
+    TYPE     shift, and go to state 210
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 211
+    FOR      shift, and go to state 212
+    RETURN   shift, and go to state 213
+    FORALL   shift, and go to state 214
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 215
+    '{'      shift, and go to state 103
+    '('      shift, and go to state 47
+
+    varDecl     go to state 104
+    funcDecl    go to state 105
+    stmt        go to state 106
+    iterStmt    go to state 216
+    body        go to state 359
+    condStmt    go to state 217
+    returnStmt  go to state 218
+    exprStmt    go to state 219
+    expression  go to state 220
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 348
+
+   26 iterStmt: FOR '(' init exprStmt . ')' body
+   27         | FOR '(' init exprStmt . expression ')' body
+
+    SETOP    shift, and go to state 174
+    ID       shift, and go to state 199
+    IS_SET   shift, and go to state 176
+    EXISTS   shift, and go to state 177
+    NEG      shift, and go to state 178
+    READ     shift, and go to state 200
+    WRITE    shift, and go to state 201
+    WRITELN  shift, and go to state 202
+    INTEGER  shift, and go to state 179
+    FLOAT    shift, and go to state 180
+    EMPTY    shift, and go to state 181
+    '('      shift, and go to state 182
+    ')'      shift, and go to state 360
+
+    expression  go to state 361
+    assign      go to state 203
+    var         go to state 204
+    inExpr      go to state 205
+    outExpr     go to state 206
+    simpleExpr  go to state 207
+    disjExpr    go to state 184
+    negExpr     go to state 185
+    relExpr     go to state 186
+    artExpr1    go to state 187
+    artExpr2    go to state 188
+    factor      go to state 189
+    constant    go to state 190
+    call        go to state 191
+    pertExpr    go to state 192
+    setExpr     go to state 208
+    elem        go to state 193
+
+
+State 349
+
+   29 iterStmt: FORALL '(' error ')' . body
+
+    error    shift, and go to state 209
+    TYPE     shift, and go to state 210
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 211
+    FOR      shift, and go to state 212
+    RETURN   shift, and go to state 213
+    FORALL   shift, and go to state 214
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 215
+    '{'      shift, and go to state 103
+    '('      shift, and go to state 47
+
+    varDecl     go to state 104
+    funcDecl    go to state 105
+    stmt        go to state 106
+    iterStmt    go to state 216
+    body        go to state 362
+    condStmt    go to state 217
+    returnStmt  go to state 218
+    exprStmt    go to state 219
+    expression  go to state 220
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 350
+
+   28 iterStmt: FORALL '(' pertExpr ')' . body
+
+    error    shift, and go to state 209
+    TYPE     shift, and go to state 210
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 211
+    FOR      shift, and go to state 212
+    RETURN   shift, and go to state 213
+    FORALL   shift, and go to state 214
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 215
+    '{'      shift, and go to state 103
+    '('      shift, and go to state 47
+
+    varDecl     go to state 104
+    funcDecl    go to state 105
+    stmt        go to state 106
+    iterStmt    go to state 216
+    body        go to state 363
+    condStmt    go to state 217
+    returnStmt  go to state 218
+    exprStmt    go to state 219
+    expression  go to state 220
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 351
+
+   74 factor: IS_SET '(' set ')' .
+
+    RELOP   reduce using rule 74 (factor)
+    ARTOP1  reduce using rule 74 (factor)
+    ARTOP2  reduce using rule 74 (factor)
+    DISJ    reduce using rule 74 (factor)
+    CONJ    reduce using rule 74 (factor)
+    ','     reduce using rule 74 (factor)
+    ')'     reduce using rule 74 (factor)
+
+
+State 352
+
+   79 call: var '(' params ')' .
+
+    RELOP   reduce using rule 79 (call)
+    ARTOP1  reduce using rule 79 (call)
+    ARTOP2  reduce using rule 79 (call)
+    IN      reduce using rule 79 (call)
+    DISJ    reduce using rule 79 (call)
+    CONJ    reduce using rule 79 (call)
+    ','     reduce using rule 79 (call)
+    ')'     reduce using rule 79 (call)
+
+
+State 353
+
+   93 set: SETOP '(' . pertExpr ')'
+
+    ID       shift, and go to state 96
+    INTEGER  shift, and go to state 194
+    FLOAT    shift, and go to state 195
+    EMPTY    shift, and go to state 196
+    '('      shift, and go to state 97
+
+    var       go to state 197
+    constant  go to state 98
+    call      go to state 99
+    pertExpr  go to state 364
+    elem      go to state 198
+
+
+State 354
+
+   93 set: SETOP '(' pertExpr ')' .
+
+    RELOP   reduce using rule 93 (set)
+    ARTOP1  reduce using rule 93 (set)
+    ARTOP2  reduce using rule 93 (set)
+    DISJ    reduce using rule 93 (set)
+    CONJ    reduce using rule 93 (set)
+    ';'     reduce using rule 93 (set)
+
+
+State 355
+
+   11 funcDecl: TYPE new_id arguments '{' funcBody . '}'
+   19 funcBody: funcBody . varDecl
+   20         | funcBody . funcDecl
+   21         | funcBody . stmt
+
+    error    shift, and go to state 29
+    TYPE     shift, and go to state 172
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 32
+    FOR      shift, and go to state 33
+    RETURN   shift, and go to state 34
+    FORALL   shift, and go to state 35
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '}'      shift, and go to state 365
+    '('      shift, and go to state 47
+
+    varDecl     go to state 48
+    funcDecl    go to state 49
+    stmt        go to state 50
+    iterStmt    go to state 51
+    condStmt    go to state 52
+    returnStmt  go to state 53
+    exprStmt    go to state 54
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 356
+
+   93 set: SETOP '(' pertExpr . ')'
+
+    ')'  shift, and go to state 366
+
+
+State 357
+
+   11 funcDecl: TYPE new_id arguments '{' funcBody . '}'
+   19 funcBody: funcBody . varDecl
+   20         | funcBody . funcDecl
+   21         | funcBody . stmt
+
+    error    shift, and go to state 29
+    TYPE     shift, and go to state 172
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 32
+    FOR      shift, and go to state 33
+    RETURN   shift, and go to state 34
+    FORALL   shift, and go to state 35
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 45
+    '}'      shift, and go to state 367
+    '('      shift, and go to state 47
+
+    varDecl     go to state 48
+    funcDecl    go to state 49
+    stmt        go to state 50
+    iterStmt    go to state 51
+    condStmt    go to state 52
+    returnStmt  go to state 53
+    exprStmt    go to state 54
+    expression  go to state 55
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 358
+
+   38 condStmt: IF cond body ELSE body .
+
+    error    reduce using rule 38 (condStmt)
+    TYPE     reduce using rule 38 (condStmt)
+    SETOP    reduce using rule 38 (condStmt)
+    ID       reduce using rule 38 (condStmt)
+    IF       reduce using rule 38 (condStmt)
+    ELSE     reduce using rule 38 (condStmt)
+    FOR      reduce using rule 38 (condStmt)
+    RETURN   reduce using rule 38 (condStmt)
+    FORALL   reduce using rule 38 (condStmt)
+    IS_SET   reduce using rule 38 (condStmt)
+    EXISTS   reduce using rule 38 (condStmt)
+    NEG      reduce using rule 38 (condStmt)
+    READ     reduce using rule 38 (condStmt)
+    WRITE    reduce using rule 38 (condStmt)
+    WRITELN  reduce using rule 38 (condStmt)
+    INTEGER  reduce using rule 38 (condStmt)
+    FLOAT    reduce using rule 38 (condStmt)
+    EMPTY    reduce using rule 38 (condStmt)
+    ';'      reduce using rule 38 (condStmt)
+    '}'      reduce using rule 38 (condStmt)
+    '('      reduce using rule 38 (condStmt)
+
+
+State 359
+
+   30 iterStmt: FOR '(' error ')' body .
+
+    error    reduce using rule 30 (iterStmt)
+    TYPE     reduce using rule 30 (iterStmt)
+    SETOP    reduce using rule 30 (iterStmt)
+    ID       reduce using rule 30 (iterStmt)
+    IF       reduce using rule 30 (iterStmt)
+    ELSE     reduce using rule 30 (iterStmt)
+    FOR      reduce using rule 30 (iterStmt)
+    RETURN   reduce using rule 30 (iterStmt)
+    FORALL   reduce using rule 30 (iterStmt)
+    IS_SET   reduce using rule 30 (iterStmt)
+    EXISTS   reduce using rule 30 (iterStmt)
+    NEG      reduce using rule 30 (iterStmt)
+    READ     reduce using rule 30 (iterStmt)
+    WRITE    reduce using rule 30 (iterStmt)
+    WRITELN  reduce using rule 30 (iterStmt)
+    INTEGER  reduce using rule 30 (iterStmt)
+    FLOAT    reduce using rule 30 (iterStmt)
+    EMPTY    reduce using rule 30 (iterStmt)
+    ';'      reduce using rule 30 (iterStmt)
+    '}'      reduce using rule 30 (iterStmt)
+    '('      reduce using rule 30 (iterStmt)
+
+
+State 360
+
+   26 iterStmt: FOR '(' init exprStmt ')' . body
+
+    error    shift, and go to state 209
+    TYPE     shift, and go to state 210
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 211
+    FOR      shift, and go to state 212
+    RETURN   shift, and go to state 213
+    FORALL   shift, and go to state 214
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 215
+    '{'      shift, and go to state 103
+    '('      shift, and go to state 47
+
+    varDecl     go to state 104
+    funcDecl    go to state 105
+    stmt        go to state 106
+    iterStmt    go to state 216
+    body        go to state 368
+    condStmt    go to state 217
+    returnStmt  go to state 218
+    exprStmt    go to state 219
+    expression  go to state 220
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 361
+
+   27 iterStmt: FOR '(' init exprStmt expression . ')' body
+
+    ')'  shift, and go to state 369
+
+
+State 362
+
+   29 iterStmt: FORALL '(' error ')' body .
+
+    error    reduce using rule 29 (iterStmt)
+    TYPE     reduce using rule 29 (iterStmt)
+    SETOP    reduce using rule 29 (iterStmt)
+    ID       reduce using rule 29 (iterStmt)
+    IF       reduce using rule 29 (iterStmt)
+    ELSE     reduce using rule 29 (iterStmt)
+    FOR      reduce using rule 29 (iterStmt)
+    RETURN   reduce using rule 29 (iterStmt)
+    FORALL   reduce using rule 29 (iterStmt)
+    IS_SET   reduce using rule 29 (iterStmt)
+    EXISTS   reduce using rule 29 (iterStmt)
+    NEG      reduce using rule 29 (iterStmt)
+    READ     reduce using rule 29 (iterStmt)
+    WRITE    reduce using rule 29 (iterStmt)
+    WRITELN  reduce using rule 29 (iterStmt)
+    INTEGER  reduce using rule 29 (iterStmt)
+    FLOAT    reduce using rule 29 (iterStmt)
+    EMPTY    reduce using rule 29 (iterStmt)
+    ';'      reduce using rule 29 (iterStmt)
+    '}'      reduce using rule 29 (iterStmt)
+    '('      reduce using rule 29 (iterStmt)
+
+
+State 363
+
+   28 iterStmt: FORALL '(' pertExpr ')' body .
+
+    error    reduce using rule 28 (iterStmt)
+    TYPE     reduce using rule 28 (iterStmt)
+    SETOP    reduce using rule 28 (iterStmt)
+    ID       reduce using rule 28 (iterStmt)
+    IF       reduce using rule 28 (iterStmt)
+    ELSE     reduce using rule 28 (iterStmt)
+    FOR      reduce using rule 28 (iterStmt)
+    RETURN   reduce using rule 28 (iterStmt)
+    FORALL   reduce using rule 28 (iterStmt)
+    IS_SET   reduce using rule 28 (iterStmt)
+    EXISTS   reduce using rule 28 (iterStmt)
+    NEG      reduce using rule 28 (iterStmt)
+    READ     reduce using rule 28 (iterStmt)
+    WRITE    reduce using rule 28 (iterStmt)
+    WRITELN  reduce using rule 28 (iterStmt)
+    INTEGER  reduce using rule 28 (iterStmt)
+    FLOAT    reduce using rule 28 (iterStmt)
+    EMPTY    reduce using rule 28 (iterStmt)
+    ';'      reduce using rule 28 (iterStmt)
+    '}'      reduce using rule 28 (iterStmt)
+    '('      reduce using rule 28 (iterStmt)
+
+
+State 364
+
+   93 set: SETOP '(' pertExpr . ')'
+
+    ')'  shift, and go to state 370
+
+
+State 365
+
+   11 funcDecl: TYPE new_id arguments '{' funcBody '}' .
+
+    error    reduce using rule 11 (funcDecl)
+    TYPE     reduce using rule 11 (funcDecl)
+    SETOP    reduce using rule 11 (funcDecl)
+    ID       reduce using rule 11 (funcDecl)
+    IF       reduce using rule 11 (funcDecl)
+    FOR      reduce using rule 11 (funcDecl)
+    RETURN   reduce using rule 11 (funcDecl)
+    FORALL   reduce using rule 11 (funcDecl)
+    IS_SET   reduce using rule 11 (funcDecl)
+    EXISTS   reduce using rule 11 (funcDecl)
+    NEG      reduce using rule 11 (funcDecl)
+    READ     reduce using rule 11 (funcDecl)
+    WRITE    reduce using rule 11 (funcDecl)
+    WRITELN  reduce using rule 11 (funcDecl)
+    INTEGER  reduce using rule 11 (funcDecl)
+    FLOAT    reduce using rule 11 (funcDecl)
+    EMPTY    reduce using rule 11 (funcDecl)
+    ';'      reduce using rule 11 (funcDecl)
+    '}'      reduce using rule 11 (funcDecl)
+    '('      reduce using rule 11 (funcDecl)
+
+
+State 366
+
+   93 set: SETOP '(' pertExpr ')' .
+
+    RELOP   reduce using rule 93 (set)
+    ARTOP1  reduce using rule 93 (set)
+    ARTOP2  reduce using rule 93 (set)
+    DISJ    reduce using rule 93 (set)
+    CONJ    reduce using rule 93 (set)
+    ')'     reduce using rule 93 (set)
+
+
+State 367
+
+   11 funcDecl: TYPE new_id arguments '{' funcBody '}' .
+
+    error    reduce using rule 11 (funcDecl)
+    TYPE     reduce using rule 11 (funcDecl)
+    SETOP    reduce using rule 11 (funcDecl)
+    ID       reduce using rule 11 (funcDecl)
+    IF       reduce using rule 11 (funcDecl)
+    ELSE     reduce using rule 11 (funcDecl)
+    FOR      reduce using rule 11 (funcDecl)
+    RETURN   reduce using rule 11 (funcDecl)
+    FORALL   reduce using rule 11 (funcDecl)
+    IS_SET   reduce using rule 11 (funcDecl)
+    EXISTS   reduce using rule 11 (funcDecl)
+    NEG      reduce using rule 11 (funcDecl)
+    READ     reduce using rule 11 (funcDecl)
+    WRITE    reduce using rule 11 (funcDecl)
+    WRITELN  reduce using rule 11 (funcDecl)
+    INTEGER  reduce using rule 11 (funcDecl)
+    FLOAT    reduce using rule 11 (funcDecl)
+    EMPTY    reduce using rule 11 (funcDecl)
+    ';'      reduce using rule 11 (funcDecl)
+    '}'      reduce using rule 11 (funcDecl)
+    '('      reduce using rule 11 (funcDecl)
+
+
+State 368
+
+   26 iterStmt: FOR '(' init exprStmt ')' body .
+
+    error    reduce using rule 26 (iterStmt)
+    TYPE     reduce using rule 26 (iterStmt)
+    SETOP    reduce using rule 26 (iterStmt)
+    ID       reduce using rule 26 (iterStmt)
+    IF       reduce using rule 26 (iterStmt)
+    ELSE     reduce using rule 26 (iterStmt)
+    FOR      reduce using rule 26 (iterStmt)
+    RETURN   reduce using rule 26 (iterStmt)
+    FORALL   reduce using rule 26 (iterStmt)
+    IS_SET   reduce using rule 26 (iterStmt)
+    EXISTS   reduce using rule 26 (iterStmt)
+    NEG      reduce using rule 26 (iterStmt)
+    READ     reduce using rule 26 (iterStmt)
+    WRITE    reduce using rule 26 (iterStmt)
+    WRITELN  reduce using rule 26 (iterStmt)
+    INTEGER  reduce using rule 26 (iterStmt)
+    FLOAT    reduce using rule 26 (iterStmt)
+    EMPTY    reduce using rule 26 (iterStmt)
+    ';'      reduce using rule 26 (iterStmt)
+    '}'      reduce using rule 26 (iterStmt)
+    '('      reduce using rule 26 (iterStmt)
+
+
+State 369
+
+   27 iterStmt: FOR '(' init exprStmt expression ')' . body
+
+    error    shift, and go to state 209
+    TYPE     shift, and go to state 210
+    SETOP    shift, and go to state 30
+    ID       shift, and go to state 31
+    IF       shift, and go to state 211
+    FOR      shift, and go to state 212
+    RETURN   shift, and go to state 213
+    FORALL   shift, and go to state 214
+    IS_SET   shift, and go to state 36
+    EXISTS   shift, and go to state 37
+    NEG      shift, and go to state 38
+    READ     shift, and go to state 39
+    WRITE    shift, and go to state 40
+    WRITELN  shift, and go to state 41
+    INTEGER  shift, and go to state 42
+    FLOAT    shift, and go to state 43
+    EMPTY    shift, and go to state 44
+    ';'      shift, and go to state 215
+    '{'      shift, and go to state 103
+    '('      shift, and go to state 47
+
+    varDecl     go to state 104
+    funcDecl    go to state 105
+    stmt        go to state 106
+    iterStmt    go to state 216
+    body        go to state 371
+    condStmt    go to state 217
+    returnStmt  go to state 218
+    exprStmt    go to state 219
+    expression  go to state 220
+    assign      go to state 56
+    var         go to state 57
+    inExpr      go to state 58
+    outExpr     go to state 59
+    simpleExpr  go to state 60
+    disjExpr    go to state 61
+    negExpr     go to state 62
+    relExpr     go to state 63
+    artExpr1    go to state 64
+    artExpr2    go to state 65
+    factor      go to state 66
+    constant    go to state 67
+    call        go to state 68
+    pertExpr    go to state 69
+    setExpr     go to state 70
+    elem        go to state 71
+
+
+State 370
+
+   93 set: SETOP '(' pertExpr ')' .
+
+    RELOP   reduce using rule 93 (set)
+    ARTOP1  reduce using rule 93 (set)
+    ARTOP2  reduce using rule 93 (set)
+    DISJ    reduce using rule 93 (set)
+    CONJ    reduce using rule 93 (set)
+    ','     reduce using rule 93 (set)
+    ')'     reduce using rule 93 (set)
+
+
+State 371
+
+   27 iterStmt: FOR '(' init exprStmt expression ')' body .
+
+    error    reduce using rule 27 (iterStmt)
+    TYPE     reduce using rule 27 (iterStmt)
+    SETOP    reduce using rule 27 (iterStmt)
+    ID       reduce using rule 27 (iterStmt)
+    IF       reduce using rule 27 (iterStmt)
+    ELSE     reduce using rule 27 (iterStmt)
+    FOR      reduce using rule 27 (iterStmt)
+    RETURN   reduce using rule 27 (iterStmt)
+    FORALL   reduce using rule 27 (iterStmt)
+    IS_SET   reduce using rule 27 (iterStmt)
+    EXISTS   reduce using rule 27 (iterStmt)
+    NEG      reduce using rule 27 (iterStmt)
+    READ     reduce using rule 27 (iterStmt)
+    WRITE    reduce using rule 27 (iterStmt)
+    WRITELN  reduce using rule 27 (iterStmt)
+    INTEGER  reduce using rule 27 (iterStmt)
+    FLOAT    reduce using rule 27 (iterStmt)
+    EMPTY    reduce using rule 27 (iterStmt)
+    ';'      reduce using rule 27 (iterStmt)
+    '}'      reduce using rule 27 (iterStmt)
+    '('      reduce using rule 27 (iterStmt)

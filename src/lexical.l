@@ -23,8 +23,7 @@
 #define ADD 12
 
 
-int curr_level;
-char *curr_scope;
+int curr_level = 0;
 int column = 1;
 int line = 1;
 %}

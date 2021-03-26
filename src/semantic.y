@@ -15,7 +15,7 @@ extern FILE *yyin;
 extern node *root;
 extern int line;
 extern int column;
-extern int curr_scope;
+extern int curr_level;
 int varType;
 %}
 

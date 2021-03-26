@@ -1,6 +1,32 @@
-int addWithClosure(elem x, set s) {
-    @add(x in s);
-    add((1/x) in s);
-    add((0-x) in s);
+int groupUnderAdd(set s) {
+    elem x, y;
+    forall (x in s) {
+      forall (y in s) add((x+y) in s)
+    }
+    forall (x s) add((0-x) in s);
+    add(0 in s);
     return 0;
+}
+
+int groupUnderMult(set s;) {
+    elem y, x;
+    forall (x in s) {
+      forall (y in s) add((x*y) in s);
+    }
+    forall (x in s) add((1/x) in s);
+    add(1 in s);
+    return 0;
+}
+
+int main(){
+  set entry;
+  entry = EMPTY;
+
+  add(1 in entry);
+  add(2 in entry);
+  add(3 in entry);
+
+  groupUnderAdd(entry);
+  groupUnderMult(entry);
+  return 0;
 }

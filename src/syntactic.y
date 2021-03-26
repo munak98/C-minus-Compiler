@@ -43,7 +43,7 @@ int varType;
 %type <tnode> program declaration varDecl varList funcDecl
 %type <tnode> arguments argsList funcBody stmt iterStmt body condStmt
 %type <tnode> returnStmt exprStmt expression init
-%type <tnode> assign inExpr outExpr output simpleExpr
+%type <tnode> assign inExpr outExpr output simpleExpr cond
 %type <tnode> disjExpr negExpr relExpr artExpr1 artExpr2 var new_id
 %type <tnode> factor constant call params paramList setExpr pertExpr elem set arg
 
@@ -69,9 +69,9 @@ declaration   : varDecl                                         {$$ = $1;}
 varDecl       : TYPE varList ';'                                {
                                                                   $$ = UnaryNode(VARDECL, $2);
                                                                   setVarsType($2, $1);
-                                                                  if (curr_level == 0) insertLeafs(global_scope, $2);
+                                                                  insertGlobalLeafs($2);
                                                                 }
-              | TYPE error ';'                                  {$$ = nullLeaf(); yyerrok;}
+              | TYPE error                                     {printf("reduziu erro com varDecl\n"); $$ = nullLeaf(); yyerrok;}
               ;
 
 varList       : varList ',' new_id                                 {$$ = BinaryNode(SEQ, $1, $3);}
@@ -84,33 +84,29 @@ new_id        : ID                                                  {
                                                                     }
               ;
 
-funcDecl      : TYPE new_id '(' arguments ')' '{' funcBody '}'      {
+funcDecl      : TYPE new_id arguments '{' funcBody '}'      {
                                                                         $2->leaf->ref->sym_kind = FUNCTION;
                                                                         $2->leaf->ref->return_type = $1;
-                                                                        $2->leaf->ref->n_args = countArgs($4, 0);
+                                                                        $2->leaf->ref->n_args = countArgs($3, 0);
                                                                         $2->leaf->ref->args_type = malloc(sizeof(int)*$2->leaf->ref->n_args);
-                                                                        setArgsInfo($2->leaf->ref, $4, 0);
+                                                                        setArgsInfo($2->leaf->ref, $3, 0);
 
                                                                         insertInScope($2->leaf->ref, global_scope);
 
-                                                                        $$ = TernaryNode(FUNCDECL, $2, $4, $7);
+                                                                        $$ = TernaryNode(FUNCDECL, $2, $3, $5);
                                                                         $$->internal->ref = $2->leaf->ref;
 
                                                                         table *func_scope = createNewScope($2->leaf->ref->identifier);
                                                                         pushScope(func_scope);
-                                                                        insertLeafs(func_scope, $4);
-                                                                        insertLeafs(func_scope, $7);
-
-
-
+                                                                        insertLeafs(func_scope, $3);
+                                                                        insertLeafs(func_scope, $5);
                                                                     }
-              | TYPE new_id '(' error ')' '{'                       {$$ = nullLeaf(); yyerrok;}
               ;
 
 
-
-arguments     : %empty                                          {$$ = nullLeaf();}
-              | argsList                                        {$$ = $1;}
+arguments     : '(' ')'                                         {$$ = nullLeaf();}
+              | '(' argsList ')'                                {$$ = $2;}
+              | '(' error ')'                                   {printf("reduziu erro com arguments\n"); $$ = nullLeaf(); yyerrok;}
               ;
 
 argsList      : argsList ',' arg                                {$$ = BinaryNode(SEQ, $1, $3);}
@@ -140,8 +136,8 @@ stmt          : exprStmt                                        {$$ = $1;}
 iterStmt      : FOR '(' init exprStmt ')' body                  {$$ = TernaryNode(FOR1, $3, $4, $6);}
               | FOR '(' init exprStmt expression ')' body       {$$ = QuaternaryNode(FOR2, $3, $4, $5, $7);}
               | FORALL '(' pertExpr ')' body                    {$$ = BinaryNode(FORALL, $3, $5);}
-              | FORALL '(' error ')'                            {$$ = nullLeaf(); yyerrok;}
-              | FOR '(' error ')'                               {$$ = nullLeaf(); yyerrok;}
+              | FORALL '(' error ')'  body                      {printf("reduced with error forall\n");$$ = nullLeaf(); yyerrok;}
+              | FOR '(' error ')' body                          {printf("reduced with error for\n"); $$ = nullLeaf(); yyerrok;}
               ;
 
 init          : exprStmt                                        {$$ = $1;}
@@ -159,15 +155,20 @@ body          : '{' funcBody '}'                                {$$ = $2;}
               ;
 
 
-condStmt      : IF '(' expression ')' body   %prec THEN         {$$ = BinaryNode(IF, $3, $5);}
-              | IF '(' expression ')' body ELSE body            {$$ = TernaryNode(IF_ELSE, $3, $5, $7);}
+condStmt      : IF cond body   %prec THEN         {$$ = BinaryNode(IF, $2, $3);}
+              | IF cond body ELSE body            {$$ = TernaryNode(IF_ELSE, $2, $3, $5);}
+              ;
+
+cond          : '(' expression ')'                {$$ = $2;}
+              | '(' error ')'                     {printf("reduced with cond error \n"); $$ = nullLeaf(); yyerrok;}
               ;
 
 returnStmt    : RETURN exprStmt                                 {$$ = UnaryNode(RETURN, $2);}
 
+
 exprStmt      : expression ';'                                  {$$ = $1;}
+              | error                                           {printf("reduced with exprStmt error \n"); $$ = nullLeaf(); yyerrok;}
               | ';'                                             {$$ = nullLeaf();}
-              | error ';'                                       {$$ = nullLeaf(); yyerrok;}
               ;
 
 expression    : assign                                          {$$ = $1;}
@@ -223,13 +224,11 @@ artExpr2      : artExpr2 ARTOP2 factor                          {$$ = BinaryNode
               | factor                                          {$$ = $1;}
               ;
 
-factor        : ID                                              {
-                                                                  $$ = idLeaf(createNewEntry($1, curr_level));
-                                                                }
+factor        : ID                                              {$$ = idLeaf(createNewEntry($1, curr_level));}
               | '(' simpleExpr ')'                              {$$ = $2;}
               | constant                                        {$$ = $1;}
               | call                                            {$$ = $1;}
-              | IS_SET '(' var ')'                              {$$ = UnaryNode(IS_SET, $3);}
+              | IS_SET '(' set ')'                              {$$ = UnaryNode(IS_SET, $3);}
               | pertExpr                                        {$$ = $1;}
               ;
 
