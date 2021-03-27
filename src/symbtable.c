@@ -94,10 +94,9 @@ sym *lookInScopeLevel(char *name, int level, table *table){
 
 //looks for an element in a hash table by name and level.
 sym *lookInAllLevels(char *name, int level){
-  table *aux = tables_list;
   sym *exists;
   while (level > 0){
-    exists = lookInScopeLevel(name, level, aux);
+    exists = lookInScopeLevel(name, level, tables_list);
     if (exists != NULL) return exists;
     level -= 1;
   }

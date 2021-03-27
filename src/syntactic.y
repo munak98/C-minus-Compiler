@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include "string.h"
 
-
 void yyerror(const char *s);
 extern int yylex();
 extern int yylex_destroy();
@@ -42,10 +41,17 @@ int varType;
 
 %type <tnode> program declaration varDecl varList funcDecl
 %type <tnode> arguments argsList funcBody stmt iterStmt body condStmt
-%type <tnode> returnStmt exprStmt expression init
-%type <tnode> assign inExpr outExpr output simpleExpr cond
-%type <tnode> disjExpr negExpr relExpr artExpr1 artExpr2 var new_id
-%type <tnode> factor constant call params paramList setExpr pertExpr elem set arg
+%type <tnode> returnStmt exprStmt expression
+%type <tnode> assign inExpr outExpr  simpleExpr cond
+%type <tnode> disjExpr negExpr relExpr artExpr1 artExpr2
+%type <tnode> constant call params paramList setExpr pertExpr
+%type <tnode> var new_id output factor elem set arg
+
+
+%destructor {freeSymbol($$);} <tnode>
+%destructor {printf("freeing id %s\n", $$); free($$);} ID
+%destructor {printf("freeing string %s\n", $$); free($$);} STRING
+
 
 %right THEN ELSE
 
@@ -133,20 +139,13 @@ stmt          : exprStmt                                        {$$ = $1;}
               | condStmt                                        {$$ = $1;}
               ;
 
-iterStmt      : FOR '(' init exprStmt ')' body                  {$$ = TernaryNode(FOR1, $3, $4, $6);}
-              | FOR '(' init exprStmt expression ')' body       {$$ = QuaternaryNode(FOR2, $3, $4, $5, $7);}
+iterStmt      : FOR '(' exprStmt exprStmt ')' body                  {$$ = TernaryNode(FOR1, $3, $4, $6);}
+              | FOR '(' exprStmt exprStmt expression ')' body       {$$ = QuaternaryNode(FOR2, $3, $4, $5, $7);}
               | FORALL '(' pertExpr ')' body                    {$$ = BinaryNode(FORALL, $3, $5);}
-              | FORALL '(' error ')'  body                      {printf("reduced with error forall\n");$$ = nullLeaf(); yyerrok;}
-              | FOR '(' error ')' body                          {printf("reduced with error for\n"); $$ = nullLeaf(); yyerrok;}
+              | FORALL '(' error ')'  body                      {printf("reduced with error forall\n"); $$ = BinaryNode(FORALL, nullLeaf(), $5); yyerrok;}
+              | FOR '(' error ')' body                          {printf("reduced with error for\n"); $$ = BinaryNode(FOR, nullLeaf(), $5); yyerrok;}
               ;
 
-init          : exprStmt                                        {$$ = $1;}
-              | TYPE new_id ';'                                 {
-                                                                  $$ = $2;
-                                                                  $2->leaf->ref->sym_kind = VARIABLE;
-                                                                  $2->leaf->ref->var_type = $1;
-                                                                }
-              ;
 
 body          : '{' funcBody '}'                                {$$ = $2;}
               | stmt                                            {$$ = $1;}
@@ -160,6 +159,7 @@ condStmt      : IF cond body   %prec THEN         {$$ = BinaryNode(IF, $2, $3);}
               ;
 
 cond          : '(' expression ')'                {$$ = $2;}
+
               | '(' error ')'                     {printf("reduced with cond error \n"); $$ = nullLeaf(); yyerrok;}
               ;
 
@@ -230,6 +230,7 @@ factor        : ID                                              {$$ = idLeaf(cre
               | call                                            {$$ = $1;}
               | IS_SET '(' set ')'                              {$$ = UnaryNode(IS_SET, $3);}
               | pertExpr                                        {$$ = $1;}
+              | EXISTS '(' pertExpr ')'                         {$$ = UnaryNode(EXISTS, $3);}
               ;
 
 constant      : INTEGER                                         {$$ = intLeaf($1);}
@@ -254,14 +255,13 @@ pertExpr      : elem IN set                                     {$$ = BinaryNode
               ;
 
 setExpr       : SETOP '(' pertExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->op_specifier = $1;}
-              | EXISTS '(' pertExpr ')'                         {$$ = UnaryNode(EXISTS, $3);}
               ;
 
 
 elem          : ID                                              {
                                                                   $$ = idLeaf(createNewEntry($1, curr_level));
                                                                 }
-              | '(' setExpr ')'                                 {$$ = $2;}
+              | EXISTS '(' pertExpr ')'                         {$$ = UnaryNode(EXISTS, $3);}
               | call                                            {$$ = $1;}
               | '(' simpleExpr ')'                              {$$ = $2;}
               | constant                                        {$$ = $1;}
@@ -271,7 +271,7 @@ elem          : ID                                              {
 set           : ID                                              {
                                                                   $$ = idLeaf(createNewEntry($1, curr_level));
                                                                 }
-              | SETOP '(' pertExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->op_specifier = $1;}
+              | setExpr                                         {$$ = $1;}
               ;
 
 
@@ -290,7 +290,6 @@ int main(int argc, char *argv[]){
       yyin = fp;
     }
     else {printf("No input file.\n"); exit(-1);}
-
     initTablesList();
     yyparse();
 

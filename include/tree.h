@@ -96,6 +96,8 @@ void setVarsType(node *, int);
 int countArgs(node *node, int count);
 int setArgsInfo(sym *func_ref, node *node, int index);
 void freeTree(node *);
+void freeSymbol(node *node);
+
 void insertLeafs(table *, node *);
 void insertGlobalLeafs(node *);
 #endif

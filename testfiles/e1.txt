@@ -3,7 +3,7 @@ int groupUnderAdd(set s) {
     forall (x in s) {
       forall (y in s) add((x+y) in s)
     }
-    forall (x s) add((0-x) in s);
+    forall (k v) add((0-x) in s);
     add(0 in s);
     return 0;
 }

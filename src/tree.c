@@ -5,6 +5,7 @@ node *Leaf(){
   node *node = malloc(sizeof(struct NODE));
   node->node_type = LEAF_NODE;
   node->level = 0;
+  node->internal = NULL;
   node->leaf = malloc(sizeof(struct LEAF));
   return node;
 }
@@ -19,24 +20,32 @@ node *idLeaf(sym *ref){
 node *intLeaf(int ival){
   node *node = Leaf();
   node->leaf->leaf_type = INT_LEAF;
+  node->leaf->ref = NULL;
+  node->leaf->is_decl = 0;
   node->leaf->ival = ival;
   return node;
 }
 node *floatLeaf(float fval){
   node *node = Leaf();
   node->leaf->leaf_type = FLOAT_LEAF;
+  node->leaf->ref = NULL;
+  node->leaf->is_decl = 0;
   node->leaf->fval = fval;
   return node;
 }
 node *charLeaf(char cval){
   node *node = Leaf();
   node->leaf->leaf_type = CHAR_LEAF;
+  node->leaf->ref = NULL;
+  node->leaf->is_decl = 0;
   node->leaf->cval = cval;
   return node;
 }
 node *stringLeaf(char *sval){
   node *node = Leaf();
   node->leaf->leaf_type = STRING_LEAF;
+  node->leaf->ref = NULL;
+  node->leaf->is_decl = 0;
   node->leaf->sval = sval;
   return node;
 }
@@ -44,6 +53,7 @@ node *stringLeaf(char *sval){
 node *setLeaf(){
   node *node = Leaf();
   node->leaf->leaf_type = SET_LEAF;
+  node->leaf->ref = NULL;
   return node;
 }
 
@@ -63,6 +73,8 @@ node *Node(){
 node *UnaryNode(int op, node *child1){
   node *node = Node();
   node->internal->operator = op;
+  node->internal->op_specifier = UNDEF;
+  node->internal->ref = NULL;
   node->internal->child1 = child1;
   node->internal->child2 = NULL;
   node->internal->child3 = NULL;
@@ -71,6 +83,8 @@ node *UnaryNode(int op, node *child1){
 }
 node *BinaryNode(int op, node *child1,  node *child2){
   node *node = Node();
+  node->internal->op_specifier = UNDEF;
+  node->internal->ref = NULL;
   node->internal->operator = op;
   node->internal->child1 = child1;
   node->internal->child2 = child2;
@@ -80,6 +94,8 @@ node *BinaryNode(int op, node *child1,  node *child2){
 }
 node *TernaryNode(int op, node *child1,  node *child2, node *child3){
   node *node = Node();
+  node->internal->op_specifier = UNDEF;
+  node->internal->ref = NULL;
   node->internal->operator = op;
   node->internal->child1 = child1;
   node->internal->child2 = child2;
@@ -89,6 +105,8 @@ node *TernaryNode(int op, node *child1,  node *child2, node *child3){
 }
 node *QuaternaryNode(int op, node *child1,  node *child2, node *child3, node *child4){
   node *node = Node();
+  node->internal->op_specifier = UNDEF;
+  node->internal->ref = NULL;
   node->internal->operator = op;
   node->internal->child1 = child1;
   node->internal->child2 = child2;
@@ -154,10 +172,16 @@ void insertLeafs(table *scope, node *node){
     case LEAF_NODE:
       if (node->leaf->leaf_type == ID_LEAF) {
         if (node->leaf->is_decl == 1){
+          aux = lookInScopeLevel(node->leaf->ref->identifier, node->leaf->ref->level_found, scope); //verify if there is another declaration in the same level
+          if (aux != NULL) {
+            free(node->leaf->ref->identifier);
+            free(node->leaf->ref);
+            node->leaf->ref = aux;
+          }
           pushEntry(node->leaf->ref, scope);
         }
         else {
-          aux = insertInScope(node->leaf->ref, scope);
+          aux = insertInScope(node->leaf->ref, scope); //verify if there is any declaration in the visible scopes
           if (aux != node->leaf->ref){
             free(node->leaf->ref->identifier);
             free(node->leaf->ref);
@@ -304,6 +328,33 @@ void freeTree(node *node){
       if (node->leaf->leaf_type == STRING_LEAF) free(node->leaf->sval);
       free(node->leaf);
       free(node);
+      break;
+  }
+  return;
+}
+
+
+void freeSymbol(node *node){
+  if (node == NULL) return;
+  switch (node->node_type) {
+    case INTERNAL_NODE:
+      freeSymbol(node->internal->child1);
+      freeSymbol(node->internal->child2);
+      freeSymbol(node->internal->child3);
+      freeSymbol(node->internal->child4);
+      free(node->internal);
+      free(node);
+      break;
+    case LEAF_NODE:
+      if (node->leaf->leaf_type == STRING_LEAF) free(node->leaf->sval);
+      if (node->leaf->leaf_type == ID_LEAF){
+        free(node->leaf->ref->identifier);
+        if (node->leaf->ref->sym_kind == FUNCTION) free(node->leaf->ref->args_type);
+        free(node->leaf->ref);
+      }
+      free(node->leaf);
+      free(node);
+
       break;
   }
   return;

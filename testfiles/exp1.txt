@@ -1,0 +1,6 @@
+set test_set(set s) {
+	if(is_set(x) && is_set(x) || exists(el in s))
+        write("neat");
+    else
+        writeln("oh no");
+}

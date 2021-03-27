@@ -1,37 +1,4 @@
-result = EMPTY;
-forall(x in first){
-  if (x in second) add(x in result);
-}
-return result;
-
-
-int size(set s){
-  elem x;
-  int count;
-  count = 0;
-  forall(x in s) count = count + 1;
-  return count;
-}
-
-int main(){
-  set A;
-  set B;
-  set C;
-  A = EMPTY;
-  B = EMPTY;
-  int a, b, c, d;
-  read(a); read(b); read(c); read(d);
-  add((a * b / c - d) in A);
-  add((b - d / c) in A);
-  add((d + b * c - d) in B);
-  add((a * a / b + c) in B);
-
-  C = intersect(A, B);
-  if (size(C) == 0) write("No intersection.\n");
-  else {
-    if (size(B) < size(A) && size(B) == size(C)) writeln("B is a proper subset of A");
-    if (size(A) < size(B) && size(A) == size(C)) writeln("A is a proper subset of B");
-    if (size(B) == size(C) && size(A) == size(B)) writeln("A equal B");
-  }
-  return 0;
+int groupUnderAdd(set s) {
+    int a int b;
+    forall (k s) return;
 }

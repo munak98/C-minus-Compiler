@@ -34,8 +34,8 @@ letter        [A-Za-z]
 digit         [0-9]
 alphanumeric  {letter}|{digit}
 id            {letter}({alphanumeric}|_)*
-integer       {digit}+((E|e)[+-]?{digit}+)?
-float         {digit}+\.{digit}+((E|e)[+-]?{digit}+)?
+integer       [-]?{digit}+((E|e)[+-]?{digit}+)?
+float         [-]?{digit}+\.{digit}+((E|e)[+-]?{digit}+)?
 string        \"([^(\"\')])*\"
 char          \'([^(\'\"])*\'
 
