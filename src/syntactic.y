@@ -43,14 +43,14 @@ int varType;
 %type <tnode> arguments argsList funcBody stmt iterStmt body condStmt
 %type <tnode> returnStmt exprStmt expression
 %type <tnode> assign inExpr outExpr  simpleExpr cond
-%type <tnode> disjExpr negExpr relExpr artExpr1 artExpr2
-%type <tnode> constant call params paramList setExpr pertExpr
-%type <tnode> var new_id output factor elem set arg
+%type <tnode> disjExpr conjExpr relExpr artExpr1 artExpr2 negExpr
+%type <tnode> constant call params paramList
+%type <tnode> var new_id output factor arg
 
 
 %destructor {freeSymbol($$);} <tnode>
-%destructor {printf("freeing id %s\n", $$); free($$);} ID
-%destructor {printf("freeing string %s\n", $$); free($$);} STRING
+%destructor {free($$);} ID
+%destructor {free($$);} STRING
 
 
 %right THEN ELSE
@@ -77,42 +77,42 @@ varDecl       : TYPE varList ';'                                {
                                                                   setVarsType($2, $1);
                                                                   insertGlobalLeafs($2);
                                                                 }
-              | TYPE error                                     {printf("reduziu erro com varDecl\n"); $$ = nullLeaf(); yyerrok;}
+              | TYPE error                                      {$$ = nullLeaf(); yyerrok;}
               ;
 
-varList       : varList ',' new_id                                 {$$ = BinaryNode(SEQ, $1, $3);}
-              | new_id                                             {$$ = $1;}
+varList       : varList ',' new_id                              {$$ = BinaryNode(SEQ, $1, $3);}
+              | new_id                                          {$$ = $1;}
               ;
 
-new_id        : ID                                                  {
-                                                                      $$ = idLeaf(createNewEntry($1, curr_level));
-                                                                      $$->leaf->is_decl = 1;
-                                                                    }
+new_id        : ID                                              {
+                                                                  $$ = idLeaf(createNewEntry($1, curr_level));
+                                                                  $$->leaf->is_decl = 1;
+                                                                }
               ;
 
-funcDecl      : TYPE new_id arguments '{' funcBody '}'      {
-                                                                        $2->leaf->ref->sym_kind = FUNCTION;
-                                                                        $2->leaf->ref->return_type = $1;
-                                                                        $2->leaf->ref->n_args = countArgs($3, 0);
-                                                                        $2->leaf->ref->args_type = malloc(sizeof(int)*$2->leaf->ref->n_args);
-                                                                        setArgsInfo($2->leaf->ref, $3, 0);
+funcDecl      : TYPE new_id arguments '{' funcBody '}'          {
+                                                                  $2->leaf->ref->sym_kind = FUNCTION;
+                                                                  $2->leaf->ref->return_type = $1;
+                                                                  $2->leaf->ref->n_args = countArgs($3, 0);
+                                                                  $2->leaf->ref->args_type = malloc(sizeof(int)*$2->leaf->ref->n_args);
+                                                                  setArgsInfo($2->leaf->ref, $3, 0);
 
-                                                                        insertInScope($2->leaf->ref, global_scope);
+                                                                  insertInScope($2->leaf->ref, global_scope);
 
-                                                                        $$ = TernaryNode(FUNCDECL, $2, $3, $5);
-                                                                        $$->internal->ref = $2->leaf->ref;
+                                                                  $$ = TernaryNode(FUNCDECL, $2, $3, $5);
+                                                                  $$->internal->ref = $2->leaf->ref;
 
-                                                                        table *func_scope = createNewScope($2->leaf->ref->identifier);
-                                                                        pushScope(func_scope);
-                                                                        insertLeafs(func_scope, $3);
-                                                                        insertLeafs(func_scope, $5);
-                                                                    }
+                                                                  table *func_scope = createNewScope($2->leaf->ref->identifier);
+                                                                  pushScope(func_scope);
+                                                                  insertLeafs(func_scope, $3);
+                                                                  insertLeafs(func_scope, $5);
+                                                                }
               ;
 
 
 arguments     : '(' ')'                                         {$$ = nullLeaf();}
               | '(' argsList ')'                                {$$ = $2;}
-              | '(' error ')'                                   {printf("reduziu erro com arguments\n"); $$ = nullLeaf(); yyerrok;}
+              | '(' error ')'                                   {$$ = nullLeaf(); yyerrok;}
               ;
 
 argsList      : argsList ',' arg                                {$$ = BinaryNode(SEQ, $1, $3);}
@@ -139,11 +139,11 @@ stmt          : exprStmt                                        {$$ = $1;}
               | condStmt                                        {$$ = $1;}
               ;
 
-iterStmt      : FOR '(' exprStmt exprStmt ')' body                  {$$ = TernaryNode(FOR1, $3, $4, $6);}
-              | FOR '(' exprStmt exprStmt expression ')' body       {$$ = QuaternaryNode(FOR2, $3, $4, $5, $7);}
-              | FORALL '(' pertExpr ')' body                    {$$ = BinaryNode(FORALL, $3, $5);}
-              | FORALL '(' error ')'  body                      {printf("reduced with error forall\n"); $$ = BinaryNode(FORALL, nullLeaf(), $5); yyerrok;}
-              | FOR '(' error ')' body                          {printf("reduced with error for\n"); $$ = BinaryNode(FOR, nullLeaf(), $5); yyerrok;}
+iterStmt      : FOR '(' exprStmt exprStmt ')' body              {$$ = TernaryNode(FOR1, $3, $4, $6);}
+              | FOR '(' exprStmt exprStmt expression ')' body   {$$ = QuaternaryNode(FOR2, $3, $4, $5, $7);}
+              | FORALL '(' simpleExpr ')' body                  {$$ = BinaryNode(FORALL, $3, $5);}
+              | FORALL '(' error ')'  body                      {$$ = BinaryNode(FORALL, nullLeaf(), $5); yyerrok;}
+              | FOR '(' error ')' body                          {$$ = BinaryNode(FOR, nullLeaf(), $5); yyerrok;}
               ;
 
 
@@ -154,20 +154,19 @@ body          : '{' funcBody '}'                                {$$ = $2;}
               ;
 
 
-condStmt      : IF cond body   %prec THEN         {$$ = BinaryNode(IF, $2, $3);}
-              | IF cond body ELSE body            {$$ = TernaryNode(IF_ELSE, $2, $3, $5);}
+condStmt      : IF cond body   %prec THEN                       {$$ = BinaryNode(IF, $2, $3);}
+              | IF cond body ELSE body                          {$$ = TernaryNode(IF_ELSE, $2, $3, $5);}
               ;
 
-cond          : '(' expression ')'                {$$ = $2;}
-
-              | '(' error ')'                     {printf("reduced with cond error \n"); $$ = nullLeaf(); yyerrok;}
+cond          : '(' expression ')'                              {$$ = $2;}
+              | '(' error ')'                                   {$$ = nullLeaf(); yyerrok;}
               ;
 
 returnStmt    : RETURN exprStmt                                 {$$ = UnaryNode(RETURN, $2);}
 
 
 exprStmt      : expression ';'                                  {$$ = $1;}
-              | error                                           {printf("reduced with exprStmt error \n"); $$ = nullLeaf(); yyerrok;}
+              | error                                           {$$ = nullLeaf(); yyerrok;}
               | ';'                                             {$$ = nullLeaf();}
               ;
 
@@ -175,15 +174,12 @@ expression    : assign                                          {$$ = $1;}
               | inExpr                                          {$$ = $1;}
               | outExpr                                         {$$ = $1;}
               | simpleExpr                                      {$$ = $1;}
-              | setExpr                                         {$$ = $1;}
               ;
 
 assign        : var '=' simpleExpr                              {$$ = BinaryNode(ASSIGN, $1, $3);}
               ;
 
-var           :  ID                                              {
-                                                                  $$ = idLeaf(createNewEntry($1, curr_level));
-                                                                }
+var           :  ID                                             {$$ = idLeaf(createNewEntry($1, curr_level));}
               ;
 
 inExpr        : READ '(' var ')'                                {$$ = UnaryNode(READ, $3);}
@@ -193,22 +189,24 @@ outExpr       : WRITE '(' output ')'                            {$$ = UnaryNode(
               | WRITELN '(' output ')'                          {$$ = UnaryNode(WRITELN, $3);}
               ;
 
-output        : ID                                              {
-                                                                  $$ = idLeaf(createNewEntry($1, curr_level));
-                                                                }
+output        : ID                                              {$$ = idLeaf(createNewEntry($1, curr_level));}
               | CHAR                                            {$$ = charLeaf($1);}
               | STRING                                          {$$ = stringLeaf($1);}
               ;
 
-simpleExpr    : simpleExpr DISJ disjExpr                        {$$ = BinaryNode(DISJ, $1, $3);}
-              | disjExpr                                        {$$ = $1;}
-              ;
-
-disjExpr      : disjExpr CONJ negExpr                           {$$ = BinaryNode(CONJ, $1, $3);}
-              | negExpr                                         {$$ = $1;}
+simpleExpr    : simpleExpr IN negExpr                            {$$ = BinaryNode(IN, $1, $3);}
+              | negExpr                                          {$$ = $1;}
               ;
 
 negExpr       : NEG negExpr                                     {$$ = UnaryNode(NEG, $2);}
+              | disjExpr                                        {$$ = $1;}
+              ;
+
+disjExpr      : disjExpr DISJ conjExpr                          {$$ = BinaryNode(DISJ, $1, $3);}
+              | conjExpr                                        {$$ = $1;}
+              ;
+
+conjExpr      : conjExpr CONJ relExpr                           {$$ = BinaryNode(CONJ, $1, $3);}
               | relExpr                                         {$$ = $1;}
               ;
 
@@ -220,17 +218,19 @@ artExpr1      : artExpr1 ARTOP1 artExpr2                        {$$ = BinaryNode
               | artExpr2                                        {$$ = $1;}
               ;
 
-artExpr2      : artExpr2 ARTOP2 factor                          {$$ = BinaryNode(ARTOP2, $1, $3); $$->internal->op_specifier = $2;}
-              | factor                                          {$$ = $1;}
+artExpr2      : artExpr2 ARTOP2 factor                        {$$ = BinaryNode(ARTOP2, $1, $3); $$->internal->op_specifier = $2;}
+              | factor                                        {$$ = $1;}
               ;
+
+
 
 factor        : ID                                              {$$ = idLeaf(createNewEntry($1, curr_level));}
               | '(' simpleExpr ')'                              {$$ = $2;}
               | constant                                        {$$ = $1;}
               | call                                            {$$ = $1;}
-              | IS_SET '(' set ')'                              {$$ = UnaryNode(IS_SET, $3);}
-              | pertExpr                                        {$$ = $1;}
-              | EXISTS '(' pertExpr ')'                         {$$ = UnaryNode(EXISTS, $3);}
+              | IS_SET '(' factor ')'                              {$$ = UnaryNode(IS_SET, $3);}
+              | EXISTS '(' simpleExpr ')'                         {$$ = UnaryNode(EXISTS, $3);}
+              | SETOP '(' simpleExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->op_specifier = $1;}
               ;
 
 constant      : INTEGER                                         {$$ = intLeaf($1);}
@@ -249,29 +249,6 @@ params        : %empty                                          {$$ = nullLeaf()
 
 paramList     : paramList ',' simpleExpr                        {$$ = BinaryNode(SEQ, $1, $3);}
               | simpleExpr                                      {$$ = $1;}
-              ;
-
-pertExpr      : elem IN set                                     {$$ = BinaryNode(IN, $1, $3);}
-              ;
-
-setExpr       : SETOP '(' pertExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->op_specifier = $1;}
-              ;
-
-
-elem          : ID                                              {
-                                                                  $$ = idLeaf(createNewEntry($1, curr_level));
-                                                                }
-              | EXISTS '(' pertExpr ')'                         {$$ = UnaryNode(EXISTS, $3);}
-              | call                                            {$$ = $1;}
-              | '(' simpleExpr ')'                              {$$ = $2;}
-              | constant                                        {$$ = $1;}
-              ;
-
-
-set           : ID                                              {
-                                                                  $$ = idLeaf(createNewEntry($1, curr_level));
-                                                                }
-              | setExpr                                         {$$ = $1;}
               ;
 
 

@@ -36,8 +36,8 @@ alphanumeric  {letter}|{digit}
 id            {letter}({alphanumeric}|_)*
 integer       [-]?{digit}+((E|e)[+-]?{digit}+)?
 float         [-]?{digit}+\.{digit}+((E|e)[+-]?{digit}+)?
-string        \"([^(\"\')])*\"
-char          \'([^(\'\"])*\'
+string        \"([^\\\"]|\\.)*\"
+char          '([^'\\\n]|\\.)' 
 
 /* Rule Section */
 %%
