@@ -174,6 +174,7 @@ void insertLeafs(table *scope, node *node){
         if (node->leaf->is_decl == 1){
           aux = lookInScopeLevel(node->leaf->ref->identifier, node->leaf->ref->level_found, scope); //verify if there is another declaration in the same level
           if (aux != NULL) {
+            printf("[semantic error] Identifier '%s' already declared in this scope leve\n", node->leaf->ref->identifier);
             free(node->leaf->ref->identifier);
             free(node->leaf->ref);
             node->leaf->ref = aux;
@@ -181,8 +182,14 @@ void insertLeafs(table *scope, node *node){
           pushEntry(node->leaf->ref, scope);
         }
         else {
-          aux = insertInScope(node->leaf->ref, scope); //verify if there is any declaration in the visible scopes
-          if (aux != node->leaf->ref){
+          aux = lookInAllLevels(node->leaf->ref->identifier, node->leaf->ref->level_found); //verify if there is any declaration in the visible scopes
+          if (aux == NULL){
+            printf("[semantic error] Variable '%s' not declared ... declaring it with undefined type \n", node->leaf->ref->identifier);
+            pushEntry(node->leaf->ref, scope);
+            // free(node->leaf->ref->identifier);
+            // free(node->leaf->ref);
+          }
+          else {
             free(node->leaf->ref->identifier);
             free(node->leaf->ref);
             node->leaf->ref = aux;
@@ -193,6 +200,10 @@ void insertLeafs(table *scope, node *node){
   }
   return;
 }
+
+
+
+
 
 void insertGlobalLeafs(node *node){
   if (node == NULL) return;

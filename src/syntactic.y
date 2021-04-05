@@ -2,6 +2,7 @@
 %{
 #include "../include/symbtable.h"
 #include "../include/tree.h"
+#include "../include/semantic.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "string.h"
@@ -99,6 +100,7 @@ funcDecl      : TYPE new_id arguments '{' funcBody '}'          {
 
                                                                   insertInScope($2->leaf->ref, global_scope);
 
+
                                                                   $$ = TernaryNode(FUNCDECL, $2, $3, $5);
                                                                   $$->internal->ref = $2->leaf->ref;
 
@@ -106,6 +108,7 @@ funcDecl      : TYPE new_id arguments '{' funcBody '}'          {
                                                                   pushScope(func_scope);
                                                                   insertLeafs(func_scope, $3);
                                                                   insertLeafs(func_scope, $5);
+                                                                  checkLeafsParams($5);
                                                                 }
               ;
 
@@ -218,19 +221,19 @@ artExpr1      : artExpr1 ARTOP1 artExpr2                        {$$ = BinaryNode
               | artExpr2                                        {$$ = $1;}
               ;
 
-artExpr2      : artExpr2 ARTOP2 factor                        {$$ = BinaryNode(ARTOP2, $1, $3); $$->internal->op_specifier = $2;}
-              | factor                                        {$$ = $1;}
+artExpr2      : artExpr2 ARTOP2 factor                          {$$ = BinaryNode(ARTOP2, $1, $3); $$->internal->op_specifier = $2;}
+              | factor                                          {$$ = $1;}
               ;
 
 
 
-factor        : ID                                              {$$ = idLeaf(createNewEntry($1, curr_level));}
-              | '(' simpleExpr ')'                              {$$ = $2;}
-              | constant                                        {$$ = $1;}
-              | call                                            {$$ = $1;}
-              | IS_SET '(' factor ')'                              {$$ = UnaryNode(IS_SET, $3);}
-              | EXISTS '(' simpleExpr ')'                         {$$ = UnaryNode(EXISTS, $3);}
-              | SETOP '(' simpleExpr ')'                          {$$ = UnaryNode(SETOP, $3);  $$->internal->op_specifier = $1;}
+factor        : ID                                               {$$ = idLeaf(createNewEntry($1, curr_level));}
+              | '(' simpleExpr ')'                               {$$ = $2;}
+              | constant                                         {$$ = $1;}
+              | call                                             {$$ = $1;}
+              | IS_SET '(' factor ')'                            {$$ = UnaryNode(IS_SET, $3);}
+              | EXISTS '(' simpleExpr ')'                        {$$ = UnaryNode(EXISTS, $3);}
+              | SETOP '(' simpleExpr ')'                         {$$ = UnaryNode(SETOP, $3);  $$->internal->op_specifier = $1;}
               ;
 
 constant      : INTEGER                                         {$$ = intLeaf($1);}
