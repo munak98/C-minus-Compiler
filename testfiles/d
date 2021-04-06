@@ -1,4 +1,11 @@
-int groupUnderAdd(set s) {
-    int a int b;
-    forall (k s) return;
+int main() {
+	int a;
+	a = 10;
+	if(a > 1) {
+		int b;
+	}
+	if(a > 2) {
+		int b;
+	}
+	return 0;
 }

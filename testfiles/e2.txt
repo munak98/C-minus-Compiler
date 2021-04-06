@@ -4,7 +4,7 @@ global_variable = 0;
 int some_function(float a, float b){
   int result;
   result =  a + b * a / b - a;
-  return result;
+  return% result;
 }
 
 int size(set s){

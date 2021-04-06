@@ -1,9 +1,18 @@
 set intersect(set first, set second) {
   set result;
-  elem el;
+  elem x;
   result = EMPTY;
+  int count;
+  count = 0;
   forall(x in first){
-    if (x in second) add(x in result);
+    if (x in second){
+      count = count + 1;
+      add(x in result);
+    }
+  }
+  if (count > 0){
+    write(count);
+    writeln("intersections");
   }
   return result;
 }
@@ -26,7 +35,7 @@ int main(){
   read(a); read(b); read(c); read(d);
   add((a * b / c - d) in A);
   add((b - d / c) in A);
-  add((d + b * c - d) in B);
+  add((d + b - c * d) in B);
   add((a * a / b + c) in B);
 
   C = intersect(A, B);

@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include "../include/symbtable.h"
 
-
 #define LEAF_NODE 501
 #define INTERNAL_NODE 502
 
@@ -95,6 +94,7 @@ void printTree3(node *, int);
 void setVarsType(node *, int);
 int countArgs(node *node, int count);
 int setArgsInfo(sym *func_ref, node *node, int index);
+void checkLeafsParams(node *node);
 void freeTree(node *);
 void freeSymbol(node *node);
 

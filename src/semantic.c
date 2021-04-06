@@ -1,6 +1,56 @@
 #include "../include/semantic.h"
 
+extern table *curr_scope;
 enum operations_set {ARTOP, RELOP_, BOOLOP, NOTOP, EQUALOP, SETOP_, IS_SET_, IN_, EXISTS_, NONE};
+
+void hideScope(){
+  curr_scope = curr_scope->father;
+}
+
+sym *findDecl(char *name){
+  sym *aux = lookInAllLevels(name, curr_scope);
+  if (aux == NULL) {
+    printf("[semantic error] Identifier '%s' not declared\n", name);
+    return NULL;
+  }
+  else return aux;
+}
+
+sym *declare(char *name, int type, int kind){
+  sym *aux = lookInScopeLevel(name, curr_scope);
+  if (aux != NULL) {printf("[semantic error] Multiple declarations of identifier '%s'\n", name); return NULL;}
+  else {
+    aux = newEntry(name, type, kind);
+    pushEntry(aux, curr_scope);
+    return aux;
+  }
+}
+
+
+int checkParamsType(sym *func_ref, node *args_tree, int index){
+    if (args_tree == NULL) return index;
+    switch (args_tree->node_type) {
+      case INTERNAL_NODE:
+        index += checkParamsType(func_ref, args_tree->internal->child1, index);
+        index += checkParamsType(func_ref, args_tree->internal->child2, index);
+        break;
+      case LEAF_NODE:
+        if (args_tree->leaf->leaf_type == ID_LEAF){
+          if (func_ref->args_type[index] != args_tree->leaf->ref->var_type)
+            printf("[semantic error] In function call '%s': Argument %d type mismatch: expected '%s', but '%s' were given\n", func_ref->identifier, index, printType(func_ref->args_type[index]), printType(args_tree->leaf->ref->var_type));
+          return 1;
+        }
+        break;
+    }
+    return index;
+}
+
+int checkParams(sym *func_ref, node *args_tree){
+  int n_args = countArgs(args_tree, 0);
+  if (n_args != func_ref->n_args) {printf("[semantic error] Wrong number of arguments to function '%s': expected %d, but %d were given\n", func_ref->identifier, func_ref->n_args, n_args); return 1;}
+  checkParamsType(func_ref, args_tree, 0);
+  return 0;
+}
 
 
 int result_type(int type_op, int type1, int type2){
@@ -66,47 +116,3 @@ int result_type(int type_op, int type1, int type2){
           return UNDEF;
   }
 }
-
-
-
-int checkParamsType(sym *func_ref, node *args_tree, int index){
-    if (args_tree == NULL) return index;
-    switch (args_tree->node_type) {
-      case INTERNAL_NODE:
-        index += checkParamsType(func_ref, args_tree->internal->child1, index);
-        index += checkParamsType(func_ref, args_tree->internal->child2, index);
-        break;
-      case LEAF_NODE:
-        if (args_tree->leaf->leaf_type == ID_LEAF){
-          if (func_ref->args_type[index] != args_tree->leaf->ref->var_type)
-            printf("[semantic error] In function call '%s': Argument %d type mismatch: expected '%s', but '%s' were given\n", func_ref->identifier, index, printType(func_ref->args_type[index]), printType(args_tree->leaf->ref->var_type));
-          return 1;
-        }
-        break;
-    }
-    return index;
-}
-
-
-void checkLeafsParams(node *node){
-  if (node == NULL) return;
-  int count;
-  switch (node->node_type) {
-    case INTERNAL_NODE:
-      if (node->internal->operator == CALL){
-        count = countArgs(node->internal->child2, 0);
-        if (count == node->internal->child1->leaf->ref->n_args){
-          checkParamsType(node->internal->child1->leaf->ref, node->internal->child2, 0);
-        }
-        else printf("[semantic error] In function call '%s': Expected %d arguments, %d were given\n", node->internal->child1->leaf->ref->identifier, node->internal->child1->leaf->ref->n_args, count);
-      }
-      checkLeafsParams(node->internal->child1);
-      checkLeafsParams(node->internal->child2);
-      checkLeafsParams(node->internal->child3);
-      checkLeafsParams(node->internal->child4);
-      break;
-    case LEAF_NODE:
-      break;
-  }
-  return;
-  }

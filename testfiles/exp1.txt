@@ -1,6 +1,33 @@
-set test_set(set s) {
-	if(is_set(x) && is_set(x) || exists(el in s))
-        write("neat");
-    else
-        writeln("oh no");
+int main() {
+	int a;
+	a = 10;
+	if(a > 1) {
+	  int b;
+	}
+	if(a > 2) {
+	  int c;
+	}
+	return 0;
+
+}
+
+int groupUnderAdd(set s) {
+    int a; int b;
+    forall (k in s) return;
+}
+
+
+
+set test(set s, int k){
+	int var;
+	main();
+}
+
+
+
+set cabeca(){
+	int var;
+	set a;
+	a = EMPTY;
+	test();
 }
