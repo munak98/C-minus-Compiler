@@ -1,7 +1,13 @@
-int main() {
-	int a;
-	a = 10;
-	if(a > 1) {
+int main;
+
+int la() {
+	float a;
+	a = 10.0;
+	int el;
+	el = 5;
+	int c;
+	c = a + el;
+	if(a > 1.0) {
 	  int b;
 	}
 	if(a > 2) {
@@ -13,21 +19,23 @@ int main() {
 
 int groupUnderAdd(set s) {
     int a; int b;
-    forall (k in s) return;
+    forall (a in s) return a;
+		acaba();
 }
 
 
 
-set test(set s, int k){
+set test(float a, int c){
 	int var;
 	main();
+	return;
 }
 
 
 
 set cabeca(){
-	int var;
+	float var;
 	set a;
 	a = EMPTY;
-	test();
+	test(1.0, a);
 }

@@ -3,10 +3,13 @@
 
 #define UNDEF -1
 
+#define STRING_TYPE -2
+#define CHAR_TYPE -3
 #define INT_TYPE 139
 #define FLOAT_TYPE 140
 #define ELEM_TYPE 143
 #define SET_TYPE 144
+
 
 #define FUNCTION 145
 #define VARIABLE 146
@@ -18,10 +21,10 @@
 typedef struct SYMBOL {
 	char *identifier;
 	int sym_kind;		//var or function
-	int var_type;
-	int return_type;
+	int type;
 	int n_args;
 	int *args_type;
+
   struct SYMBOL *next;
 } sym;
 

@@ -2,7 +2,7 @@ set intersect(set first, set second) {
   set result;
   elem x;
   result = EMPTY;
-  int count;
+  float count;
   count = 0;
   forall(x in first){
     if (x in second){
@@ -32,6 +32,7 @@ int main(){
   A = EMPTY;
   B = EMPTY;
   int a, b, c, d;
+  float k;
   read(a); read(b); read(c); read(d);
   add((a * b / c - d) in A);
   add((b - d / c) in A);
@@ -39,11 +40,13 @@ int main(){
   add((a * a / b + c) in B);
 
   C = intersect(A, B);
-  if (size(C) == 0) write("No intersection.\n");
+  k = size(C);
+
+  if (k == 0) write("No intersection.\n");
   else {
-    if (size(B) < size(A) && size(B) == size(C)) writeln("B is a proper subset of A");
-    if (size(A) < size(B) && size(A) == size(C)) writeln("A is a proper subset of B");
-    if (size(B) == size(C) && size(A) == size(B)) writeln("A equal B");
+    if (size(B) < size(A) && size(B) == k) writeln("B is a proper subset of A");
+    if (size(A) < size(B) && size(A) == k) writeln("A is a proper subset of B");
+    if (size(B) == k && size(A) == size(B)) writeln("A equal B");
   }
   return 0;
 }

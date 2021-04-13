@@ -25,6 +25,9 @@ int main(){
     writeln("Invalid set.");
     return 1;
   }
+  size(s);
+  size(x, domain);
+
   forall(x in domain) add(some_function(x) in image);
   if (size(image) != size(domain)) writeln("Not injective.");
   else writeln("Injective.");

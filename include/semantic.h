@@ -4,12 +4,14 @@
 #include "../include/symbtable.h"
 #include "../include/tree.h"
 
+
+
 sym *findDecl(char *name);
 sym *declare(char *name, int type, int kind);
-int checkParamsType(sym *func_ref, node *args_tree, int index);
-int checkParams(sym *func_ref, node *args_tree);
+node *checkParam(int op, sym *ref, node *arg1, node *arg2, int n_params);
+void checkMain();
 
-int result_type(int type_op, int type1, int type2);
+node *typeCheck(int type_op, node * type1, node * type2);
 void hideScope();
 
 #endif

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../include/symbtable.h"
+#include "../src/syntactic.tab.h"
 
 #define LEAF_NODE 501
 #define INTERNAL_NODE 502
@@ -18,8 +19,12 @@
 #define CALL 515
 #define ASSIGN 516
 
-#define ARGUMENTS 517
-#define FUNCBODY 518
+#define ELEM_TO_INT 517
+#define ELEM_TO_FLOAT 518
+#define INT_TO_ELEM 519
+#define INT_TO_FLOAT 520
+#define FLOAT_TO_INT 521
+#define FLOAT_TO_ELEM 522
 
 
 #define ID_LEAF 507
@@ -42,32 +47,34 @@
 #define REM 11
 #define ADD 12
 
-typedef struct INTERNAL{
-  int operator;
-  int op_specifier;
-  sym *ref;
-  struct NODE *child1;
-  struct NODE *child2;
-  struct NODE *child3;
-  struct NODE *child4;
-} internal;
+typedef struct ELEM {
+  int curr_type;
+  int ival;
+  float fval;
+} elem;
 
-typedef struct LEAF{
+typedef struct NODE{
+  int node_type;
+  int level;
+  int sem_type;
+
   int leaf_type;
   int is_decl;
   sym *ref;
   int ival;
   float fval;
+  elem *elem;
   char cval;
   char *sval;
-} leaf;
 
-typedef struct NODE{
-  int node_type;
-  int level;
-  leaf *leaf;
-  internal *internal;
+  int operator;
+  int op_specifier;
+  struct NODE *child1;
+  struct NODE *child2;
+  struct NODE *child3;
+  struct NODE *child4;
 } node;
+
 
 node *root;
 
@@ -87,17 +94,14 @@ node *TernaryNode(int op, node *child1,  node *child2, node *child3);
 node *QuaternaryNode(int op, node *child1,  node *child2, node *child3, node *child4);
 
 void printTree(node *);
+void printOP(int op);
 int bindLevel(node *, int, int);
-void printTree2(node *, int);
-void printTree3(node *, int);
 
 void setVarsType(node *, int);
 int countArgs(node *node, int count);
 int setArgsInfo(sym *func_ref, node *node, int index);
-void checkLeafsParams(node *node);
+
 void freeTree(node *);
 void freeSymbol(node *node);
 
-void insertLeafs(table *, node *);
-void insertGlobalLeafs(node *);
 #endif

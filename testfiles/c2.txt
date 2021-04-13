@@ -22,8 +22,9 @@ int main(){
     set second;
     first = EMPTY;
     second = EMPTY;
-    add((5+2-1) in add((1*2-3) in first));
+    add(-2 in add((1+6/2) in second));
     add((6*1/2) in add((1+6/2) in second));
+    add((5+2-1) in add((1*2-3) in first));
     second = union(first, second);
     if (is_set(second)) writeln("sucess");
     elem el;
