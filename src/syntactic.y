@@ -17,6 +17,7 @@ extern int line;
 extern int column;
 int curr_level = 0;
 int n_args;
+int n_params;
 sym *aux;
 %}
 
@@ -30,7 +31,7 @@ sym *aux;
 }
 
 %start begin
-%token <ival> TYPE RELOP SETOP ARTOP1 ARTOP2
+%token <ival> TYPE RELOP COMP SETOP ARTOP1 ARTOP2
 %token <sval> ID
 %token IF ELSE FOR RETURN
 %token FORALL IN IS_SET EXISTS DISJ CONJ NEG
@@ -43,9 +44,9 @@ sym *aux;
 
 %type <tnode> program declaration varDecl varList funcDecl
 %type <tnode> arguments argsList funcBody stmt iterStmt body condStmt
-%type <tnode> returnStmt exprStmt expression
+%type <tnode> returnStmt exprStmt expression minusFactor
 %type <tnode> assign inExpr outExpr  simpleExpr cond
-%type <tnode> disjExpr conjExpr relExpr artExpr1 artExpr2 negExpr
+%type <tnode> disjExpr conjExpr relExpr artExpr1 artExpr2 negExpr compExpr
 %type <tnode> constant call params paramList
 %type <tnode> var new_id output factor arg
 
@@ -63,7 +64,7 @@ sym *aux;
 %%
 /* Grammar Definition */
 
-begin         : program                                         {root = $1;}
+begin         : program                                         {root = $1; checkMain();}
               ;
 
 program       : program  declaration                            {$$ = BinaryNode(SEQ, $1, $2);}
@@ -91,9 +92,9 @@ funcDecl      : TYPE ID { aux = declare($2, $1, FUNCTION);
                           n_args = 0;
                           curr_level += 1;}
 
-                arguments                 {aux->n_args = n_args; aux->args_type = malloc(sizeof(int)*n_args); setArgsInfo(aux, $4, 0);}
+                arguments                 {aux->n_args = n_args; aux->args_type = (int *)calloc(n_args, sizeof(int)); setArgsInfo(aux, $4, 0);}
 
-                '{' funcBody '}'          {$$ = BinaryNode(FUNCDECL, $4, $7); $$->internal->ref = aux; hideScope(); curr_level-=1;}
+                '{' funcBody '}'          {$$ = BinaryNode(FUNCDECL, $4, $7); $$->ref = aux; hideScope(); curr_level-=1;}
               ;
 
 
@@ -123,7 +124,7 @@ stmt          : exprStmt                                        {$$ = $1;}
               ;
 
 iterStmt      : FOR '(' exprStmt exprStmt ')' prepareScope body              {$$ = TernaryNode(FOR1, $3, $4, $7); hideScope(); curr_level -= 1;}
-              | FOR '(' exprStmt exprStmt expression ')' prepareScope body   {$$ = QuaternaryNode(FOR2, $3, $4, $5, $8);  hideScope(); curr_level -= 1;}
+              | FOR '(' exprStmt exprStmt expression ')' prepareScope body   {$$ = QuaternaryNode(FOR2, $3, $4, $5, $8); hideScope(); curr_level -= 1;}
               | FORALL '(' simpleExpr ')' prepareScope   body                {$$ = BinaryNode(FORALL, $3, $6);  hideScope(); curr_level -= 1;}
               | FORALL '(' error ')'  prepareScope   body                    {$$ = BinaryNode(FORALL, nullLeaf(), $6); yyerrok;  hideScope(); curr_level -= 1;}
               | FOR '(' error ')' prepareScope   body                        {$$ = BinaryNode(FOR, nullLeaf(), $6); yyerrok;  hideScope(); curr_level -= 1;}
@@ -137,9 +138,9 @@ body          : '{' funcBody '}'                                {$$ = $2;}
               ;
 
 
-condStmt      : IF cond prepareScope  body   %prec THEN                       {$$ = BinaryNode(IF, $2, $4); hideScope(); curr_level -= 1;}
+condStmt      : IF cond prepareScope  body   %prec THEN                       {$$ = BinaryNode(IF, $2, $4); hideScope(); curr_level -= 1; }
               | IF cond prepareScope
-              body ELSE {hideScope(); curr_level -= 1;}  body                          {$$ = TernaryNode(IF_ELSE, $2, $4, $7); hideScope(); curr_level -= 1;}
+              body ELSE {hideScope(); curr_level -= 1;}  prepareScope body                          {$$ = TernaryNode(IF_ELSE, $2, $4, $8); hideScope(); curr_level -= 1;}
               ;
 
 prepareScope : %empty {curr_level += 1; pushScope(newScope(curr_scope->name, curr_level));}
@@ -163,10 +164,10 @@ expression    : assign                                          {$$ = $1;}
               | simpleExpr                                      {$$ = $1;}
               ;
 
-assign        : var '=' simpleExpr                              {$$ = BinaryNode(ASSIGN, $1, $3);}
+assign        : var '=' simpleExpr                              {$$ = typeCheck(ASSIGN, $1, $3);}
               ;
 
-var           :  ID                                             {$$ = idLeaf(findDecl($1)); free($1);}
+var           :  ID                                             {$$ = idLeaf(findDecl($1));}
               ;
 
 inExpr        : READ '(' var ')'                                {$$ = UnaryNode(READ, $3);}
@@ -181,43 +182,49 @@ output        : var                                             {$$ = $1;}
               | STRING                                          {$$ = stringLeaf($1);}
               ;
 
-simpleExpr    : simpleExpr IN negExpr                            {$$ = BinaryNode(IN, $1, $3);}
-              | negExpr                                          {$$ = $1;}
+simpleExpr    : simpleExpr IN conjExpr                            {$$ = typeCheck(IN, $1, $3);}
+              | conjExpr                                          {$$ = $1;}
               ;
 
-negExpr       : NEG negExpr                                     {$$ = UnaryNode(NEG, $2);}
-              | disjExpr                                        {$$ = $1;}
+conjExpr      : conjExpr CONJ disjExpr                           {$$ = typeCheck(CONJ, $1, $3);}
+              | disjExpr                                         {$$ = $1;}
               ;
 
-disjExpr      : disjExpr DISJ conjExpr                          {$$ = BinaryNode(DISJ, $1, $3);}
-              | conjExpr                                        {$$ = $1;}
+disjExpr      : disjExpr DISJ compExpr                          {$$ = typeCheck(DISJ, $1, $3);}
+              | compExpr                                        {$$ = $1;}
               ;
 
-conjExpr      : conjExpr CONJ relExpr                           {$$ = BinaryNode(CONJ, $1, $3);}
+compExpr      : compExpr COMP relExpr                           {$$ = typeCheck(COMP, $1, $3); $$->op_specifier = $2;}
               | relExpr                                         {$$ = $1;}
               ;
 
-relExpr       : relExpr RELOP artExpr1                          {$$ = BinaryNode(RELOP, $1, $3); $$->internal->op_specifier = $2;}
+relExpr       : relExpr RELOP artExpr1                          {$$ = typeCheck(RELOP, $1, $3); $$->op_specifier = $2;}
               | artExpr1                                        {$$ = $1;}
               ;
 
-artExpr1      : artExpr1 ARTOP1 artExpr2                        {$$ = BinaryNode(ARTOP1, $1, $3); $$->internal->op_specifier = $2;}
+artExpr1      : artExpr1 ARTOP1 artExpr2                        {$$ = typeCheck(ARTOP1, $1, $3); $$->op_specifier = $2;}
               | artExpr2                                        {$$ = $1;}
               ;
 
-artExpr2      : artExpr2 ARTOP2 factor                          {$$ = BinaryNode(ARTOP2, $1, $3); $$->internal->op_specifier = $2;}
+artExpr2      : artExpr2 ARTOP2 negExpr                          {$$ = typeCheck(ARTOP2, $1, $3); $$->op_specifier = $2;}
+              | negExpr                                          {$$ = $1;}
+              ;
+
+negExpr       : NEG negExpr                                     {$$ = typeCheck(NEG, $2, NULL);}
+              | minusFactor                                     {$$ = $1;}
+              ;
+
+minusFactor   : ARTOP1 factor                                   {$$ = UnaryNode(ARTOP1, $2); $$->sem_type = $2->sem_type; $$->op_specifier = $1;}
               | factor                                          {$$ = $1;}
               ;
 
-
-
-factor        : ID                                               {$$ = idLeaf(findDecl($1)); free($1);}
+factor        : ID                                               {$$ = idLeaf(findDecl($1));}
               | '(' simpleExpr ')'                               {$$ = $2;}
               | constant                                         {$$ = $1;}
               | call                                             {$$ = $1;}
-              | IS_SET '(' factor ')'                            {$$ = UnaryNode(IS_SET, $3);}
-              | EXISTS '(' simpleExpr ')'                        {$$ = UnaryNode(EXISTS, $3);}
-              | SETOP '(' simpleExpr ')'                         {$$ = UnaryNode(SETOP, $3);  $$->internal->op_specifier = $1;}
+              | IS_SET '(' factor ')'                            {$$ = typeCheck(IS_SET, $3, NULL);}
+              | EXISTS '(' simpleExpr ')'                        {$$ = typeCheck(EXISTS, $3, NULL);}
+              | SETOP '(' simpleExpr ')'                         {$$ = typeCheck(SETOP, $3, NULL); $$->op_specifier = $1;}
               ;
 
 constant      : INTEGER                                         {$$ = intLeaf($1);}
@@ -225,17 +232,17 @@ constant      : INTEGER                                         {$$ = intLeaf($1
               | EMPTY                                           {$$ = setLeaf();}
               ;
 
-call          : var '(' params ')'                              {checkParams($1->leaf->ref, $3); $$ = BinaryNode(CALL, $1, $3);}
+call          : var {aux = $1->ref; n_params = 0;} '(' params ')'   {$$ = BinaryNode(CALL, $1, $4); $$->sem_type = $1->sem_type;}
               ;
 
               ;
 
-params        : %empty                                          {$$ = nullLeaf();}
+params        : %empty                                          {$$ = checkParam(UNDEF, aux, NULL, NULL, n_params);}
               | paramList                                       {$$ = $1;}
               ;
 
-paramList     : paramList ',' simpleExpr                        {$$ = BinaryNode(SEQ, $1, $3);}
-              | simpleExpr                                      {$$ = $1;}
+paramList     : paramList ',' simpleExpr                        {$$ = checkParam(SEQ, aux, $1, $3, n_params); n_params += 1; }
+              | simpleExpr                                      {$$ = checkParam(UNDEF, aux, NULL, $1, n_params); n_params += 1;}
               ;
 
 
@@ -256,7 +263,6 @@ int main(int argc, char *argv[]){
     else {printf("No input file.\n"); exit(-1);}
     initScopesList();
     yyparse();
-
     bindLevel(root, 0, 0);
     printTree(root);
     showTables(global_scope);

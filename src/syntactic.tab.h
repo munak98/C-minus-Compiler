@@ -51,30 +51,31 @@ extern int yydebug;
   {
     TYPE = 258,
     RELOP = 259,
-    SETOP = 260,
-    ARTOP1 = 261,
-    ARTOP2 = 262,
-    ID = 263,
-    IF = 264,
-    ELSE = 265,
-    FOR = 266,
-    RETURN = 267,
-    FORALL = 268,
-    IN = 269,
-    IS_SET = 270,
-    EXISTS = 271,
-    DISJ = 272,
-    CONJ = 273,
-    NEG = 274,
-    READ = 275,
-    WRITE = 276,
-    WRITELN = 277,
-    INTEGER = 278,
-    FLOAT = 279,
-    CHAR = 280,
-    STRING = 281,
-    EMPTY = 282,
-    THEN = 283
+    COMP = 260,
+    SETOP = 261,
+    ARTOP1 = 262,
+    ARTOP2 = 263,
+    ID = 264,
+    IF = 265,
+    ELSE = 266,
+    FOR = 267,
+    RETURN = 268,
+    FORALL = 269,
+    IN = 270,
+    IS_SET = 271,
+    EXISTS = 272,
+    DISJ = 273,
+    CONJ = 274,
+    NEG = 275,
+    READ = 276,
+    WRITE = 277,
+    WRITELN = 278,
+    INTEGER = 279,
+    FLOAT = 280,
+    CHAR = 281,
+    STRING = 282,
+    EMPTY = 283,
+    THEN = 284
   };
 #endif
 
@@ -82,7 +83,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 24 "syntactic.y"
+#line 25 "syntactic.y"
 
   int ival;
   float fval;
@@ -90,7 +91,7 @@ union YYSTYPE
   char* sval;
   struct NODE *tnode;
 
-#line 94 "syntactic.tab.h"
+#line 95 "syntactic.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

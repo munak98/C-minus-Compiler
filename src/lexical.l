@@ -33,8 +33,8 @@ letter        [A-Za-z]
 digit         [0-9]
 alphanumeric  {letter}|{digit}
 id            {letter}({alphanumeric}|_)*
-integer       [-]?{digit}+((E|e)[+-]?{digit}+)?
-float         [-]?{digit}+\.{digit}+((E|e)[+-]?{digit}+)?
+integer       {digit}+((E|e)[+-]?{digit}+)?
+float         {digit}+\.{digit}+((E|e)[+-]?{digit}+)?
 string        \"([^\\\"]|\\.)*\"
 char          '([^'\\\n]|\\.)'
 
@@ -68,8 +68,8 @@ writeln     {column += yyleng; return(WRITELN);}
 "="         {column += yyleng; return(yytext[0]);}
 "<"         {yylval.ival = LT; column += yyleng; return(RELOP);}
 "<="        {yylval.ival = LE; column += yyleng; return(RELOP);}
-"=="        {yylval.ival = EQ; column += yyleng; return(RELOP);}
-"!="        {yylval.ival = DIF; column += yyleng; return(RELOP);}
+"=="        {yylval.ival = EQ; column += yyleng; return(COMP);}
+"!="        {yylval.ival = DIF; column += yyleng; return(COMP);}
 ">"         {yylval.ival = GT; column += yyleng; return(RELOP);}
 ">="        {yylval.ival = GE; column += yyleng; return(RELOP);}
 ")"         {column += yyleng; return(yytext[0]);}
@@ -89,7 +89,7 @@ writeln     {column += yyleng; return(WRITELN);}
 EMPTY       {column += yyleng; return(EMPTY);}
 {id}        {yylval.sval = strdup(yytext); column += yyleng; return(ID);}
 {integer}   {yylval.ival = atoi(yytext); column += yyleng; return(INTEGER);}
-{float}     {yylval.ival = atof(yytext); column += yyleng; return(FLOAT);}
+{float}     {yylval.fval = atof(yytext); column += yyleng; return(FLOAT);}
 {string}    {yylval.sval = strdup(yytext); column += yyleng; return(STRING);}
 {char}      {yylval.cval = yytext[1]; column += yyleng; return(CHAR);}
 

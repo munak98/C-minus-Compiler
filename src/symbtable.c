@@ -62,8 +62,8 @@ sym *newEntry(char *name, int type, int kind){
   sym *entry = (sym *) malloc(sizeof(sym));
   entry->identifier = name;
   entry->sym_kind = kind;
-  if (kind == VARIABLE) entry->var_type = type;
-  else entry->return_type = type;
+  entry->type = type;
+  entry->n_args = UNDEF;
   entry->next = NULL;
   return entry;
 }
@@ -145,14 +145,14 @@ void showHashArrayChain(sym *list, int level){
       case UNDEF: printIdent(level); printf("%-10s\t%s\n", "UNDEF", aux->identifier); break;
       case FUNCTION:
         printIdent(level);
-        printf("%-10s\t%-20.20s \treturn type = %s, ", "FUNCTION", aux->identifier, printType(aux->return_type));
+        printf("%-10s\t%-20.20s \treturn type = %s, ", "FUNCTION", aux->identifier, printType(aux->type));
         printfArgsType(aux->n_args, aux->args_type);
         break;
 
       case VARIABLE:
         printIdent(level);
         printf("%-10s\t", "VARIABLE");
-        printf("%-20.20s \ttype = %s\n", aux->identifier, printType(aux->var_type));
+        printf("%-20.20s \ttype = %s\n", aux->identifier, printType(aux->type));
         break;
     }
     aux = aux->next;
