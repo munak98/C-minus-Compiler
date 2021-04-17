@@ -95,23 +95,23 @@ Grammar
    61 conjExpr: conjExpr CONJ disjExpr
    62         | disjExpr
 
-   63 disjExpr: disjExpr DISJ negExpr
-   64         | negExpr
+   63 disjExpr: disjExpr DISJ compExpr
+   64         | compExpr
 
-   65 negExpr: NEG negExpr
-   66        | compExpr
+   65 compExpr: compExpr COMP relExpr
+   66         | relExpr
 
-   67 compExpr: compExpr COMP relExpr
-   68         | relExpr
+   67 relExpr: relExpr RELOP artExpr1
+   68        | artExpr1
 
-   69 relExpr: relExpr RELOP artExpr1
-   70        | artExpr1
+   69 artExpr1: artExpr1 ARTOP1 artExpr2
+   70         | artExpr2
 
-   71 artExpr1: artExpr1 ARTOP1 artExpr2
-   72         | artExpr2
+   71 artExpr2: artExpr2 ARTOP2 negExpr
+   72         | negExpr
 
-   73 artExpr2: artExpr2 ARTOP2 minusFactor
-   74         | minusFactor
+   73 negExpr: NEG negExpr
+   74        | minusFactor
 
    75 minusFactor: ARTOP1 factor
    76            | factor
@@ -151,11 +151,11 @@ Terminals, with rules where they appear
     '}' (125) 13 33
     error (256) 7 16 31 32 42 45
     TYPE <ival> (258) 6 7 13 19
-    RELOP <ival> (259) 69
-    COMP <ival> (260) 67
+    RELOP <ival> (259) 67
+    COMP <ival> (260) 65
     SETOP <ival> (261) 83
-    ARTOP1 <ival> (262) 71 75
-    ARTOP2 <ival> (263) 73
+    ARTOP1 <ival> (262) 69 75
+    ARTOP2 <ival> (263) 71
     ID <sval> (264) 10 13 19 52 77
     IF (265) 37 39
     ELSE (266) 39
@@ -167,7 +167,7 @@ Terminals, with rules where they appear
     EXISTS (272) 82
     DISJ (273) 63
     CONJ (274) 61
-    NEG (275) 65
+    NEG (275) 73
     READ (276) 53
     WRITE (277) 54
     WRITELN (278) 55
@@ -276,24 +276,24 @@ Nonterminals, with rules where they appear
     disjExpr <tnode> (68)
         on left: 63 64
         on right: 61 62 63
-    negExpr <tnode> (69)
+    compExpr <tnode> (69)
         on left: 65 66
         on right: 63 64 65
-    compExpr <tnode> (70)
+    relExpr <tnode> (70)
         on left: 67 68
-        on right: 66 67
-    relExpr <tnode> (71)
+        on right: 65 66 67
+    artExpr1 <tnode> (71)
         on left: 69 70
         on right: 67 68 69
-    artExpr1 <tnode> (72)
+    artExpr2 <tnode> (72)
         on left: 71 72
         on right: 69 70 71
-    artExpr2 <tnode> (73)
+    negExpr <tnode> (73)
         on left: 73 74
         on right: 71 72 73
     minusFactor <tnode> (74)
         on left: 75 76
-        on right: 73 74
+        on right: 74
     factor <tnode> (75)
         on left: 77 78 79 80 81 82 83
         on right: 75 76 81
@@ -649,11 +649,11 @@ State 31
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -778,11 +778,11 @@ State 38
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -813,7 +813,7 @@ State 41
 
 State 42
 
-   65 negExpr: NEG . negExpr
+   73 negExpr: NEG . negExpr
 
     SETOP    shift, and go to state 33
     ARTOP1   shift, and go to state 34
@@ -828,10 +828,6 @@ State 42
 
     var          go to state 77
     negExpr      go to state 86
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -955,11 +951,11 @@ State 51
     simpleExpr   go to state 90
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -1219,7 +1215,7 @@ State 65
 State 66
 
    62 conjExpr: disjExpr .
-   63 disjExpr: disjExpr . DISJ negExpr
+   63 disjExpr: disjExpr . DISJ compExpr
 
     DISJ  shift, and go to state 96
 
@@ -1230,7 +1226,10 @@ State 66
 
 State 67
 
-   64 disjExpr: negExpr .
+   64 disjExpr: compExpr .
+   65 compExpr: compExpr . COMP relExpr
+
+    COMP  shift, and go to state 97
 
     IN    reduce using rule 64 (disjExpr)
     DISJ  reduce using rule 64 (disjExpr)
@@ -1240,74 +1239,75 @@ State 67
 
 State 68
 
-   66 negExpr: compExpr .
-   67 compExpr: compExpr . COMP relExpr
+   66 compExpr: relExpr .
+   67 relExpr: relExpr . RELOP artExpr1
 
-    COMP  shift, and go to state 97
+    RELOP  shift, and go to state 98
 
-    IN    reduce using rule 66 (negExpr)
-    DISJ  reduce using rule 66 (negExpr)
-    CONJ  reduce using rule 66 (negExpr)
-    ';'   reduce using rule 66 (negExpr)
+    COMP  reduce using rule 66 (compExpr)
+    IN    reduce using rule 66 (compExpr)
+    DISJ  reduce using rule 66 (compExpr)
+    CONJ  reduce using rule 66 (compExpr)
+    ';'   reduce using rule 66 (compExpr)
 
 
 State 69
 
-   68 compExpr: relExpr .
-   69 relExpr: relExpr . RELOP artExpr1
+   68 relExpr: artExpr1 .
+   69 artExpr1: artExpr1 . ARTOP1 artExpr2
 
-    RELOP  shift, and go to state 98
+    ARTOP1  shift, and go to state 99
 
-    COMP  reduce using rule 68 (compExpr)
-    IN    reduce using rule 68 (compExpr)
-    DISJ  reduce using rule 68 (compExpr)
-    CONJ  reduce using rule 68 (compExpr)
-    ';'   reduce using rule 68 (compExpr)
+    RELOP  reduce using rule 68 (relExpr)
+    COMP   reduce using rule 68 (relExpr)
+    IN     reduce using rule 68 (relExpr)
+    DISJ   reduce using rule 68 (relExpr)
+    CONJ   reduce using rule 68 (relExpr)
+    ';'    reduce using rule 68 (relExpr)
 
 
 State 70
 
-   70 relExpr: artExpr1 .
-   71 artExpr1: artExpr1 . ARTOP1 artExpr2
+   70 artExpr1: artExpr2 .
+   71 artExpr2: artExpr2 . ARTOP2 negExpr
 
-    ARTOP1  shift, and go to state 99
+    ARTOP2  shift, and go to state 100
 
-    RELOP  reduce using rule 70 (relExpr)
-    COMP   reduce using rule 70 (relExpr)
-    IN     reduce using rule 70 (relExpr)
-    DISJ   reduce using rule 70 (relExpr)
-    CONJ   reduce using rule 70 (relExpr)
-    ';'    reduce using rule 70 (relExpr)
+    RELOP   reduce using rule 70 (artExpr1)
+    COMP    reduce using rule 70 (artExpr1)
+    ARTOP1  reduce using rule 70 (artExpr1)
+    IN      reduce using rule 70 (artExpr1)
+    DISJ    reduce using rule 70 (artExpr1)
+    CONJ    reduce using rule 70 (artExpr1)
+    ';'     reduce using rule 70 (artExpr1)
 
 
 State 71
 
-   72 artExpr1: artExpr2 .
-   73 artExpr2: artExpr2 . ARTOP2 minusFactor
+   72 artExpr2: negExpr .
 
-    ARTOP2  shift, and go to state 100
-
-    RELOP   reduce using rule 72 (artExpr1)
-    COMP    reduce using rule 72 (artExpr1)
-    ARTOP1  reduce using rule 72 (artExpr1)
-    IN      reduce using rule 72 (artExpr1)
-    DISJ    reduce using rule 72 (artExpr1)
-    CONJ    reduce using rule 72 (artExpr1)
-    ';'     reduce using rule 72 (artExpr1)
+    RELOP   reduce using rule 72 (artExpr2)
+    COMP    reduce using rule 72 (artExpr2)
+    ARTOP1  reduce using rule 72 (artExpr2)
+    ARTOP2  reduce using rule 72 (artExpr2)
+    IN      reduce using rule 72 (artExpr2)
+    DISJ    reduce using rule 72 (artExpr2)
+    CONJ    reduce using rule 72 (artExpr2)
+    ';'     reduce using rule 72 (artExpr2)
 
 
 State 72
 
-   74 artExpr2: minusFactor .
+   74 negExpr: minusFactor .
 
-    RELOP   reduce using rule 74 (artExpr2)
-    COMP    reduce using rule 74 (artExpr2)
-    ARTOP1  reduce using rule 74 (artExpr2)
-    ARTOP2  reduce using rule 74 (artExpr2)
-    IN      reduce using rule 74 (artExpr2)
-    DISJ    reduce using rule 74 (artExpr2)
-    CONJ    reduce using rule 74 (artExpr2)
-    ';'     reduce using rule 74 (artExpr2)
+    RELOP   reduce using rule 74 (negExpr)
+    COMP    reduce using rule 74 (negExpr)
+    ARTOP1  reduce using rule 74 (negExpr)
+    ARTOP2  reduce using rule 74 (negExpr)
+    IN      reduce using rule 74 (negExpr)
+    DISJ    reduce using rule 74 (negExpr)
+    CONJ    reduce using rule 74 (negExpr)
+    ';'     reduce using rule 74 (negExpr)
 
 
 State 73
@@ -1371,11 +1371,11 @@ State 76
     simpleExpr   go to state 101
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -1433,11 +1433,11 @@ State 79
     simpleExpr   go to state 202
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -1505,11 +1505,11 @@ State 81
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -1564,11 +1564,11 @@ State 83
     simpleExpr   go to state 108
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -1613,11 +1613,11 @@ State 85
     simpleExpr   go to state 110
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -1626,12 +1626,16 @@ State 85
 
 State 86
 
-   65 negExpr: NEG negExpr .
+   73 negExpr: NEG negExpr .
 
-    IN    reduce using rule 65 (negExpr)
-    DISJ  reduce using rule 65 (negExpr)
-    CONJ  reduce using rule 65 (negExpr)
-    ';'   reduce using rule 65 (negExpr)
+    RELOP   reduce using rule 73 (negExpr)
+    COMP    reduce using rule 73 (negExpr)
+    ARTOP1  reduce using rule 73 (negExpr)
+    ARTOP2  reduce using rule 73 (negExpr)
+    IN      reduce using rule 73 (negExpr)
+    DISJ    reduce using rule 73 (negExpr)
+    CONJ    reduce using rule 73 (negExpr)
+    ';'     reduce using rule 73 (negExpr)
 
 
 State 87
@@ -1722,11 +1726,11 @@ State 92
     simpleExpr   go to state 119
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -1758,11 +1762,11 @@ State 94
     var          go to state 77
     conjExpr     go to state 121
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -1786,11 +1790,11 @@ State 95
 
     var          go to state 77
     disjExpr     go to state 122
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -1799,7 +1803,7 @@ State 95
 
 State 96
 
-   63 disjExpr: disjExpr DISJ . negExpr
+   63 disjExpr: disjExpr DISJ . compExpr
 
     SETOP    shift, and go to state 33
     ARTOP1   shift, and go to state 34
@@ -1813,11 +1817,11 @@ State 96
     '('      shift, and go to state 51
 
     var          go to state 77
-    negExpr      go to state 123
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 123
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -1826,13 +1830,14 @@ State 96
 
 State 97
 
-   67 compExpr: compExpr COMP . relExpr
+   65 compExpr: compExpr COMP . relExpr
 
     SETOP    shift, and go to state 33
     ARTOP1   shift, and go to state 34
     ID       shift, and go to state 171
     IS_SET   shift, and go to state 40
     EXISTS   shift, and go to state 41
+    NEG      shift, and go to state 42
     INTEGER  shift, and go to state 46
     FLOAT    shift, and go to state 47
     EMPTY    shift, and go to state 48
@@ -1840,8 +1845,9 @@ State 97
 
     var          go to state 77
     relExpr      go to state 124
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -1850,13 +1856,14 @@ State 97
 
 State 98
 
-   69 relExpr: relExpr RELOP . artExpr1
+   67 relExpr: relExpr RELOP . artExpr1
 
     SETOP    shift, and go to state 33
     ARTOP1   shift, and go to state 34
     ID       shift, and go to state 171
     IS_SET   shift, and go to state 40
     EXISTS   shift, and go to state 41
+    NEG      shift, and go to state 42
     INTEGER  shift, and go to state 46
     FLOAT    shift, and go to state 47
     EMPTY    shift, and go to state 48
@@ -1864,7 +1871,8 @@ State 98
 
     var          go to state 77
     artExpr1     go to state 125
-    artExpr2     go to state 71
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -1873,13 +1881,14 @@ State 98
 
 State 99
 
-   71 artExpr1: artExpr1 ARTOP1 . artExpr2
+   69 artExpr1: artExpr1 ARTOP1 . artExpr2
 
     SETOP    shift, and go to state 33
     ARTOP1   shift, and go to state 34
     ID       shift, and go to state 171
     IS_SET   shift, and go to state 40
     EXISTS   shift, and go to state 41
+    NEG      shift, and go to state 42
     INTEGER  shift, and go to state 46
     FLOAT    shift, and go to state 47
     EMPTY    shift, and go to state 48
@@ -1887,6 +1896,7 @@ State 99
 
     var          go to state 77
     artExpr2     go to state 126
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -1895,20 +1905,22 @@ State 99
 
 State 100
 
-   73 artExpr2: artExpr2 ARTOP2 . minusFactor
+   71 artExpr2: artExpr2 ARTOP2 . negExpr
 
     SETOP    shift, and go to state 33
     ARTOP1   shift, and go to state 34
     ID       shift, and go to state 171
     IS_SET   shift, and go to state 40
     EXISTS   shift, and go to state 41
+    NEG      shift, and go to state 42
     INTEGER  shift, and go to state 46
     FLOAT    shift, and go to state 47
     EMPTY    shift, and go to state 48
     '('      shift, and go to state 51
 
     var          go to state 77
-    minusFactor  go to state 127
+    negExpr      go to state 127
+    minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
     call         go to state 75
@@ -1980,11 +1992,11 @@ State 104
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -2045,11 +2057,11 @@ State 106
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -2182,11 +2194,11 @@ State 120
     simpleExpr   go to state 145
     conjExpr     go to state 243
     disjExpr     go to state 244
-    negExpr      go to state 245
-    compExpr     go to state 246
-    relExpr      go to state 247
-    artExpr1     go to state 248
-    artExpr2     go to state 249
+    compExpr     go to state 245
+    relExpr      go to state 246
+    artExpr1     go to state 247
+    artExpr2     go to state 248
+    negExpr      go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -2209,7 +2221,7 @@ State 121
 State 122
 
    61 conjExpr: conjExpr CONJ disjExpr .
-   63 disjExpr: disjExpr . DISJ negExpr
+   63 disjExpr: disjExpr . DISJ compExpr
 
     DISJ  shift, and go to state 96
 
@@ -2220,7 +2232,10 @@ State 122
 
 State 123
 
-   63 disjExpr: disjExpr DISJ negExpr .
+   63 disjExpr: disjExpr DISJ compExpr .
+   65 compExpr: compExpr . COMP relExpr
+
+    COMP  shift, and go to state 97
 
     IN    reduce using rule 63 (disjExpr)
     DISJ  reduce using rule 63 (disjExpr)
@@ -2230,61 +2245,61 @@ State 123
 
 State 124
 
-   67 compExpr: compExpr COMP relExpr .
-   69 relExpr: relExpr . RELOP artExpr1
+   65 compExpr: compExpr COMP relExpr .
+   67 relExpr: relExpr . RELOP artExpr1
 
     RELOP  shift, and go to state 98
 
-    COMP  reduce using rule 67 (compExpr)
-    IN    reduce using rule 67 (compExpr)
-    DISJ  reduce using rule 67 (compExpr)
-    CONJ  reduce using rule 67 (compExpr)
-    ';'   reduce using rule 67 (compExpr)
+    COMP  reduce using rule 65 (compExpr)
+    IN    reduce using rule 65 (compExpr)
+    DISJ  reduce using rule 65 (compExpr)
+    CONJ  reduce using rule 65 (compExpr)
+    ';'   reduce using rule 65 (compExpr)
 
 
 State 125
 
-   69 relExpr: relExpr RELOP artExpr1 .
-   71 artExpr1: artExpr1 . ARTOP1 artExpr2
+   67 relExpr: relExpr RELOP artExpr1 .
+   69 artExpr1: artExpr1 . ARTOP1 artExpr2
 
     ARTOP1  shift, and go to state 99
 
-    RELOP  reduce using rule 69 (relExpr)
-    COMP   reduce using rule 69 (relExpr)
-    IN     reduce using rule 69 (relExpr)
-    DISJ   reduce using rule 69 (relExpr)
-    CONJ   reduce using rule 69 (relExpr)
-    ';'    reduce using rule 69 (relExpr)
+    RELOP  reduce using rule 67 (relExpr)
+    COMP   reduce using rule 67 (relExpr)
+    IN     reduce using rule 67 (relExpr)
+    DISJ   reduce using rule 67 (relExpr)
+    CONJ   reduce using rule 67 (relExpr)
+    ';'    reduce using rule 67 (relExpr)
 
 
 State 126
 
-   71 artExpr1: artExpr1 ARTOP1 artExpr2 .
-   73 artExpr2: artExpr2 . ARTOP2 minusFactor
+   69 artExpr1: artExpr1 ARTOP1 artExpr2 .
+   71 artExpr2: artExpr2 . ARTOP2 negExpr
 
     ARTOP2  shift, and go to state 100
 
-    RELOP   reduce using rule 71 (artExpr1)
-    COMP    reduce using rule 71 (artExpr1)
-    ARTOP1  reduce using rule 71 (artExpr1)
-    IN      reduce using rule 71 (artExpr1)
-    DISJ    reduce using rule 71 (artExpr1)
-    CONJ    reduce using rule 71 (artExpr1)
-    ';'     reduce using rule 71 (artExpr1)
+    RELOP   reduce using rule 69 (artExpr1)
+    COMP    reduce using rule 69 (artExpr1)
+    ARTOP1  reduce using rule 69 (artExpr1)
+    IN      reduce using rule 69 (artExpr1)
+    DISJ    reduce using rule 69 (artExpr1)
+    CONJ    reduce using rule 69 (artExpr1)
+    ';'     reduce using rule 69 (artExpr1)
 
 
 State 127
 
-   73 artExpr2: artExpr2 ARTOP2 minusFactor .
+   71 artExpr2: artExpr2 ARTOP2 negExpr .
 
-    RELOP   reduce using rule 73 (artExpr2)
-    COMP    reduce using rule 73 (artExpr2)
-    ARTOP1  reduce using rule 73 (artExpr2)
-    ARTOP2  reduce using rule 73 (artExpr2)
-    IN      reduce using rule 73 (artExpr2)
-    DISJ    reduce using rule 73 (artExpr2)
-    CONJ    reduce using rule 73 (artExpr2)
-    ';'     reduce using rule 73 (artExpr2)
+    RELOP   reduce using rule 71 (artExpr2)
+    COMP    reduce using rule 71 (artExpr2)
+    ARTOP1  reduce using rule 71 (artExpr2)
+    ARTOP2  reduce using rule 71 (artExpr2)
+    IN      reduce using rule 71 (artExpr2)
+    DISJ    reduce using rule 71 (artExpr2)
+    CONJ    reduce using rule 71 (artExpr2)
+    ';'     reduce using rule 71 (artExpr2)
 
 
 State 128
@@ -2555,11 +2570,11 @@ State 137
     simpleExpr   go to state 202
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -2745,11 +2760,11 @@ State 148
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -2827,11 +2842,11 @@ State 150
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -2916,11 +2931,11 @@ State 153
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -2969,11 +2984,11 @@ State 154
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -3013,11 +3028,11 @@ State 156
     simpleExpr   go to state 164
     conjExpr     go to state 243
     disjExpr     go to state 244
-    negExpr      go to state 245
-    compExpr     go to state 246
-    relExpr      go to state 247
-    artExpr1     go to state 248
-    artExpr2     go to state 249
+    compExpr     go to state 245
+    relExpr      go to state 246
+    artExpr1     go to state 247
+    artExpr2     go to state 248
+    negExpr      go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -3150,11 +3165,11 @@ State 160
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -3297,11 +3312,11 @@ State 165
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -3377,11 +3392,11 @@ State 167
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -3529,7 +3544,7 @@ State 176
 
 State 177
 
-   65 negExpr: NEG . negExpr
+   73 negExpr: NEG . negExpr
 
     SETOP    shift, and go to state 172
     ARTOP1   shift, and go to state 173
@@ -3544,10 +3559,6 @@ State 177
 
     var          go to state 182
     negExpr      go to state 266
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -3615,11 +3626,11 @@ State 181
     simpleExpr   go to state 267
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -3649,7 +3660,7 @@ State 183
 State 184
 
    62 conjExpr: disjExpr .
-   63 disjExpr: disjExpr . DISJ negExpr
+   63 disjExpr: disjExpr . DISJ compExpr
 
     DISJ  shift, and go to state 270
 
@@ -3660,7 +3671,10 @@ State 184
 
 State 185
 
-   64 disjExpr: negExpr .
+   64 disjExpr: compExpr .
+   65 compExpr: compExpr . COMP relExpr
+
+    COMP  shift, and go to state 271
 
     IN    reduce using rule 64 (disjExpr)
     DISJ  reduce using rule 64 (disjExpr)
@@ -3670,74 +3684,75 @@ State 185
 
 State 186
 
-   66 negExpr: compExpr .
-   67 compExpr: compExpr . COMP relExpr
+   66 compExpr: relExpr .
+   67 relExpr: relExpr . RELOP artExpr1
 
-    COMP  shift, and go to state 271
+    RELOP  shift, and go to state 272
 
-    IN    reduce using rule 66 (negExpr)
-    DISJ  reduce using rule 66 (negExpr)
-    CONJ  reduce using rule 66 (negExpr)
-    ')'   reduce using rule 66 (negExpr)
+    COMP  reduce using rule 66 (compExpr)
+    IN    reduce using rule 66 (compExpr)
+    DISJ  reduce using rule 66 (compExpr)
+    CONJ  reduce using rule 66 (compExpr)
+    ')'   reduce using rule 66 (compExpr)
 
 
 State 187
 
-   68 compExpr: relExpr .
-   69 relExpr: relExpr . RELOP artExpr1
+   68 relExpr: artExpr1 .
+   69 artExpr1: artExpr1 . ARTOP1 artExpr2
 
-    RELOP  shift, and go to state 272
+    ARTOP1  shift, and go to state 273
 
-    COMP  reduce using rule 68 (compExpr)
-    IN    reduce using rule 68 (compExpr)
-    DISJ  reduce using rule 68 (compExpr)
-    CONJ  reduce using rule 68 (compExpr)
-    ')'   reduce using rule 68 (compExpr)
+    RELOP  reduce using rule 68 (relExpr)
+    COMP   reduce using rule 68 (relExpr)
+    IN     reduce using rule 68 (relExpr)
+    DISJ   reduce using rule 68 (relExpr)
+    CONJ   reduce using rule 68 (relExpr)
+    ')'    reduce using rule 68 (relExpr)
 
 
 State 188
 
-   70 relExpr: artExpr1 .
-   71 artExpr1: artExpr1 . ARTOP1 artExpr2
+   70 artExpr1: artExpr2 .
+   71 artExpr2: artExpr2 . ARTOP2 negExpr
 
-    ARTOP1  shift, and go to state 273
+    ARTOP2  shift, and go to state 274
 
-    RELOP  reduce using rule 70 (relExpr)
-    COMP   reduce using rule 70 (relExpr)
-    IN     reduce using rule 70 (relExpr)
-    DISJ   reduce using rule 70 (relExpr)
-    CONJ   reduce using rule 70 (relExpr)
-    ')'    reduce using rule 70 (relExpr)
+    RELOP   reduce using rule 70 (artExpr1)
+    COMP    reduce using rule 70 (artExpr1)
+    ARTOP1  reduce using rule 70 (artExpr1)
+    IN      reduce using rule 70 (artExpr1)
+    DISJ    reduce using rule 70 (artExpr1)
+    CONJ    reduce using rule 70 (artExpr1)
+    ')'     reduce using rule 70 (artExpr1)
 
 
 State 189
 
-   72 artExpr1: artExpr2 .
-   73 artExpr2: artExpr2 . ARTOP2 minusFactor
+   72 artExpr2: negExpr .
 
-    ARTOP2  shift, and go to state 274
-
-    RELOP   reduce using rule 72 (artExpr1)
-    COMP    reduce using rule 72 (artExpr1)
-    ARTOP1  reduce using rule 72 (artExpr1)
-    IN      reduce using rule 72 (artExpr1)
-    DISJ    reduce using rule 72 (artExpr1)
-    CONJ    reduce using rule 72 (artExpr1)
-    ')'     reduce using rule 72 (artExpr1)
+    RELOP   reduce using rule 72 (artExpr2)
+    COMP    reduce using rule 72 (artExpr2)
+    ARTOP1  reduce using rule 72 (artExpr2)
+    ARTOP2  reduce using rule 72 (artExpr2)
+    IN      reduce using rule 72 (artExpr2)
+    DISJ    reduce using rule 72 (artExpr2)
+    CONJ    reduce using rule 72 (artExpr2)
+    ')'     reduce using rule 72 (artExpr2)
 
 
 State 190
 
-   74 artExpr2: minusFactor .
+   74 negExpr: minusFactor .
 
-    RELOP   reduce using rule 74 (artExpr2)
-    COMP    reduce using rule 74 (artExpr2)
-    ARTOP1  reduce using rule 74 (artExpr2)
-    ARTOP2  reduce using rule 74 (artExpr2)
-    IN      reduce using rule 74 (artExpr2)
-    DISJ    reduce using rule 74 (artExpr2)
-    CONJ    reduce using rule 74 (artExpr2)
-    ')'     reduce using rule 74 (artExpr2)
+    RELOP   reduce using rule 74 (negExpr)
+    COMP    reduce using rule 74 (negExpr)
+    ARTOP1  reduce using rule 74 (negExpr)
+    ARTOP2  reduce using rule 74 (negExpr)
+    IN      reduce using rule 74 (negExpr)
+    DISJ    reduce using rule 74 (negExpr)
+    CONJ    reduce using rule 74 (negExpr)
+    ')'     reduce using rule 74 (negExpr)
 
 
 State 191
@@ -3961,11 +3976,11 @@ State 212
     simpleExpr   go to state 283
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -4013,11 +4028,11 @@ State 216
     var          go to state 182
     conjExpr     go to state 285
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -4113,11 +4128,11 @@ State 221
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -4385,7 +4400,7 @@ State 236
 
 State 237
 
-   65 negExpr: NEG . negExpr
+   73 negExpr: NEG . negExpr
 
     SETOP    shift, and go to state 232
     ARTOP1   shift, and go to state 233
@@ -4400,10 +4415,6 @@ State 237
 
     var          go to state 242
     negExpr      go to state 299
-    compExpr     go to state 246
-    relExpr      go to state 247
-    artExpr1     go to state 248
-    artExpr2     go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -4474,11 +4485,11 @@ State 241
     simpleExpr   go to state 300
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -4509,7 +4520,7 @@ State 243
 State 244
 
    62 conjExpr: disjExpr .
-   63 disjExpr: disjExpr . DISJ negExpr
+   63 disjExpr: disjExpr . DISJ compExpr
 
     DISJ  shift, and go to state 303
 
@@ -4521,7 +4532,10 @@ State 244
 
 State 245
 
-   64 disjExpr: negExpr .
+   64 disjExpr: compExpr .
+   65 compExpr: compExpr . COMP relExpr
+
+    COMP  shift, and go to state 304
 
     IN    reduce using rule 64 (disjExpr)
     DISJ  reduce using rule 64 (disjExpr)
@@ -4532,79 +4546,80 @@ State 245
 
 State 246
 
-   66 negExpr: compExpr .
-   67 compExpr: compExpr . COMP relExpr
+   66 compExpr: relExpr .
+   67 relExpr: relExpr . RELOP artExpr1
 
-    COMP  shift, and go to state 304
+    RELOP  shift, and go to state 305
 
-    IN    reduce using rule 66 (negExpr)
-    DISJ  reduce using rule 66 (negExpr)
-    CONJ  reduce using rule 66 (negExpr)
-    ','   reduce using rule 66 (negExpr)
-    ')'   reduce using rule 66 (negExpr)
+    COMP  reduce using rule 66 (compExpr)
+    IN    reduce using rule 66 (compExpr)
+    DISJ  reduce using rule 66 (compExpr)
+    CONJ  reduce using rule 66 (compExpr)
+    ','   reduce using rule 66 (compExpr)
+    ')'   reduce using rule 66 (compExpr)
 
 
 State 247
 
-   68 compExpr: relExpr .
-   69 relExpr: relExpr . RELOP artExpr1
+   68 relExpr: artExpr1 .
+   69 artExpr1: artExpr1 . ARTOP1 artExpr2
 
-    RELOP  shift, and go to state 305
+    ARTOP1  shift, and go to state 306
 
-    COMP  reduce using rule 68 (compExpr)
-    IN    reduce using rule 68 (compExpr)
-    DISJ  reduce using rule 68 (compExpr)
-    CONJ  reduce using rule 68 (compExpr)
-    ','   reduce using rule 68 (compExpr)
-    ')'   reduce using rule 68 (compExpr)
+    RELOP  reduce using rule 68 (relExpr)
+    COMP   reduce using rule 68 (relExpr)
+    IN     reduce using rule 68 (relExpr)
+    DISJ   reduce using rule 68 (relExpr)
+    CONJ   reduce using rule 68 (relExpr)
+    ','    reduce using rule 68 (relExpr)
+    ')'    reduce using rule 68 (relExpr)
 
 
 State 248
 
-   70 relExpr: artExpr1 .
-   71 artExpr1: artExpr1 . ARTOP1 artExpr2
+   70 artExpr1: artExpr2 .
+   71 artExpr2: artExpr2 . ARTOP2 negExpr
 
-    ARTOP1  shift, and go to state 306
+    ARTOP2  shift, and go to state 307
 
-    RELOP  reduce using rule 70 (relExpr)
-    COMP   reduce using rule 70 (relExpr)
-    IN     reduce using rule 70 (relExpr)
-    DISJ   reduce using rule 70 (relExpr)
-    CONJ   reduce using rule 70 (relExpr)
-    ','    reduce using rule 70 (relExpr)
-    ')'    reduce using rule 70 (relExpr)
+    RELOP   reduce using rule 70 (artExpr1)
+    COMP    reduce using rule 70 (artExpr1)
+    ARTOP1  reduce using rule 70 (artExpr1)
+    IN      reduce using rule 70 (artExpr1)
+    DISJ    reduce using rule 70 (artExpr1)
+    CONJ    reduce using rule 70 (artExpr1)
+    ','     reduce using rule 70 (artExpr1)
+    ')'     reduce using rule 70 (artExpr1)
 
 
 State 249
 
-   72 artExpr1: artExpr2 .
-   73 artExpr2: artExpr2 . ARTOP2 minusFactor
+   72 artExpr2: negExpr .
 
-    ARTOP2  shift, and go to state 307
-
-    RELOP   reduce using rule 72 (artExpr1)
-    COMP    reduce using rule 72 (artExpr1)
-    ARTOP1  reduce using rule 72 (artExpr1)
-    IN      reduce using rule 72 (artExpr1)
-    DISJ    reduce using rule 72 (artExpr1)
-    CONJ    reduce using rule 72 (artExpr1)
-    ','     reduce using rule 72 (artExpr1)
-    ')'     reduce using rule 72 (artExpr1)
+    RELOP   reduce using rule 72 (artExpr2)
+    COMP    reduce using rule 72 (artExpr2)
+    ARTOP1  reduce using rule 72 (artExpr2)
+    ARTOP2  reduce using rule 72 (artExpr2)
+    IN      reduce using rule 72 (artExpr2)
+    DISJ    reduce using rule 72 (artExpr2)
+    CONJ    reduce using rule 72 (artExpr2)
+    ','     reduce using rule 72 (artExpr2)
+    ')'     reduce using rule 72 (artExpr2)
 
 
 State 250
 
-   74 artExpr2: minusFactor .
+   74 negExpr: minusFactor .
 
-    RELOP   reduce using rule 74 (artExpr2)
-    COMP    reduce using rule 74 (artExpr2)
-    ARTOP1  reduce using rule 74 (artExpr2)
-    ARTOP2  reduce using rule 74 (artExpr2)
-    IN      reduce using rule 74 (artExpr2)
-    DISJ    reduce using rule 74 (artExpr2)
-    CONJ    reduce using rule 74 (artExpr2)
-    ','     reduce using rule 74 (artExpr2)
-    ')'     reduce using rule 74 (artExpr2)
+    RELOP   reduce using rule 74 (negExpr)
+    COMP    reduce using rule 74 (negExpr)
+    ARTOP1  reduce using rule 74 (negExpr)
+    ARTOP2  reduce using rule 74 (negExpr)
+    IN      reduce using rule 74 (negExpr)
+    DISJ    reduce using rule 74 (negExpr)
+    CONJ    reduce using rule 74 (negExpr)
+    ','     reduce using rule 74 (negExpr)
+    ')'     reduce using rule 74 (negExpr)
 
 
 State 251
@@ -4670,11 +4685,11 @@ State 254
     var          go to state 242
     conjExpr     go to state 308
     disjExpr     go to state 244
-    negExpr      go to state 245
-    compExpr     go to state 246
-    relExpr      go to state 247
-    artExpr1     go to state 248
-    artExpr2     go to state 249
+    compExpr     go to state 245
+    relExpr      go to state 246
+    artExpr1     go to state 247
+    artExpr2     go to state 248
+    negExpr      go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -4858,11 +4873,11 @@ State 262
     simpleExpr   go to state 312
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -4921,11 +4936,11 @@ State 265
     simpleExpr   go to state 314
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -4934,12 +4949,16 @@ State 265
 
 State 266
 
-   65 negExpr: NEG negExpr .
+   73 negExpr: NEG negExpr .
 
-    IN    reduce using rule 65 (negExpr)
-    DISJ  reduce using rule 65 (negExpr)
-    CONJ  reduce using rule 65 (negExpr)
-    ')'   reduce using rule 65 (negExpr)
+    RELOP   reduce using rule 73 (negExpr)
+    COMP    reduce using rule 73 (negExpr)
+    ARTOP1  reduce using rule 73 (negExpr)
+    ARTOP2  reduce using rule 73 (negExpr)
+    IN      reduce using rule 73 (negExpr)
+    DISJ    reduce using rule 73 (negExpr)
+    CONJ    reduce using rule 73 (negExpr)
+    ')'     reduce using rule 73 (negExpr)
 
 
 State 267
@@ -4975,11 +4994,11 @@ State 269
 
     var          go to state 182
     disjExpr     go to state 317
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -4988,7 +5007,7 @@ State 269
 
 State 270
 
-   63 disjExpr: disjExpr DISJ . negExpr
+   63 disjExpr: disjExpr DISJ . compExpr
 
     SETOP    shift, and go to state 172
     ARTOP1   shift, and go to state 173
@@ -5002,11 +5021,11 @@ State 270
     '('      shift, and go to state 181
 
     var          go to state 182
-    negExpr      go to state 318
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 318
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -5015,13 +5034,14 @@ State 270
 
 State 271
 
-   67 compExpr: compExpr COMP . relExpr
+   65 compExpr: compExpr COMP . relExpr
 
     SETOP    shift, and go to state 172
     ARTOP1   shift, and go to state 173
     ID       shift, and go to state 174
     IS_SET   shift, and go to state 175
     EXISTS   shift, and go to state 176
+    NEG      shift, and go to state 177
     INTEGER  shift, and go to state 178
     FLOAT    shift, and go to state 179
     EMPTY    shift, and go to state 180
@@ -5029,8 +5049,9 @@ State 271
 
     var          go to state 182
     relExpr      go to state 319
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -5039,13 +5060,14 @@ State 271
 
 State 272
 
-   69 relExpr: relExpr RELOP . artExpr1
+   67 relExpr: relExpr RELOP . artExpr1
 
     SETOP    shift, and go to state 172
     ARTOP1   shift, and go to state 173
     ID       shift, and go to state 174
     IS_SET   shift, and go to state 175
     EXISTS   shift, and go to state 176
+    NEG      shift, and go to state 177
     INTEGER  shift, and go to state 178
     FLOAT    shift, and go to state 179
     EMPTY    shift, and go to state 180
@@ -5053,7 +5075,8 @@ State 272
 
     var          go to state 182
     artExpr1     go to state 320
-    artExpr2     go to state 189
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -5062,13 +5085,14 @@ State 272
 
 State 273
 
-   71 artExpr1: artExpr1 ARTOP1 . artExpr2
+   69 artExpr1: artExpr1 ARTOP1 . artExpr2
 
     SETOP    shift, and go to state 172
     ARTOP1   shift, and go to state 173
     ID       shift, and go to state 174
     IS_SET   shift, and go to state 175
     EXISTS   shift, and go to state 176
+    NEG      shift, and go to state 177
     INTEGER  shift, and go to state 178
     FLOAT    shift, and go to state 179
     EMPTY    shift, and go to state 180
@@ -5076,6 +5100,7 @@ State 273
 
     var          go to state 182
     artExpr2     go to state 321
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -5084,20 +5109,22 @@ State 273
 
 State 274
 
-   73 artExpr2: artExpr2 ARTOP2 . minusFactor
+   71 artExpr2: artExpr2 ARTOP2 . negExpr
 
     SETOP    shift, and go to state 172
     ARTOP1   shift, and go to state 173
     ID       shift, and go to state 174
     IS_SET   shift, and go to state 175
     EXISTS   shift, and go to state 176
+    NEG      shift, and go to state 177
     INTEGER  shift, and go to state 178
     FLOAT    shift, and go to state 179
     EMPTY    shift, and go to state 180
     '('      shift, and go to state 181
 
     var          go to state 182
-    minusFactor  go to state 322
+    negExpr      go to state 322
+    minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
     call         go to state 193
@@ -5155,11 +5182,11 @@ State 278
     simpleExpr   go to state 326
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -5206,11 +5233,11 @@ State 280
     simpleExpr   go to state 327
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -5255,11 +5282,11 @@ State 282
     simpleExpr   go to state 329
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -5403,11 +5430,11 @@ State 290
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -5463,11 +5490,11 @@ State 292
     simpleExpr   go to state 338
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -5541,11 +5568,11 @@ State 295
     simpleExpr   go to state 339
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -5605,11 +5632,11 @@ State 298
     simpleExpr   go to state 341
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -5618,13 +5645,17 @@ State 298
 
 State 299
 
-   65 negExpr: NEG negExpr .
+   73 negExpr: NEG negExpr .
 
-    IN    reduce using rule 65 (negExpr)
-    DISJ  reduce using rule 65 (negExpr)
-    CONJ  reduce using rule 65 (negExpr)
-    ','   reduce using rule 65 (negExpr)
-    ')'   reduce using rule 65 (negExpr)
+    RELOP   reduce using rule 73 (negExpr)
+    COMP    reduce using rule 73 (negExpr)
+    ARTOP1  reduce using rule 73 (negExpr)
+    ARTOP2  reduce using rule 73 (negExpr)
+    IN      reduce using rule 73 (negExpr)
+    DISJ    reduce using rule 73 (negExpr)
+    CONJ    reduce using rule 73 (negExpr)
+    ','     reduce using rule 73 (negExpr)
+    ')'     reduce using rule 73 (negExpr)
 
 
 State 300
@@ -5660,11 +5691,11 @@ State 302
 
     var          go to state 242
     disjExpr     go to state 344
-    negExpr      go to state 245
-    compExpr     go to state 246
-    relExpr      go to state 247
-    artExpr1     go to state 248
-    artExpr2     go to state 249
+    compExpr     go to state 245
+    relExpr      go to state 246
+    artExpr1     go to state 247
+    artExpr2     go to state 248
+    negExpr      go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -5673,7 +5704,7 @@ State 302
 
 State 303
 
-   63 disjExpr: disjExpr DISJ . negExpr
+   63 disjExpr: disjExpr DISJ . compExpr
 
     SETOP    shift, and go to state 232
     ARTOP1   shift, and go to state 233
@@ -5687,11 +5718,11 @@ State 303
     '('      shift, and go to state 241
 
     var          go to state 242
-    negExpr      go to state 345
-    compExpr     go to state 246
-    relExpr      go to state 247
-    artExpr1     go to state 248
-    artExpr2     go to state 249
+    compExpr     go to state 345
+    relExpr      go to state 246
+    artExpr1     go to state 247
+    artExpr2     go to state 248
+    negExpr      go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -5700,13 +5731,14 @@ State 303
 
 State 304
 
-   67 compExpr: compExpr COMP . relExpr
+   65 compExpr: compExpr COMP . relExpr
 
     SETOP    shift, and go to state 232
     ARTOP1   shift, and go to state 233
     ID       shift, and go to state 234
     IS_SET   shift, and go to state 235
     EXISTS   shift, and go to state 236
+    NEG      shift, and go to state 237
     INTEGER  shift, and go to state 238
     FLOAT    shift, and go to state 239
     EMPTY    shift, and go to state 240
@@ -5714,8 +5746,9 @@ State 304
 
     var          go to state 242
     relExpr      go to state 346
-    artExpr1     go to state 248
-    artExpr2     go to state 249
+    artExpr1     go to state 247
+    artExpr2     go to state 248
+    negExpr      go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -5724,13 +5757,14 @@ State 304
 
 State 305
 
-   69 relExpr: relExpr RELOP . artExpr1
+   67 relExpr: relExpr RELOP . artExpr1
 
     SETOP    shift, and go to state 232
     ARTOP1   shift, and go to state 233
     ID       shift, and go to state 234
     IS_SET   shift, and go to state 235
     EXISTS   shift, and go to state 236
+    NEG      shift, and go to state 237
     INTEGER  shift, and go to state 238
     FLOAT    shift, and go to state 239
     EMPTY    shift, and go to state 240
@@ -5738,7 +5772,8 @@ State 305
 
     var          go to state 242
     artExpr1     go to state 347
-    artExpr2     go to state 249
+    artExpr2     go to state 248
+    negExpr      go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -5747,13 +5782,14 @@ State 305
 
 State 306
 
-   71 artExpr1: artExpr1 ARTOP1 . artExpr2
+   69 artExpr1: artExpr1 ARTOP1 . artExpr2
 
     SETOP    shift, and go to state 232
     ARTOP1   shift, and go to state 233
     ID       shift, and go to state 234
     IS_SET   shift, and go to state 235
     EXISTS   shift, and go to state 236
+    NEG      shift, and go to state 237
     INTEGER  shift, and go to state 238
     FLOAT    shift, and go to state 239
     EMPTY    shift, and go to state 240
@@ -5761,6 +5797,7 @@ State 306
 
     var          go to state 242
     artExpr2     go to state 348
+    negExpr      go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -5769,20 +5806,22 @@ State 306
 
 State 307
 
-   73 artExpr2: artExpr2 ARTOP2 . minusFactor
+   71 artExpr2: artExpr2 ARTOP2 . negExpr
 
     SETOP    shift, and go to state 232
     ARTOP1   shift, and go to state 233
     ID       shift, and go to state 234
     IS_SET   shift, and go to state 235
     EXISTS   shift, and go to state 236
+    NEG      shift, and go to state 237
     INTEGER  shift, and go to state 238
     FLOAT    shift, and go to state 239
     EMPTY    shift, and go to state 240
     '('      shift, and go to state 241
 
     var          go to state 242
-    minusFactor  go to state 349
+    negExpr      go to state 349
+    minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
     call         go to state 253
@@ -5844,11 +5883,11 @@ State 309
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -5951,11 +5990,11 @@ State 316
     simpleExpr   go to state 145
     conjExpr     go to state 243
     disjExpr     go to state 244
-    negExpr      go to state 245
-    compExpr     go to state 246
-    relExpr      go to state 247
-    artExpr1     go to state 248
-    artExpr2     go to state 249
+    compExpr     go to state 245
+    relExpr      go to state 246
+    artExpr1     go to state 247
+    artExpr2     go to state 248
+    negExpr      go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -5967,7 +6006,7 @@ State 316
 State 317
 
    61 conjExpr: conjExpr CONJ disjExpr .
-   63 disjExpr: disjExpr . DISJ negExpr
+   63 disjExpr: disjExpr . DISJ compExpr
 
     DISJ  shift, and go to state 270
 
@@ -5978,7 +6017,10 @@ State 317
 
 State 318
 
-   63 disjExpr: disjExpr DISJ negExpr .
+   63 disjExpr: disjExpr DISJ compExpr .
+   65 compExpr: compExpr . COMP relExpr
+
+    COMP  shift, and go to state 271
 
     IN    reduce using rule 63 (disjExpr)
     DISJ  reduce using rule 63 (disjExpr)
@@ -5988,61 +6030,61 @@ State 318
 
 State 319
 
-   67 compExpr: compExpr COMP relExpr .
-   69 relExpr: relExpr . RELOP artExpr1
+   65 compExpr: compExpr COMP relExpr .
+   67 relExpr: relExpr . RELOP artExpr1
 
     RELOP  shift, and go to state 272
 
-    COMP  reduce using rule 67 (compExpr)
-    IN    reduce using rule 67 (compExpr)
-    DISJ  reduce using rule 67 (compExpr)
-    CONJ  reduce using rule 67 (compExpr)
-    ')'   reduce using rule 67 (compExpr)
+    COMP  reduce using rule 65 (compExpr)
+    IN    reduce using rule 65 (compExpr)
+    DISJ  reduce using rule 65 (compExpr)
+    CONJ  reduce using rule 65 (compExpr)
+    ')'   reduce using rule 65 (compExpr)
 
 
 State 320
 
-   69 relExpr: relExpr RELOP artExpr1 .
-   71 artExpr1: artExpr1 . ARTOP1 artExpr2
+   67 relExpr: relExpr RELOP artExpr1 .
+   69 artExpr1: artExpr1 . ARTOP1 artExpr2
 
     ARTOP1  shift, and go to state 273
 
-    RELOP  reduce using rule 69 (relExpr)
-    COMP   reduce using rule 69 (relExpr)
-    IN     reduce using rule 69 (relExpr)
-    DISJ   reduce using rule 69 (relExpr)
-    CONJ   reduce using rule 69 (relExpr)
-    ')'    reduce using rule 69 (relExpr)
+    RELOP  reduce using rule 67 (relExpr)
+    COMP   reduce using rule 67 (relExpr)
+    IN     reduce using rule 67 (relExpr)
+    DISJ   reduce using rule 67 (relExpr)
+    CONJ   reduce using rule 67 (relExpr)
+    ')'    reduce using rule 67 (relExpr)
 
 
 State 321
 
-   71 artExpr1: artExpr1 ARTOP1 artExpr2 .
-   73 artExpr2: artExpr2 . ARTOP2 minusFactor
+   69 artExpr1: artExpr1 ARTOP1 artExpr2 .
+   71 artExpr2: artExpr2 . ARTOP2 negExpr
 
     ARTOP2  shift, and go to state 274
 
-    RELOP   reduce using rule 71 (artExpr1)
-    COMP    reduce using rule 71 (artExpr1)
-    ARTOP1  reduce using rule 71 (artExpr1)
-    IN      reduce using rule 71 (artExpr1)
-    DISJ    reduce using rule 71 (artExpr1)
-    CONJ    reduce using rule 71 (artExpr1)
-    ')'     reduce using rule 71 (artExpr1)
+    RELOP   reduce using rule 69 (artExpr1)
+    COMP    reduce using rule 69 (artExpr1)
+    ARTOP1  reduce using rule 69 (artExpr1)
+    IN      reduce using rule 69 (artExpr1)
+    DISJ    reduce using rule 69 (artExpr1)
+    CONJ    reduce using rule 69 (artExpr1)
+    ')'     reduce using rule 69 (artExpr1)
 
 
 State 322
 
-   73 artExpr2: artExpr2 ARTOP2 minusFactor .
+   71 artExpr2: artExpr2 ARTOP2 negExpr .
 
-    RELOP   reduce using rule 73 (artExpr2)
-    COMP    reduce using rule 73 (artExpr2)
-    ARTOP1  reduce using rule 73 (artExpr2)
-    ARTOP2  reduce using rule 73 (artExpr2)
-    IN      reduce using rule 73 (artExpr2)
-    DISJ    reduce using rule 73 (artExpr2)
-    CONJ    reduce using rule 73 (artExpr2)
-    ')'     reduce using rule 73 (artExpr2)
+    RELOP   reduce using rule 71 (artExpr2)
+    COMP    reduce using rule 71 (artExpr2)
+    ARTOP1  reduce using rule 71 (artExpr2)
+    ARTOP2  reduce using rule 71 (artExpr2)
+    IN      reduce using rule 71 (artExpr2)
+    DISJ    reduce using rule 71 (artExpr2)
+    CONJ    reduce using rule 71 (artExpr2)
+    ')'     reduce using rule 71 (artExpr2)
 
 
 State 323
@@ -6129,11 +6171,11 @@ State 331
     simpleExpr   go to state 145
     conjExpr     go to state 243
     disjExpr     go to state 244
-    negExpr      go to state 245
-    compExpr     go to state 246
-    relExpr      go to state 247
-    artExpr1     go to state 248
-    artExpr2     go to state 249
+    compExpr     go to state 245
+    relExpr      go to state 246
+    artExpr1     go to state 247
+    artExpr2     go to state 248
+    negExpr      go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -6222,11 +6264,11 @@ State 334
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -6287,11 +6329,11 @@ State 336
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -6375,11 +6417,11 @@ State 343
     simpleExpr   go to state 145
     conjExpr     go to state 243
     disjExpr     go to state 244
-    negExpr      go to state 245
-    compExpr     go to state 246
-    relExpr      go to state 247
-    artExpr1     go to state 248
-    artExpr2     go to state 249
+    compExpr     go to state 245
+    relExpr      go to state 246
+    artExpr1     go to state 247
+    artExpr2     go to state 248
+    negExpr      go to state 249
     minusFactor  go to state 250
     factor       go to state 251
     constant     go to state 252
@@ -6391,7 +6433,7 @@ State 343
 State 344
 
    61 conjExpr: conjExpr CONJ disjExpr .
-   63 disjExpr: disjExpr . DISJ negExpr
+   63 disjExpr: disjExpr . DISJ compExpr
 
     DISJ  shift, and go to state 303
 
@@ -6403,7 +6445,10 @@ State 344
 
 State 345
 
-   63 disjExpr: disjExpr DISJ negExpr .
+   63 disjExpr: disjExpr DISJ compExpr .
+   65 compExpr: compExpr . COMP relExpr
+
+    COMP  shift, and go to state 304
 
     IN    reduce using rule 63 (disjExpr)
     DISJ  reduce using rule 63 (disjExpr)
@@ -6414,65 +6459,65 @@ State 345
 
 State 346
 
-   67 compExpr: compExpr COMP relExpr .
-   69 relExpr: relExpr . RELOP artExpr1
+   65 compExpr: compExpr COMP relExpr .
+   67 relExpr: relExpr . RELOP artExpr1
 
     RELOP  shift, and go to state 305
 
-    COMP  reduce using rule 67 (compExpr)
-    IN    reduce using rule 67 (compExpr)
-    DISJ  reduce using rule 67 (compExpr)
-    CONJ  reduce using rule 67 (compExpr)
-    ','   reduce using rule 67 (compExpr)
-    ')'   reduce using rule 67 (compExpr)
+    COMP  reduce using rule 65 (compExpr)
+    IN    reduce using rule 65 (compExpr)
+    DISJ  reduce using rule 65 (compExpr)
+    CONJ  reduce using rule 65 (compExpr)
+    ','   reduce using rule 65 (compExpr)
+    ')'   reduce using rule 65 (compExpr)
 
 
 State 347
 
-   69 relExpr: relExpr RELOP artExpr1 .
-   71 artExpr1: artExpr1 . ARTOP1 artExpr2
+   67 relExpr: relExpr RELOP artExpr1 .
+   69 artExpr1: artExpr1 . ARTOP1 artExpr2
 
     ARTOP1  shift, and go to state 306
 
-    RELOP  reduce using rule 69 (relExpr)
-    COMP   reduce using rule 69 (relExpr)
-    IN     reduce using rule 69 (relExpr)
-    DISJ   reduce using rule 69 (relExpr)
-    CONJ   reduce using rule 69 (relExpr)
-    ','    reduce using rule 69 (relExpr)
-    ')'    reduce using rule 69 (relExpr)
+    RELOP  reduce using rule 67 (relExpr)
+    COMP   reduce using rule 67 (relExpr)
+    IN     reduce using rule 67 (relExpr)
+    DISJ   reduce using rule 67 (relExpr)
+    CONJ   reduce using rule 67 (relExpr)
+    ','    reduce using rule 67 (relExpr)
+    ')'    reduce using rule 67 (relExpr)
 
 
 State 348
 
-   71 artExpr1: artExpr1 ARTOP1 artExpr2 .
-   73 artExpr2: artExpr2 . ARTOP2 minusFactor
+   69 artExpr1: artExpr1 ARTOP1 artExpr2 .
+   71 artExpr2: artExpr2 . ARTOP2 negExpr
 
     ARTOP2  shift, and go to state 307
 
-    RELOP   reduce using rule 71 (artExpr1)
-    COMP    reduce using rule 71 (artExpr1)
-    ARTOP1  reduce using rule 71 (artExpr1)
-    IN      reduce using rule 71 (artExpr1)
-    DISJ    reduce using rule 71 (artExpr1)
-    CONJ    reduce using rule 71 (artExpr1)
-    ','     reduce using rule 71 (artExpr1)
-    ')'     reduce using rule 71 (artExpr1)
+    RELOP   reduce using rule 69 (artExpr1)
+    COMP    reduce using rule 69 (artExpr1)
+    ARTOP1  reduce using rule 69 (artExpr1)
+    IN      reduce using rule 69 (artExpr1)
+    DISJ    reduce using rule 69 (artExpr1)
+    CONJ    reduce using rule 69 (artExpr1)
+    ','     reduce using rule 69 (artExpr1)
+    ')'     reduce using rule 69 (artExpr1)
 
 
 State 349
 
-   73 artExpr2: artExpr2 ARTOP2 minusFactor .
+   71 artExpr2: artExpr2 ARTOP2 negExpr .
 
-    RELOP   reduce using rule 73 (artExpr2)
-    COMP    reduce using rule 73 (artExpr2)
-    ARTOP1  reduce using rule 73 (artExpr2)
-    ARTOP2  reduce using rule 73 (artExpr2)
-    IN      reduce using rule 73 (artExpr2)
-    DISJ    reduce using rule 73 (artExpr2)
-    CONJ    reduce using rule 73 (artExpr2)
-    ','     reduce using rule 73 (artExpr2)
-    ')'     reduce using rule 73 (artExpr2)
+    RELOP   reduce using rule 71 (artExpr2)
+    COMP    reduce using rule 71 (artExpr2)
+    ARTOP1  reduce using rule 71 (artExpr2)
+    ARTOP2  reduce using rule 71 (artExpr2)
+    IN      reduce using rule 71 (artExpr2)
+    DISJ    reduce using rule 71 (artExpr2)
+    CONJ    reduce using rule 71 (artExpr2)
+    ','     reduce using rule 71 (artExpr2)
+    ')'     reduce using rule 71 (artExpr2)
 
 
 State 350
@@ -6705,11 +6750,11 @@ State 366
     simpleExpr   go to state 202
     conjExpr     go to state 183
     disjExpr     go to state 184
-    negExpr      go to state 185
-    compExpr     go to state 186
-    relExpr      go to state 187
-    artExpr1     go to state 188
-    artExpr2     go to state 189
+    compExpr     go to state 185
+    relExpr      go to state 186
+    artExpr1     go to state 187
+    artExpr2     go to state 188
+    negExpr      go to state 189
     minusFactor  go to state 190
     factor       go to state 191
     constant     go to state 192
@@ -6932,11 +6977,11 @@ State 378
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -7021,11 +7066,11 @@ State 381
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -7074,11 +7119,11 @@ State 382
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -7257,11 +7302,11 @@ State 388
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -7397,11 +7442,11 @@ State 392
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -7452,11 +7497,11 @@ State 393
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -7505,11 +7550,11 @@ State 394
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74
@@ -7586,11 +7631,11 @@ State 396
     simpleExpr   go to state 64
     conjExpr     go to state 65
     disjExpr     go to state 66
-    negExpr      go to state 67
-    compExpr     go to state 68
-    relExpr      go to state 69
-    artExpr1     go to state 70
-    artExpr2     go to state 71
+    compExpr     go to state 67
+    relExpr      go to state 68
+    artExpr1     go to state 69
+    artExpr2     go to state 70
+    negExpr      go to state 71
     minusFactor  go to state 72
     factor       go to state 73
     constant     go to state 74

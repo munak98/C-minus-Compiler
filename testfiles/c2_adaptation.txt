@@ -1,0 +1,34 @@
+set union(set a, set b) {
+    set result;
+    elem x;
+    result = 0;
+    forall(x in a) add(x in result);
+    forall(x in b) add(x in result);
+    return result;
+}
+
+
+set diff(set a, set b) {
+    set result;
+    elem x;
+    result = EMPTY;
+    forall(x in c) remove(x in b);
+    return result;
+}
+
+
+int main(){
+    set first;
+    set second;
+    first = EMPTY;
+    second = EMPTY;
+    add(-2 in add((1+6/2) in second));
+    add((6*1/2) in add((1+6/2) in second));
+    add((5+2-1) in add((1*2-3) in first));
+    second = union(first, second);
+    if (is_set(second)) writeln("sucess");
+    elem el;
+    exists(el in second);
+    if (el in first) writeln("belong to first");
+    return 0;
+ }

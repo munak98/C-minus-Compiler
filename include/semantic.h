@@ -4,7 +4,8 @@
 #include "../include/symbtable.h"
 #include "../include/tree.h"
 
-
+extern int line;
+extern int column;
 
 sym *findDecl(char *name);
 sym *declare(char *name, int type, int kind);

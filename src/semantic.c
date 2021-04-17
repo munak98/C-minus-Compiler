@@ -15,7 +15,7 @@ void hideScope(){
 sym *findDecl(char *name){
   sym *aux = lookInAllLevels(name, curr_scope);
   if (aux == NULL) {
-    printf("[semantic error] Identifier '%s' not declared\n", name);
+    printf("(line %d, column %d) [semantic error] Identifier '%s' not declared\n", line, column, name);
     aux = newEntry(name, UNDEF, VARIABLE);
     pushEntry(aux, curr_scope);
     return aux;
@@ -25,7 +25,7 @@ sym *findDecl(char *name){
 
 sym *declare(char *name, int type, int kind){
   sym *aux = lookInScopeLevel(name, curr_scope);
-  if (aux != NULL) {printf("[semantic error] Multiple declarations of identifier '%s'\n", name); free(name); return aux;}
+  if (aux != NULL) {printf("(line %d, column %d) [semantic error] Multiple declarations of identifier '%s'\n", line, column, name); free(name); return aux;}
   else {
     aux = newEntry(name, type, kind);
     pushEntry(aux, curr_scope);
@@ -104,7 +104,7 @@ node *elemToInt(node *operand){
   node->node_type = INTERNAL_NODE;
   node->operator = ELEM_TO_INT;
   node->sem_type = INT_TYPE;
-  // if (operand->elem->curr_type == SET_TYPE) {printf("[semantic error] type conversion 'elem to int' not possible: elem is set\n"); return node;}
+  // if (operand->elem->curr_type == SET_TYPE) {printf("(line %d, column %d) [semantic error] type conversion 'elem to int' not possible: elem is set\n"); return node;}
   // if (operand->elem->curr_type == INT_TYPE) node->ival = operand->elem->ival;
   // if (operand->elem->curr_type == FLOAT_TYPE) node->ival = (int)operand->elem->fval;
   node->child1 = operand;
@@ -120,7 +120,7 @@ node *elemToFloat(node *operand){
   node->node_type = INTERNAL_NODE;
   node->operator = ELEM_TO_FLOAT;
   node->sem_type = FLOAT_TYPE;
-  // if (operand->elem->curr_type == SET_TYPE) {printf("[semantic error] type conversion 'elem to float' not possible: elem is set\n"); return node;}
+  // if (operand->elem->curr_type == SET_TYPE) {printf("(line %d, column %d) [semantic error] type conversion 'elem to float' not possible: elem is set\n"); return node;}
   // if (operand->elem->curr_type == INT_TYPE) node->fval = (float)operand->elem->ival;
   // if (operand->elem->curr_type == FLOAT_TYPE) node->fval = operand->elem->fval;
   node->child1 = operand;
@@ -167,7 +167,7 @@ node *convert(node *arg, sym *ref, int n_params){
       return arg;
     }
   }
-  printf("[semantic error] In function call '%s': Argument %d type mismatch: expected '%s', but '%s' were given\n", ref->identifier, n_params, printType(ref->args_type[n_params]), printType(arg->ref->type));
+  printf("(line %d, column %d) [semantic error] In function call '%s': Argument %d type mismatch: expected '%s', but '%s' were given\n", line, column, ref->identifier, n_params, printType(ref->args_type[n_params]), printType(arg->ref->type));
   return arg;
 }
 
@@ -175,20 +175,20 @@ node *convert(node *arg, sym *ref, int n_params){
 node *checkParam(int op, sym *ref, node *arg1, node *arg2, int n_params){
     if (arg2 == NULL) {
       if (ref->n_args > 0) {
-        printf("[semantic error] Wrong number of arguments to function '%s': expected %d, but 0 were given\n", ref->identifier, ref->n_args);
+        printf("(line %d, column %d) [semantic error] Wrong number of arguments to function '%s': expected %d, but 0 were given\n", line, column, ref->identifier, ref->n_args);
         free(arg1);
         free(arg2);
         return NULL;
       }
       if (ref->n_args == -1) {
-        printf("[semantic error] Attemp to call variable '%s' as function\n", ref->identifier);
+        printf("(line %d, column %d) [semantic error] Attemp to call variable '%s' as function\n", line, column, ref->identifier);
         free(arg1);
         free(arg2);
         return NULL;
       }
     }
     if (n_params+1 > ref->n_args) {
-      printf("[semantic error] Wrong number of arguments to function '%s': expected %d, but %d were given\n", ref->identifier, ref->n_args, n_params+1);
+      printf("(line %d, column %d) [semantic error] Wrong number of arguments to function '%s': expected %d, but %d were given\n", line, column, ref->identifier, ref->n_args, n_params+1);
       free(arg1);
       free(arg2);
       return NULL;
@@ -242,7 +242,7 @@ node *typeCheck(int op, node *operand1, node *operand2){
           if (operand2->sem_type == ELEM_TYPE) {node->child1 = elemToFloat(operand1); node->child2 = elemToFloat(operand2); node->sem_type = FLOAT_TYPE;}
           return node;
         }
-        printf("[semantic error] Types %s and %s used in arithmetic operation\n", printType(operand1->sem_type), printType(operand2->sem_type));
+        printf("(line %d, column %d) [semantic error] Types %s and %s used in arithmetic operation\n", line, column, printType(operand1->sem_type), printType(operand2->sem_type));
         return node;
     }
 
@@ -267,7 +267,7 @@ node *typeCheck(int op, node *operand1, node *operand2){
        if (operand2->sem_type == ELEM_TYPE) {node->child1 = elemToFloat(operand1); node->child2 = elemToFloat(operand2);}
        return node;
       }
-      printf("[semantic error] Types %s and %s used in boolean or relational operation\n", printType(operand1->sem_type), printType(operand2->sem_type));
+      printf("(line %d, column %d) [semantic error] Types %s and %s used in boolean or relational operation\n", line, column, printType(operand1->sem_type), printType(operand2->sem_type));
       return node;
     }
 
@@ -292,7 +292,7 @@ node *typeCheck(int op, node *operand1, node *operand2){
              if (operand2->sem_type == ELEM_TYPE) {node->child1 = elemToFloat(operand1); node->child2 = elemToFloat(operand2);}
              return node;
           }
-         printf("[semantic error] Types %s and %s used in comparison operation\n", printType(operand1->sem_type), printType(operand2->sem_type));
+         printf("(line %d, column %d) [semantic error] Types %s and %s used in comparison operation\n", line, column, printType(operand1->sem_type), printType(operand2->sem_type));
          return node;
     }
 
@@ -302,7 +302,7 @@ node *typeCheck(int op, node *operand1, node *operand2){
       if (operand1->sem_type == INT_TYPE) return node;
       if (operand1->sem_type == FLOAT_TYPE) {node->child1 = floatToInt(operand1);  return node;}
       if (operand1->sem_type == ELEM_TYPE) {node->child1 = elemToInt(operand1); return node;}
-      printf("[semantic error] Type %s used in neg operation\n", printType(operand1->sem_type));
+      printf("(line %d, column %d) [semantic error] Type %s used in neg operation\n", line, column, printType(operand1->sem_type));
       return node;
     }
 
@@ -310,7 +310,7 @@ node *typeCheck(int op, node *operand1, node *operand2){
         node->child1 = operand1;
         node->sem_type = SET_TYPE;
         if (operand1->sem_type == INT_TYPE) return node;
-        printf("[semantic error] Types %s used for setop operation\n", printType(operand1->sem_type));
+        printf("(line %d, column %d) [semantic error] Types %s used for setop operation\n", line, column, printType(operand1->sem_type));
         return node;
     }
 
@@ -320,7 +320,7 @@ node *typeCheck(int op, node *operand1, node *operand2){
       if (operand1->sem_type == FLOAT_TYPE || operand1->sem_type == INT_TYPE || operand1->sem_type == SET_TYPE || operand1->sem_type == ELEM_TYPE){
         return node;
       }
-      printf("[semantic error] Type %s used in is_set operation\n", printType(operand1->sem_type));
+      printf("(line %d, column %d) [semantic error] Type %s used in is_set operation\n", line, column, printType(operand1->sem_type));
       return node;
     }
 
@@ -330,7 +330,7 @@ node *typeCheck(int op, node *operand1, node *operand2){
       node->sem_type = INT_TYPE;
       if (operand1->sem_type == FLOAT_TYPE || operand1->sem_type == INT_TYPE || operand1->sem_type == ELEM_TYPE)
         if (operand2->sem_type == SET_TYPE) return node;
-      printf("[semantic error] Types %s and %s used for 'in' operation \n", printType(operand1->sem_type), printType(operand2->sem_type));
+      printf("(line %d, column %d) [semantic error] Types %s and %s used for 'in' operation \n", line, column, printType(operand1->sem_type), printType(operand2->sem_type));
       return node;
     }
 
@@ -338,7 +338,7 @@ node *typeCheck(int op, node *operand1, node *operand2){
       node->child1 = operand1;
       node->sem_type = ELEM_TYPE;
       if (operand1->sem_type == INT_TYPE) return node;
-      printf("[semantic error] Type %s used for exist operation\n", printType(operand1->sem_type));
+      printf("(line %d, column %d) [semantic error] Type %s used for exist operation\n", line, column, printType(operand1->sem_type));
       return node;
     }
 
@@ -363,10 +363,10 @@ node *typeCheck(int op, node *operand1, node *operand2){
         if (operand2->sem_type == FLOAT_TYPE) node->child2 = floatToElem(operand2);
         return node;
       }
-      printf("[semantic error] Attempt to assign value of type %s to %s variable '%s'\n", printType(operand2->sem_type), printType(operand1->sem_type), operand1->ref->identifier);
+      printf("(line %d, column %d) [semantic error] Attempt to assign value of type %s to %s variable '%s'\n", line, column, printType(operand2->sem_type), printType(operand1->sem_type), operand1->ref->identifier);
       return node;
     }
 
-    printf("[semantic error] Operation %d do not exist\n", op);
+    printf("(line %d, column %d) [semantic error] Operation %d do not exist\n", line, column, op);
     return node;
 }
