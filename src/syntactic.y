@@ -38,8 +38,7 @@ sym *aux;
 %token READ WRITE WRITELN
 %token <ival> INTEGER
 %token <fval> FLOAT
-%token <cval> CHAR
-%token <sval> STRING
+%token <sval> STRING CHAR
 %token EMPTY
 
 %type <tnode> program declaration varDecl varList funcDecl
@@ -54,6 +53,7 @@ sym *aux;
 %destructor {freeSymbol($$);} <tnode>
 %destructor {free($$);} ID
 %destructor {free($$);} STRING
+%destructor {free($$);} CHAR
 
 
 %right THEN ELSE
@@ -68,6 +68,7 @@ begin         : program                                         {root = $1; chec
               ;
 
 program       : program  declaration                            {$$ = BinaryNode(SEQ, $1, $2);}
+              | error                                           {$$ = nullLeaf(); yyerrok;}
               | %empty                                          {$$ = nullLeaf();}
               ;
 
@@ -113,7 +114,6 @@ arg           : TYPE ID                                         { n_args += 1;
 
 funcBody      : %empty                                          {$$ = nullLeaf();}
               | funcBody varDecl                                {$$ = BinaryNode(SEQ, $1, $2);}
-              | funcBody funcDecl                               {$$ = BinaryNode(SEQ, $1, $2);}
               | funcBody stmt                                   {$$ = BinaryNode(SEQ, $1, $2);}
               ;
 
@@ -177,7 +177,7 @@ outExpr       : WRITE '(' output ')'                            {$$ = UnaryNode(
               | WRITELN '(' output ')'                          {$$ = UnaryNode(WRITELN, $3);}
               ;
 
-output        : var                                             {$$ = $1;}
+output        : simpleExpr                                      {$$ = $1;}
               | CHAR                                            {$$ = charLeaf($1);}
               | STRING                                          {$$ = stringLeaf($1);}
               ;

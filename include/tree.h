@@ -64,7 +64,6 @@ typedef struct NODE{
   int ival;
   float fval;
   elem *elem;
-  char cval;
   char *sval;
 
   int operator;
@@ -82,7 +81,7 @@ node *Leaf();
 node *idLeaf(sym *ref);
 node *intLeaf(int ival);
 node *floatLeaf(float fval);
-node *charLeaf(char cval);
+node *charLeaf(char *cval);
 node *stringLeaf(char *sval);
 node *setLeaf();
 node *nullLeaf();

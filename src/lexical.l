@@ -41,7 +41,7 @@ char          '([^'\\\n]|\\.)'
 /* Rule Section */
 %%
 
-"\n"        {line++; column = 0;}
+"\n"        {line++; column = 1;}
 {ws}        {column += yyleng;}
 "//".*      {column += yyleng;}
 
@@ -91,7 +91,7 @@ EMPTY       {column += yyleng; return(EMPTY);}
 {integer}   {yylval.ival = atoi(yytext); column += yyleng; return(INTEGER);}
 {float}     {yylval.fval = atof(yytext); column += yyleng; return(FLOAT);}
 {string}    {yylval.sval = strdup(yytext); column += yyleng; return(STRING);}
-{char}      {yylval.cval = yytext[1]; column += yyleng; return(CHAR);}
+{char}      {yylval.sval = strdup(yytext); column += yyleng; return(CHAR);}
 
 .           {printf("(line %d, column %d) [lexical error, unknown character \"%s\"]\n", line, column, yytext); }
 %%

@@ -9,7 +9,7 @@ int groupUnderAdd(set s) {
     return 0
 }
 
-int groupUnderMult(set s,) {
+int groupUnderMult(set s) {
     elem y, x;
     forall (x in s) {
       forall (y in s) add((x*y) in s);
@@ -21,7 +21,7 @@ int groupUnderMult(set s,) {
 
 int main(){
   set entry;
-  entry = EMPTY;
+  entry = 1;
 
   add(1 in entry);
   add(2 in entry);

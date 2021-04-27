@@ -72,8 +72,8 @@ extern int yydebug;
     WRITELN = 278,
     INTEGER = 279,
     FLOAT = 280,
-    CHAR = 281,
-    STRING = 282,
+    STRING = 281,
+    CHAR = 282,
     EMPTY = 283,
     THEN = 284
   };

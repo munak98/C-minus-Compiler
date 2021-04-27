@@ -4,6 +4,7 @@ set union(set a, set b) {
     result = 0;
     forall(x in a) add(x in result);
     forall(x in b) add(x in result);
+    write(1+5);
     return result;
 }
 

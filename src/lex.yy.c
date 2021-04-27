@@ -825,7 +825,7 @@ case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
 #line 44 "lexical.l"
-{line++; column = 0;}
+{line++; column = 1;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
@@ -1051,7 +1051,7 @@ YY_RULE_SETUP
 case 46:
 YY_RULE_SETUP
 #line 94 "lexical.l"
-{yylval.cval = yytext[1]; column += yyleng; return(CHAR);}
+{yylval.sval = strdup(yytext); column += yyleng; return(CHAR);}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP

@@ -39,13 +39,13 @@ node *floatLeaf(float fval){
   node->fval = fval;
   return node;
 }
-node *charLeaf(char cval){
+node *charLeaf(char *cval){
   node *node = Leaf();
   node->sem_type = CHAR_TYPE;
   node->leaf_type = CHAR_LEAF;
   node->ref = NULL;
   node->is_decl = 0;
-  node->cval = cval;
+  node->sval = cval;
   return node;
 }
 node *stringLeaf(char *sval){
@@ -176,7 +176,7 @@ void printLeafType(node *node){
     case ID_LEAF: printf("%s\n", node->ref->identifier); break;
     case INT_LEAF: printf("%d\n", node->ival); break;
     case FLOAT_LEAF: printf("%.2f\n", node->fval); break;
-    case CHAR_LEAF: printf("%c\n", node->cval); break;
+    case CHAR_LEAF: printf("%s\n", node->sval); break;
     case STRING_LEAF: printf("%s\n", node->sval); break;
     case SET_LEAF: printf("EMPTY\n"); break;
   }
@@ -290,7 +290,7 @@ void freeTree(node *node){
       break;
 
     case LEAF_NODE:
-      if (node->leaf_type == STRING_LEAF) free(node->sval);
+      if (node->leaf_type == STRING_LEAF || node->leaf_type == CHAR_LEAF) free(node->sval);
       free(node);
       break;
   }
@@ -309,7 +309,7 @@ void freeSymbol(node *node){
       free(node);
       break;
     case LEAF_NODE:
-      if (node->leaf_type == STRING_LEAF) free(node->sval);
+      if (node->leaf_type == STRING_LEAF  || node->leaf_type == CHAR_LEAF) free(node->sval);
       free(node);
       break;
   }

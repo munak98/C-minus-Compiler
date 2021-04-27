@@ -1,9 +1,8 @@
 int global_variable;
-global_variable = 0;
 
 int some_function(float a, float b){
   int result;
-  result =  a + b * a / b - a;
+  result =  a + b * a / b - a
   return% result;
 }
 
@@ -15,7 +14,7 @@ int size(set s){
   return count;
 }
 
-int main(){
+int man(){
   set domain;
   set image;
   elem x;
