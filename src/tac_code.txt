@@ -1,0 +1,25 @@
+.code
+main:
+load int mov $0, 0
+novo reg: $2
+assgn mov $2, $0
+ja tinha reg: $2
+load int mov $3, 0
+or $4, $2, $3
+novo reg: $3
+assgn mov $3, $4
+ja tinha reg: $3
+load int mov $5, 0
+seq $6, $3, $5
+bzr L1, $6
+ja tinha reg: $3
+load int mov $6, 1
+sub $7, $3, $6
+println $7
+jump L2
+L1:
+ja tinha reg: $3
+load int mov $6, 1
+add $8, $3, $6
+println $8
+L2:

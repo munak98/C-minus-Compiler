@@ -24,6 +24,7 @@ typedef struct SYMBOL {
 	int type;
 	int n_args;
 	int *args_type;
+	int reg;
 
   struct SYMBOL *next;
 } sym;

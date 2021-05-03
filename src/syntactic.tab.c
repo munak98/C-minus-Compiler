@@ -70,7 +70,7 @@
 
 #include "../include/symbtable.h"
 #include "../include/tree.h"
-#include "../include/semantic.h"
+#include "../include/tac_generation.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "string.h"
@@ -3471,6 +3471,10 @@ int main(int argc, char *argv[]){
     bindLevel(root, 0, 0);
     printTree(root);
     showTables(global_scope);
+    init();
+    tac_code = fopen("tac_code.txt", "w");
+    fprintf(tac_code, ".code\n");
+    code_gen(root);
 
     fclose(yyin);
     yylex_destroy();

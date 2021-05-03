@@ -58,6 +58,7 @@ typedef struct NODE{
   int level;
   int sem_type;
 
+  int reg;
   int leaf_type;
   int is_decl;
   sym *ref;
