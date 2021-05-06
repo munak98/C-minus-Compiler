@@ -16,6 +16,12 @@
 
 #define HASHTABLE_SIZE 255
 
+typedef struct REG {
+  int id;
+  int occup;
+  int is_var;
+} reg;
+
 
 //structure that represents an entry in the symbol table
 typedef struct SYMBOL {
@@ -24,7 +30,7 @@ typedef struct SYMBOL {
 	int type;
 	int n_args;
 	int *args_type;
-	int reg;
+	reg *reg;
 
   struct SYMBOL *next;
 } sym;
@@ -65,6 +71,7 @@ void showTables(table *);
 void showChilds(table *);
 void showHashArray(table * );
 void showHashArrayChain(sym *, int);
+int isEmpty(sym **);
 
 void freeHashArrayChain(sym *);
 void freeHashArray(table * );

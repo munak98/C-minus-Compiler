@@ -268,6 +268,7 @@ int main(int argc, char *argv[]){
     showTables(global_scope);
     init();
     tac_code = fopen("tac_code.txt", "w");
+    writeGlobals(global_scope);
     fprintf(tac_code, ".code\n");
     code_gen(root);
 

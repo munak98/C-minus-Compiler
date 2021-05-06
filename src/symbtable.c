@@ -65,7 +65,7 @@ sym *newEntry(char *name, int type, int kind){
   entry->type = type;
   entry->n_args = UNDEF;
   entry->next = NULL;
-  entry->reg = -1;
+  entry->reg = NULL;
   return entry;
 }
 

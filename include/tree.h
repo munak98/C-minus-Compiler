@@ -47,6 +47,8 @@
 #define REM 11
 #define ADD 12
 
+
+
 typedef struct ELEM {
   int curr_type;
   int ival;
@@ -58,7 +60,7 @@ typedef struct NODE{
   int level;
   int sem_type;
 
-  int reg;
+  reg *reg;
   int leaf_type;
   int is_decl;
   sym *ref;

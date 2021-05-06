@@ -3,10 +3,11 @@
 
 #include "../include/semantic.h"
 
-int regs[12];
+reg *regs;
 int label_count;
 void code_gen(node *);
 void init();
-FILE *tac_code; 
+void writeGlobals(table *);
+FILE *tac_code;
 
 #endif
